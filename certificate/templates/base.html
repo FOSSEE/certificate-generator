@@ -1,0 +1,39 @@
+{% load compress %}
+{% load static %}
+<html>
+    <head>
+        <title>
+            {% block title %}
+                FOSSEE Project
+            {% endblock %}
+        </title>
+        {% compress css %}
+        <link rel="stylesheet" href="{% static 'website/css/bootstrap.min.css' %}" type="text/css" media="screen" charset="utf-8" />
+        {% endcompress %}
+    </head>
+    <body>
+        <div id="page-wrapper">
+        <div id="content-wrapper">
+                    {% block content %}
+                    {% endblock %}
+        </div> <!-- /#content-wrapper -->
+        
+        <div id="footer-wrapper" class="container">
+                <div class="pull-left">
+                    &copy;2013 <a href="http://fossee.in" target="_blank">fossee.in</a>
+                </div>
+                <div class="pull-right">
+                    Developed at IIT Bombay
+                </div>
+        </div> <!-- /#footer-wrapper -->
+    </div> <!-- /#page-wrapper -->
+        
+    {% compress js %}
+        <script src="{% static 'website/js/jquery.min.js' %}"></script>
+        <script src="{% static 'website/js/bootstrap.min.js' %}"></script>
+        {% block javascript %}
+            <!-- overide with custom javascript -->
+        {% endblock %}
+    {% endcompress %}
+    </body>
+</html>

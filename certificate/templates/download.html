@@ -1,0 +1,14 @@
+<html>
+    <body>
+    <form action="" method="post">
+
+        {% csrf_token %}
+        {{error}}
+        {{err}}
+        <center><table class=span1>
+        Email: <input type=text name=email> 
+        </table></center>
+        <center><button class="btn" type="submit">Submit</button></center>
+    </form>
+    </body>
+<html>      
