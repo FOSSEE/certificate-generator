@@ -1,17 +1,54 @@
-<html>
-    <body>
-    <form action="" method="post">
+{% extends 'base.html' %}
+
+{% block content %}
+            <form action="" method="post"> 
 
         {% csrf_token %}
         {{error}}
-        <center><table class=span1>
-                Email: <input type=text name=email>
-                <br> 
-                <input type="radio" name="type" value="P">Participant
-                <input type="radio" name="type" value="A">Paper
-                <input type="radio" name="type" value="W">Workshop
-        </table></center>
-        <center><button class="btn" type="submit">Submit</button></center>
+        <center>
+        <table class=span1 align='left'>
+            Email: <input type=text id="email" name=email>
+                <br>
+                <input type="radio" name="type" id="P" value="P" checked="True">Participant
+                <input type="radio" name="type" id="A" value="A">Paper
+                <input type="radio" name="type" id="W" value="W">Workshop
+                {% if user_papers %}
+                <br><br>
+                <span><h3>Papers presented</h3><span>
+                {% for user in user_papers %}
+                <br>
+                <input type="radio" name="paper" value="{{ user.paper }}">{{ user.paper }}
+                {% endfor %}
+                {% endif %}
+                {% if workshops %}
+                <br><br>
+                <span><h3>Workshop Attended</h3><span>
+                {% for user in workshops %}
+                <br>
+                <input type="radio" name="workshop" value="{{ user.workshops }}">{{ user.workshops }}
+                {% endfor %}
+                {% endif %}
+            </table>
+        </center>
+
+        <center><a href="{% url 'certificate:download' %}" class="btn" >Clear</a><button class="btn" type="submit">Get Certificate</button></center>
     </form>
-    </body>
-<html>      
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $(document).ready(function(){
+        value = "{{ v }}"
+        email = ""
+        if(value == "paper"){
+            $('#A').prop('checked', true)
+            email = "{{ user_papers.0.email }}";
+        }
+        if(value == "workshop"){
+            $('#W').prop('checked', true)
+            email = "{{ workshops.0.email }}"
+        }
+        $('#email').val(email);
+    });
+</script>
+{% endblock %}

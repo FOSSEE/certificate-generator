@@ -1,12 +1,12 @@
-<html>
-    <body>
+{% extends 'base.html' %}
+
+{% block content %}
     <form action="" method="post">
         {{detail}}
         {% csrf_token %}
         <center><table class=span1>
         Serial Number: <input type=text name=serial_no> 
         </table></center>
-        <center><button class="btn" type="submit">Submit</button></center>
+        <center><a href="{% url 'certificate:verify' %}" class="btn" >Clear</a><button class="btn" type="submit">Submit</button></center>
     </form>
-    </body>
-<html>      
+{% endblock %}

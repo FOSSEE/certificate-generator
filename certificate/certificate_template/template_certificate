@@ -1,0 +1,109 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{niceframe}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.5cm,bmargin=.5cm,
+  lmargin=.5cm, rmargin=.5cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{0.8pt}
+\columnwidth=0.3\textwidth
+
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+%\TileWallPaper{4cm}{2cm}{aakash-logo.png}
+
+\centering
+\scalebox{3.07}{\color{red!30!black!60}
+\begin{minipage}{.33\textwidth}
+\font\border=umrandb
+\generalframe
+{\border \char119} % up left
+{\border \char119} % up
+{\border \char119} % up right
+{\border \char119} % left 
+{\border \char119} % right
+{\border \char119} % lower left
+{\border \char119} % bottom
+{\border \char119} % lower right
+{\centering
+
+%% logo - top
+\begin{minipage}{0.9\textwidth}
+\centering
+\includegraphics[height=0.8cm]{fossee-logo.png}
+\end{minipage}
+\vspace{-9mm}
+
+\curlyframe[.9\columnwidth]{
+  
+\textcolor{red!10!black!90}
+{\tiny Scilab Conference 2014}\\
+
+\textcolor{red!30!black!90}
+{\textsc{Certificate of Participation}}
+
+\textcolor{green!10!black!90}{\tiny This is to certify that}
+
+{\textcolor{black}
+\bf {$name}} \medskip
+
+{\tiny {\color{black} has participated in{\color{blue} Scilab Conference},
+        organized by Indian Institute of Technology Bombay, Scilab, FOSSEE Team\\
+  from 3 December 2014 to 5 December 2014} \par}
+
+\vspace{2.0mm}
+
+{\color{blue!40!black}
+\scalebox{.7}{
+  \begin{tabular}{c c c}
+    \includegraphics[height=0.7cm]{kannan-moudgalya-sign.png} && \includegraphics[height=0.7cm]{dbp-sign.png} \\
+    %% \cline{1-1}
+    %% \cline{5-5}
+    \vspace{0mm}
+    \small{Prof. Kannan M. Moudgalya} && \small{~~~~~~~~Prof. Deepak B. Phatak~~~~~~~~} \\
+    \vspace{0mm}
+    \small{Project in-charge} && \small{Project in-charge} \\ 
+  \end{tabular}
+}}}
+
+%% iitb logo - bottom
+\vspace{-12mm}
+\begin{minipage}{0.9\textwidth}
+\centering
+\includegraphics[height=0.6cm]{iitb-logo.png}
+\end{minipage}
+
+%% QR code
+%% md5sum of 'aakash-logo.png' as encoding
+\hspace{0.6 mm}
+\begin{pspicture}(0.1cm,0.1cm)
+  \psbarcode{
+$code
+VERIFY AT: http://fossee.in/certificate/verify
+}{eclevel=L width=0.15 height=0.15}{qrcode}
+\end{pspicture}
+
+%% MD5 hash
+%% {\tiny \color{lightgray}{\bashStdout}}
+}
+\end{minipage}
+}
+\end{document}

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from certificate.models import Scilab_import, Certificate, Event
+from certificate.models import Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop
 import subprocess
 import os
 from string import Template
@@ -16,14 +16,47 @@ def download(request):
     certificate_path = '{0}/certificate_template/'.format(cur_path)
 
     if request.method == 'POST':
-        email = request.POST.get('email')
+        paper = request.POST.get('paper', None)
+        workshop = request.POST.get('workshop', None)
+        email = request.POST.get('email').strip()
         type = request.POST.get('type')
         if type == 'P':
-            user = Scilab_import.objects.filter(email=email)
+            user = Scilab_participant.objects.filter(email=email)
             if not user:
                 return HttpResponse('Entered email is not registered')
             else:
                 user = user[0]
+        elif type == 'A':
+            if paper:
+                user = Scilab_speaker.objects.filter(email=email, paper=paper)
+                user = [user[0]]
+            else:
+                user = Scilab_speaker.objects.filter(email=email)
+            if not user:
+                return HttpResponse('Entered email is not registered')
+            if len(user) > 1:
+                context['user_papers'] = user
+                context['v'] = 'paper'
+                return render_to_response('download.html', context, context_instance=ci)
+            else:
+                user = user[0]
+                paper = user.paper
+        elif type == 'W':
+            if workshop:
+                user = Scilab_workshop.objects.filter(email=email, workshops=workshop)
+                user = [user[0]]
+            else:
+                user = Scilab_workshop.objects.filter(email=email)
+            if not user:
+                return HttpResponse('Entered email is not registered')
+            print user
+            if len(user) > 1:
+                context['workshops'] = user
+                context['v'] = 'workshop'
+                return render_to_response('download.html', context, context_instance=ci)
+            else:
+                user = user[0]
+                workshop = user.workshops
         name = user.name
         purpose = user.purpose
         year = '14'
@@ -33,13 +66,13 @@ def download(request):
         qrcode = '{0}\n{1}'.format(name, serial_no)
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            certificate = create_certificate(certificate_path, name, qrcode, type)
+            certificate = create_certificate(certificate_path, name, qrcode, type, paper, workshop)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
                 return certificate[0]
         except Certificate.DoesNotExist:
-            certificate = create_certificate(certificate_path, name, qrcode, type)
+            certificate = create_certificate(certificate_path, name, qrcode, type, paper, workshop)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email, serial_no=serial_no, counter=1)
                     certi_obj.save()
@@ -56,7 +89,7 @@ def verify(request):
     ci = RequestContext(request)
     detail = None
     if request.method == 'POST':
-        serial_no = request.POST.get('serial_no')
+        serial_no = request.POST.get('serial_no').strip()
         try:
             certificate = Certificate.objects.get(serial_no=serial_no)
         except Certificate.DoesNotExist:
@@ -68,10 +101,9 @@ def verify(request):
                 detail = '{0} had attended {1} {2}'.format(name, purpose, year)
             elif type == 'A':
                 detail = '{0} had presented paper in the {1} {2}'.format(name, purpose, year)
-            elif type == 'E':
+            elif type == 'W':
                 detail = '{0} had attended workshop in the {1} {2}'.format(name, purpose, year)
             context['detail'] = detail
-            print detail
             return render_to_response('verify.html', context, ci)
     return render_to_response('verify.html',{}, ci)
 
@@ -96,18 +128,31 @@ def _get_detail(serial_no):
     return purpose, year, serial_no[-1]
 
 
-def create_certificate(certificate_path, name, qrcode, type):
+def create_certificate(certificate_path, name, qrcode, type, paper=None, workshop=None):
     error = False 
     try:
         if type == 'P':
             template = 'template_SLC2014Pcertificate'
             file_name = 'SLC2014Pcertificate'
+        elif type == 'A':
+            template = 'template_SLC2014Acertificate'
+            file_name = 'SLC2014Acertificate'
+        elif type == 'W':
+            template = 'template_SLC2014Wcertificate'
+            file_name = 'SLC2014Wcertificate'
 
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
-        content_tex = content.safe_substitute(name=name, code=qrcode)
+        if type == 'P':
+            content_tex = content.safe_substitute(name=name, code=qrcode)
+        elif type == 'A':
+            content_tex = content.safe_substitute(name=name, code=qrcode,
+                    paper=paper)
+        elif type == 'W':
+            content_tex = content.safe_substitute(name=name, code=qrcode,
+                    workshop=workshop)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
@@ -136,9 +181,12 @@ def _clean_certificate_certificate(path):
 def _make_certificate_certificate(path, type):
     if type == 'P':
         command = 'participant_cert'
+    elif type == 'A':
+        command = 'paper_cert'
+    elif type == 'W':
+        command = 'workshop_cert'
     process = subprocess.Popen('timeout 15 make -C {0} {1}'.format(path, command),
             stderr = subprocess.PIPE, shell = True)
     err = process.communicate()[1]
     return process.returncode, err
 
-    return HttpResponse("DOWNLAOD")

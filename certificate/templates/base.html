@@ -1,5 +1,3 @@
-{% load compress %}
-{% load static %}
 <html>
     <head>
         <title>
@@ -7,9 +5,9 @@
                 FOSSEE Project
             {% endblock %}
         </title>
-        {% compress css %}
-        <link rel="stylesheet" href="{% static 'website/css/bootstrap.min.css' %}" type="text/css" media="screen" charset="utf-8" />
-        {% endcompress %}
+    {% block css %}
+       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    {% endblock  %}
     </head>
     <body>
         <div id="page-wrapper">
@@ -20,7 +18,7 @@
         
         <div id="footer-wrapper" class="container">
                 <div class="pull-left">
-                    &copy;2013 <a href="http://fossee.in" target="_blank">fossee.in</a>
+                    &copy;2014 <a href="http://fossee.in" target="_blank">fossee.in</a>
                 </div>
                 <div class="pull-right">
                     Developed at IIT Bombay
@@ -28,12 +26,12 @@
         </div> <!-- /#footer-wrapper -->
     </div> <!-- /#page-wrapper -->
         
-    {% compress js %}
-        <script src="{% static 'website/js/jquery.min.js' %}"></script>
-        <script src="{% static 'website/js/bootstrap.min.js' %}"></script>
+    {% block js %}
+        <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
         {% block javascript %}
             <!-- overide with custom javascript -->
         {% endblock %}
-    {% endcompress %}
+    {% endblock %}
     </body>
 </html>
