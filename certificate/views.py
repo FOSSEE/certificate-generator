@@ -9,8 +9,6 @@ from string import Template
 
 # Create your views here.
 def download(request):
-    email = request.POST.get('email')
-
     context = {}
     err = ""
     ci = RequestContext(request)
@@ -18,27 +16,30 @@ def download(request):
     certificate_path = '{0}/certificate_template/'.format(cur_path)
 
     if request.method == 'POST':
-        try:
-            user = Scilab_import.objects.get(email=email)
-        except Scilab_import.DoesNotExist:
-            return HttpResponse('Entered email is not registered')
+        email = request.POST.get('email')
+        type = request.POST.get('type')
+        if type == 'P':
+            user = Scilab_import.objects.filter(email=email)
+            if not user:
+                return HttpResponse('Entered email is not registered')
+            else:
+                user = user[0]
         name = user.name
         purpose = user.purpose
         year = '14'
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
-        type = 'P'
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         qrcode = '{0}\n{1}'.format(name, serial_no)
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            certificate = create_certificate(certificate_path, name, qrcode)
+            certificate = create_certificate(certificate_path, name, qrcode, type)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
                 return certificate[0]
         except Certificate.DoesNotExist:
-            certificate = create_certificate(certificate_path, name, qrcode)
+            certificate = create_certificate(certificate_path, name, qrcode, type)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email, serial_no=serial_no, counter=1)
                     certi_obj.save()
@@ -95,22 +96,25 @@ def _get_detail(serial_no):
     return purpose, year, serial_no[-1]
 
 
-def create_certificate(certificate_path, name, qrcode):
+def create_certificate(certificate_path, name, qrcode, type):
     error = False 
     try:
-        template_file = open('{0}template_certificate'.format\
-                (certificate_path), 'r')
+        if type == 'P':
+            template = 'template_SLC2014Pcertificate'
+            file_name = 'SLC2014Pcertificate'
+
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
         content_tex = content.safe_substitute(name=name, code=qrcode)
-        create_tex = open('{0}certificate.tex'.format\
-                (certificate_path), 'w')
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
-        return_value, err = _make_certificate_certificate(certificate_path)
+        return_value, err = _make_certificate_certificate(certificate_path, type)
         if return_value == 0:
-            file_name = 'certificate.pdf'
-            pdf = open('{0}{1}'.format(certificate_path, file_name) , 'r')
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
                     filename=%s' % (file_name)
@@ -120,6 +124,7 @@ def create_certificate(certificate_path, name, qrcode):
         else:
             error = True
     except Exception, e:
+        print e
         error = True
     return [None, error]
 
@@ -128,8 +133,10 @@ def _clean_certificate_certificate(path):
             shell=True)
     clean_process.wait()
 
-def _make_certificate_certificate(path):
-    process = subprocess.Popen('timeout 15 make -C {0} certificate'.format(path),
+def _make_certificate_certificate(path, type):
+    if type == 'P':
+        command = 'participant_cert'
+    process = subprocess.Popen('timeout 15 make -C {0} {1}'.format(path, command),
             stderr = subprocess.PIPE, shell = True)
     err = process.communicate()[1]
     return process.returncode, err

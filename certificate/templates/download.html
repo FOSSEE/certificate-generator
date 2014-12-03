@@ -4,9 +4,12 @@
 
         {% csrf_token %}
         {{error}}
-        {{err}}
         <center><table class=span1>
-        Email: <input type=text name=email> 
+                Email: <input type=text name=email>
+                <br> 
+                <input type="radio" name="type" value="P">Participant
+                <input type="radio" name="type" value="A">Paper
+                <input type="radio" name="type" value="W">Workshop
         </table></center>
         <center><button class="btn" type="submit">Submit</button></center>
     </form>
