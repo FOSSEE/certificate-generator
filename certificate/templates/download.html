@@ -64,15 +64,11 @@
             email = "{{ workshops.0.email }}"
         }
         $('#email').val(email);
-    });
-</script>
-<script>
-notreg = {{ notregistered }}
-$( document ).ready(function() {
-    if(notreg == 1)
+    notreg = {{ notregistered }}
+     if(notreg == 1)
     {
         $("#invalidModal").modal(); 
     }
-});
+   });
 </script>
 {% endblock %}
