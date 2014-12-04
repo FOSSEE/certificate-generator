@@ -46,7 +46,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     #'south',
     'certificate',
-    'csvimport.app.CSVImportConf',
+    #'csvimport.app.CSVImportConf',
 )
 
 MIDDLEWARE_CLASSES = (
