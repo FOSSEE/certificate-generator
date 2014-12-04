@@ -74,7 +74,7 @@ def download(request):
         except Certificate.DoesNotExist:
             certificate = create_certificate(certificate_path, name, qrcode, type, paper, workshop)
             if not certificate[1]:
-                    certi_obj = Certificate(name=name, email=email, serial_no=serial_no, counter=1)
+                    certi_obj = Certificate(name=name, email=email, serial_no=serial_no, counter=1, workshop=workshop, paper=paper)
                     certi_obj.save()
                     return certificate[0]
         
@@ -96,13 +96,15 @@ def verify(request):
             return HttpResponse('Invalid Serial Number')
         else:
             name = certificate.name
+            paper = certificate.paper
+            workshop = certificate.workshop
             purpose, year, type = _get_detail(serial_no)
             if type == 'P':
                 detail = '{0} had attended {1} {2}'.format(name, purpose, year)
             elif type == 'A':
-                detail = '{0} had presented paper in the {1} {2}'.format(name, purpose, year)
+                detail = '{0} had presented paper on {3} in the {1} {2}'.format(name, purpose, year, paper)
             elif type == 'W':
-                detail = '{0} had attended workshop in the {1} {2}'.format(name, purpose, year)
+                detail = '{0} had attended workshop on {3} in the {1} {2}'.format(name, purpose, year, workshop)
             context['detail'] = detail
             return render_to_response('verify.html', context, ci)
     return render_to_response('verify.html',{}, ci)
