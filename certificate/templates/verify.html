@@ -1,12 +1,42 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <div class="modal fade" id="invalidModal" tabindex="-1" role="dialog" aria-labelledby="invalidModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="invalidModalLabel">Invalid Serial Number</h4>
+                  </div>
+                  <div class="modal-body">
+                    Sorry ! The serial number you entered seems to be invalid. Please try again !
+                  </div>
+                </div>
+              </div>
+          </div>
+    <p>Enter the serial number you received while scanning the QR code on certificate.</p>
+    <hr>
     <form action="" method="post">
-        {{detail}}
+        {{ detail }}
         {% csrf_token %}
-        <center><table class=span1>
-        Serial Number: <input type=text name=serial_no> 
-        </table></center>
-        <center><a href="{% url 'certificate:verify' %}" class="btn" >Clear</a><button class="btn" type="submit">Submit</button></center>
+        <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
+            <input class="form-control input-lg" placeholder="Enter the serial number" type="text" name=serial_no>
+              <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Verify</button></span>
+        </div>
     </form>
+    <hr>
+    <center><h4>Problem in verfying details ? write to us at <a href="mailto:info@fossee.in">info[at]fossee[dot]in</a></h4>
 {% endblock %}
+
+{% block javascript %}
+<script>
+invalid_serial = {{ invalidserial }}
+$( document ).ready(function() {
+    if(invalid_serial == 1)
+    {
+        $("#invalidModal").modal(); 
+    }
+});
+</script>
+{% endblock %}
+
