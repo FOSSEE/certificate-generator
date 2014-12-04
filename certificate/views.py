@@ -23,7 +23,8 @@ def download(request):
         if type == 'P':
             user = Scilab_participant.objects.filter(email=email)
             if not user:
-                return HttpResponse('Entered email is not registered')
+                context["notregistered"] = 1
+                return render_to_response('download.html', context, context_instance=ci)
             else:
                 user = user[0]
         elif type == 'A':
@@ -33,7 +34,8 @@ def download(request):
             else:
                 user = Scilab_speaker.objects.filter(email=email)
             if not user:
-                return HttpResponse('Entered email is not registered')
+                context["notregistered"] = 1
+                return render_to_response('download.html', context, context_instance=ci)
             if len(user) > 1:
                 context['user_papers'] = user
                 context['v'] = 'paper'
@@ -48,7 +50,8 @@ def download(request):
             else:
                 user = Scilab_workshop.objects.filter(email=email)
             if not user:
-                return HttpResponse('Entered email is not registered')
+                context["notregistered"] = 1
+                return render_to_response('download.html', context, context_instance=ci)
             print user
             if len(user) > 1:
                 context['workshops'] = user
@@ -93,7 +96,8 @@ def verify(request):
         try:
             certificate = Certificate.objects.get(serial_no=serial_no)
         except Certificate.DoesNotExist:
-            return HttpResponse('Invalid Serial Number')
+            context["invalidserial"] = 1
+            return render_to_response('verify.html', context, context_instance=ci)
         else:
             name = certificate.name
             paper = certificate.paper

@@ -2,36 +2,38 @@
     <head>
         <title>
             {% block title %}
-                FOSSEE Project
+                FOSSEE Certificates
             {% endblock %}
         </title>
-    {% block css %}
-       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    {% endblock  %}
-    </head>
-    <body>
-        <div id="page-wrapper">
-        <div id="content-wrapper">
-                    {% block content %}
-                    {% endblock %}
-        </div> <!-- /#content-wrapper -->
-        
-        <div id="footer-wrapper" class="container">
-                <div class="pull-left">
-                    &copy;2014 <a href="http://fossee.in" target="_blank">fossee.in</a>
-                </div>
-                <div class="pull-right">
-                    Developed at IIT Bombay
-                </div>
-        </div> <!-- /#footer-wrapper -->
-    </div> <!-- /#page-wrapper -->
-        
-    {% block js %}
-        <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        {% block css %}
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        {% endblock  %}
+        {% block js %}
+            <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        {% endblock %}
         {% block javascript %}
             <!-- overide with custom javascript -->
         {% endblock %}
-    {% endblock %}
+    </head>
+    <body>
+        <div class="container-full">
+
+              <div class="row">
+               
+                <div class="col-lg-12 text-center v-center">
+                  
+                  <h1>FOSSEE</h1>
+                  <hr>
+                  <br><br>
+                  {% block content %}
+                  {% endblock %}
+                </div>
+                
+              </div> <!-- /row -->
+            <hr>
+          	<br>
+        </div> <!-- /container full -->
     </body>
 </html>
+
