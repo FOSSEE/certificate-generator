@@ -19,23 +19,19 @@ help:
 	@echo "help		Show this help."
 	@echo ""
 
+name = $(file_name)
+
 # certificate
-participant_cert:	SLC2014Pcertificate.pdf
+participant_cert: $(name).tex fossee-logo.png bashful.sty
+	pdflatex -shell-escape $(name).tex
 
-SLC2014Pcertificate.pdf: SLC2014Pcertificate.tex fossee-logo.png bashful.sty
-	pdflatex -shell-escape SLC2014Pcertificate.tex
+paper_cert:	$(name).tex fossee-logo.png bashful.sty
+	pdflatex -shell-escape $(name).tex
 
-paper_cert:	SLC2014Acertificate.pdf
-
-SLC2014Acertificate.pdf: SLC2014Acertificate.tex fossee-logo.png bashful.sty
-	pdflatex -shell-escape SLC2014Acertificate.tex
-
-workshop_cert:	SLC2014Wcertificate.pdf
-
-SLC2014Wcertificate.pdf: SLC2014Wcertificate.tex fossee-logo.png bashful.sty
-	pdflatex -shell-escape SLC2014Wcertificate.tex
+workshop_cert: $(name).tex fossee-logo.png bashful.sty
+	pdflatex -shell-escape $(name).tex
 
 clean:	
 	@echo "removing all tmp+pdf files"
-	-rm -rvf *.pdf *~ *.aux *.log *.vrb *.out *.toc *.nav *.snm
+	-rm -rvf $(name)*.pdf *~ $(name).aux $(name).log $(name).tex *.vrb *.out *.toc *.nav *.snm
 	-rm -rvf *.std* *.sh

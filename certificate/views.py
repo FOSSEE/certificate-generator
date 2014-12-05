@@ -52,7 +52,6 @@ def download(request):
             if not user:
                 context["notregistered"] = 1
                 return render_to_response('download.html', context, context_instance=ci)
-            print user
             if len(user) > 1:
                 context['workshops'] = user
                 context['v'] = 'workshop'
@@ -67,22 +66,24 @@ def download(request):
         hexa = hex(id).replace('0x','').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         qrcode = '{0}\n{1}'.format(name, serial_no)
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            certificate = create_certificate(certificate_path, name, qrcode, type, paper, workshop)
+            certificate = create_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
                 return certificate[0]
         except Certificate.DoesNotExist:
-            certificate = create_certificate(certificate_path, name, qrcode, type, paper, workshop)
+            certificate = create_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email, serial_no=serial_no, counter=1, workshop=workshop, paper=paper)
                     certi_obj.save()
                     return certificate[0]
         
         if certificate[1]:
-            _clean_certificate_certificate(certificate_path)
+            _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             return render_to_response('download.html', context, ci)
     return render_to_response('download.html', context, ci)
@@ -134,43 +135,44 @@ def _get_detail(serial_no):
     return purpose, year, serial_no[-1]
 
 
-def create_certificate(certificate_path, name, qrcode, type, paper=None, workshop=None):
-    error = False 
+def create_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
+    error = False
     try:
+        download_file_name = None
         if type == 'P':
             template = 'template_SLC2014Pcertificate'
-            file_name = 'SLC2014Pcertificate'
+            download_file_name = 'SLC2014Pcertificate.pdf'
         elif type == 'A':
             template = 'template_SLC2014Acertificate'
-            file_name = 'SLC2014Acertificate'
+            download_file_name = 'SLC2014Acertificate.pdf'
         elif type == 'W':
             template = 'template_SLC2014Wcertificate'
-            file_name = 'SLC2014Wcertificate'
+            download_file_name = 'SLC2014Wcertificate.pdf'
 
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
         if type == 'P':
-            content_tex = content.safe_substitute(name=name, code=qrcode)
+            content_tex = content.safe_substitute(name=name, qr_code=qrcode)
         elif type == 'A':
-            content_tex = content.safe_substitute(name=name, code=qrcode,
+            content_tex = content.safe_substitute(name=name, qr_code=qrcode,
                     paper=paper)
         elif type == 'W':
-            content_tex = content.safe_substitute(name=name, code=qrcode,
+            content_tex = content.safe_substitute(name=name, qr_code=qrcode,
                     workshop=workshop)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
-        return_value, err = _make_certificate_certificate(certificate_path, type)
+        return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
-                    filename=%s' % (file_name)
+                    filename=%s' % (download_file_name)
             response.write(pdf.read())
-            _clean_certificate_certificate(certificate_path)
+            _clean_certificate_certificate(certificate_path, file_name)
             return [response, False] 
         else:
             error = True
@@ -179,19 +181,19 @@ def create_certificate(certificate_path, name, qrcode, type, paper=None, worksho
         error = True
     return [None, error]
 
-def _clean_certificate_certificate(path):
-    clean_process = subprocess.Popen('make -C {0} clean'.format(path),
+def _clean_certificate_certificate(path, file_name):
+    clean_process = subprocess.Popen('make -C {0} clean file_name={1}'.format(path, file_name),
             shell=True)
     clean_process.wait()
 
-def _make_certificate_certificate(path, type):
+def _make_certificate_certificate(path, type, file_name):
     if type == 'P':
         command = 'participant_cert'
     elif type == 'A':
         command = 'paper_cert'
     elif type == 'W':
         command = 'workshop_cert'
-    process = subprocess.Popen('timeout 15 make -C {0} {1}'.format(path, command),
+    process = subprocess.Popen('timeout 15 make -C {0} {1} file_name={2}'.format(path, command, file_name),
             stderr = subprocess.PIPE, shell = True)
     err = process.communicate()[1]
     return process.returncode, err
