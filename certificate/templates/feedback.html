@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <form  action="{% url 'certificate:feedback' %}" method="post" style="width:800px">
-    <p>Please fill in the feedback form. This will greatly enable us to do better.</p>
+<form  action="{% url 'certificate:feedback' %}" method="post" style="width:1000px">
+
+        <div class="input-group" style="padding-left:100px;width:940px;text-align:center;margin:0 auto;">
+            <div align=center style="padding-left:250px">    <h1> Feedback </h1>
+                <p>Please fill in the feedback form. This will greatly enable us to do better.</p>
+            </div>
+
         {{ detail }}
         {% csrf_token %}
-        <div style="padding-left:100px;text-align:left;" >
+        <div style="padding-left:300px;text-align:left;" >
             <table class="table">
                 {{ form }}
             </table>
@@ -13,9 +18,11 @@
                 <label>Q{{ forloop.counter }}. {{ question.question }} </label><br>
                     <textarea cols="80" class="form-control" id="{{ question.id }}" name="{{ question.id }}"></textarea><br>
                     {% endfor %}
+                    <br></br>
               <span><button class="btn btn-lg btn-primary" type="submit">Submit</button></span>
               <span><a href="{% url 'certificate:download' %}" >I have already submitted</a></span>
-        </div>
+          </div>
+    </div>      
      </form>
     <hr>
 {% endblock %}
