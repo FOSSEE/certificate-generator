@@ -14,9 +14,9 @@
                 </div>
               </div>
           </div>
-          <form class="col-lg-12" action="" method="post">
+          <form class="col-lg-12" action="{% url 'certificate:download' %}" method="post">
             {% csrf_token %}
-            {{ error }}
+            {{ message }}
             <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
             <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
               <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Get Certificate</button></span>

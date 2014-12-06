@@ -65,3 +65,27 @@ class Scilab_workshop(models.Model):
     workshops = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='SLC')
     attendance = models.BooleanField(default=False)
+
+class FeedBack(models.Model):
+    ''' Feed back form for the event '''
+    name = models.CharField(max_length=100)
+    email = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20)
+    institution = models.CharField(max_length=100)
+    role = models.CharField(max_length=100)
+    address = models.CharField(max_length=100)
+    city = models.CharField(max_length=50)
+    pin_number = models.CharField(max_length=10)
+    state = models.CharField(max_length=50)
+    purpose = models.CharField(max_length=10, default='SLC')
+    submitted = models.BooleanField(default=False)
+    answer = models.ManyToManyField('Answer')
+
+
+class Question(models.Model):
+    question = models.CharField(max_length=500)
+    purpose = models.CharField(max_length=10, default='SLC')
+
+class Answer(models.Model):
+    question = models.ForeignKey(Question)
+    answer = models.CharField(max_length=1000)

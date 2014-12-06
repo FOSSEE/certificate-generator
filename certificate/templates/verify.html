@@ -16,7 +16,7 @@
           </div>
     <p>Enter the serial number you received while scanning the QR code on certificate.</p>
     <hr>
-    <form action="" method="post">
+    <form action="{% url 'certificate:verify'  %}" method="post">
         {{ detail }}
         {% csrf_token %}
         <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">

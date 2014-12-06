@@ -2,10 +2,11 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from certificate.models import Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop
+from certificate.models import Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack
 import subprocess
 import os
 from string import Template
+from certificate.forms import FeedBackForm
 
 # Create your views here.
 def download(request):
@@ -86,6 +87,7 @@ def download(request):
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             return render_to_response('download.html', context, ci)
+    context['message'] = 'You can download the certificate'
     return render_to_response('download.html', context, ci)
 
 def verify(request):
@@ -198,3 +200,44 @@ def _make_certificate_certificate(path, type, file_name):
     err = process.communicate()[1]
     return process.returncode, err
 
+def feedback(request):
+    context = {}
+    ci = RequestContext(request)
+    form = FeedBackForm()
+    questions = Question.objects.filter(purpose='SLC')
+    if request.method == 'POST':
+        form = FeedBackForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            try:
+                FeedBack.objects.get(email=data['email'].strip(), purpose='SLC')
+                context['message'] = 'You have already submitted the feedback. You can download the certificate'
+                return render_to_response('download.html', context, ci)
+            except FeedBack.DoesNotExist:
+                feedback = FeedBack()
+                feedback.name = data['name'].strip()
+                feedback.email = data['email'].strip()
+                feedback.phone = data['phone'].strip()
+                feedback.institution = data['organisation'].strip()
+                feedback.role = data['role'].strip()
+                feedback.address = data['address'].strip()
+                feedback.city = data['city'].strip()
+                feedback.pin_number = data['pincode_number'].strip()
+                feedback.state = data['state'].strip()
+                feedback.submitted = True
+                feedback.save()
+                for question in questions:
+                    answered = request.POST.get('{0}'.format(question.id), None)
+                    answer = Answer()
+                    answer.question = question
+                    answer.answer = answered.strip()
+                    answer.save()
+                    feedback.answer.add(answer)
+                    feedback.save()
+                context['message'] = 'Thank you for the feedback. You can download the certificate'
+                return render_to_response('download.html', context, ci)
+
+    context['form'] = form
+    context['questions'] = questions
+
+    return render_to_response('feedback.html', context, ci)

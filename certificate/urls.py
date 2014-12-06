@@ -8,7 +8,8 @@ urlpatterns = patterns('',
     # url(r'^$', 'fossee_project.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
-    url(r'^$', 'certificate.views.download', name='download'),
+    url(r'^$', 'certificate.views.feedback', name='feedback'),
     url(r'^download/$', 'certificate.views.download', name='download'),
     url(r'^verify/$', 'certificate.views.verify', name='verify'),
+    url(r'^feedback/$', 'certificate.views.feedback', name='feedback'),
 )
