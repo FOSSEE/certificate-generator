@@ -6,7 +6,7 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="invalidModalLabel">Invalid Caategory</h4>
+                    <h4 class="modal-title" id="invalidModalLabel">Invalid Category</h4>
                   </div>
                   <div class="modal-body">
                     The requested certificate is unavailable for your email address. Please select the appropriate category and retry.
@@ -17,37 +17,36 @@
           <form class="col-lg-12" action="{% url 'certificate:download' %}" method="post">
             {% csrf_token %}
             {{ message }}
-            <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
-            <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
-              <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Get Certificate</button></span>
-            </div>
             <hr>
             <p>Please choose the appropriate category</p>
             <input type="radio" name="type" id="P" value="P" checked="True">Participant
             &nbsp;&nbsp;<input type="radio" name="type" id="A" value="A">Speaker
             &nbsp;&nbsp;<input type="radio" name="type" id="W" value="W">Workshop
             <hr>
-            <br>
             <center>
             {% if user_papers %}
-                <br><br>
                 <span><h3>Papers presented</h3><span>
+                <div style="padding-left:350px;text-align:left">
                 {% for user in user_papers %}
-                <br>
-                <input type="radio" name="paper" value="{{ user.paper }}">{{ user.paper }}
+                <input type="radio" name="paper" value="{{ user.paper }}">{{ user.paper }}<br>
                 {% endfor %}
+                </div>
                 {% endif %}
                 {% if workshops %}
-                <br><br>
                 <span><h3>Workshop Attended</h3><span>
+                <div style="text-align:left">
                 {% for user in workshops %}
-                <br>
-                <input type="radio" name="workshop" value="{{ user.workshops }}">{{ user.workshops }}
+                <input type="radio" name="workshop" value="{{ user.workshops }}">{{ user.workshops }}<br>
                 {% endfor %}
+                </div>
           {% endif %}
           </center>
+            <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
+            <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
+              <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Download Certificate</button></span>
+            </div>
           </form>
-          <center><h4>Problem in downloading certificate ? write to us at <a href="mailto:info@fossee.in">info[at]fossee[dot]in</a></h4>
+          <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:info@fossee.in">info[at]fossee[dot]in</a></h4>
 {% endblock %}
 
 {% block javascript %}

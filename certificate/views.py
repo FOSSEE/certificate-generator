@@ -156,12 +156,12 @@ def create_certificate(certificate_path, name, qrcode, type, paper, workshop, fi
         content = Template(template_file.read())
         template_file.close()
         if type == 'P':
-            content_tex = content.safe_substitute(name=name, qr_code=qrcode)
+            content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode)
         elif type == 'A':
-            content_tex = content.safe_substitute(name=name, qr_code=qrcode,
+            content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode,
                     paper=paper)
         elif type == 'W':
-            content_tex = content.safe_substitute(name=name, qr_code=qrcode,
+            content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode,
                     workshop=workshop)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
@@ -211,7 +211,7 @@ def feedback(request):
             data = form.cleaned_data
             try:
                 FeedBack.objects.get(email=data['email'].strip(), purpose='SLC')
-                context['message'] = 'You have already submitted the feedback. You can download the certificate'
+                context['message'] = 'You have already submitted the feedback. You can download your certificate.'
                 return render_to_response('download.html', context, ci)
             except FeedBack.DoesNotExist:
                 feedback = FeedBack()
@@ -234,7 +234,7 @@ def feedback(request):
                     answer.save()
                     feedback.answer.add(answer)
                     feedback.save()
-                context['message'] = 'Thank you for the feedback. You can download the certificate'
+                context['message'] = 'Thank you for the feedback. You can download your certificate.'
                 return render_to_response('download.html', context, ci)
 
     context['form'] = form
