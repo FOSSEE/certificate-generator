@@ -104,9 +104,11 @@ def verify(request):
             context["invalidserial"] = 1
             return render_to_response('verify.html', context, context_instance=ci)
         else:
-            name = certificate.name
+            name = certificate.name.title()
             paper = certificate.paper
             workshop = certificate.workshop
+            certificate.verified += 1
+            certificate.save()
             purpose, year, type = _get_detail(serial_no)
             if type == 'P':
                 detail = '{0} had attended {1} {2}'.format(name, purpose, year)
