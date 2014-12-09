@@ -68,7 +68,7 @@ def download(request):
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
-        qrcode = 'NAME: {0} SERIAL NO: {1}'.format(name, serial_no)
+        qrcode = 'NAME: {0}; SERIAL-NO: {1}; '.format(name, serial_no)
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
         try:
