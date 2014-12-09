@@ -31,7 +31,8 @@ def download(request):
         elif type == 'A':
             if paper:
                 user = Scilab_speaker.objects.filter(email=email, paper=paper)
-                user = [user[0]]
+                if user:
+                    user = [user[0]]
             else:
                 user = Scilab_speaker.objects.filter(email=email)
             if not user:
@@ -47,7 +48,8 @@ def download(request):
         elif type == 'W':
             if workshop:
                 user = Scilab_workshop.objects.filter(email=email, workshops=workshop)
-                user = [user[0]]
+                if user:
+                    user = [user[0]]
             else:
                 user = Scilab_workshop.objects.filter(email=email)
             if not user:
@@ -66,7 +68,7 @@ def download(request):
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
-        qrcode = '{0}\n{1}'.format(name, serial_no)
+        qrcode = 'NAME: {0} SERIAL NO: {1}'.format(name, serial_no)
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
         try:

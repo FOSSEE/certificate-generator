@@ -24,6 +24,7 @@
             &nbsp;&nbsp;<input type="radio" name="type" id="W" value="W">Workshop
             <hr>
             <center>
+            <div id ="paper">
             {% if user_papers %}
                 <span><h3>Papers presented</h3><span>
                 <div style="padding-left:350px;text-align:left">
@@ -31,15 +32,19 @@
                 <input type="radio" name="paper" value="{{ user.paper }}">{{ user.paper }}<br>
                 {% endfor %}
                 </div>
-                {% endif %}
-                {% if workshops %}
+            {% endif %}
+        </div>
+        <div id="workshop">
+            {% if workshops %}
                 <span><h3>Workshop Attended</h3><span>
                 <div style="text-align:left">
                 {% for user in workshops %}
                 <input type="radio" name="workshop" value="{{ user.workshops }}">{{ user.workshops }}<br>
                 {% endfor %}
                 </div>
-          {% endif %}
+                {% endif %}
+
+        </div>
           </center>
             <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
             <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
@@ -67,6 +72,10 @@
         if(notreg == "1"){
             $("#invalidModal").modal();
         }
+        $("[name=type]").change(function(){
+            $("#paper").remove();
+            $("#workshop").remove();
+        });
    });
 </script>
 {% endblock %}
