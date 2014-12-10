@@ -90,3 +90,20 @@ class Question(models.Model):
 class Answer(models.Model):
     question = models.ForeignKey(Question)
     answer = models.CharField(max_length=1000)
+
+
+class Scipy_participant(models.Model):
+    id = models.IntegerField(primary_key=True, null=False)
+    name = models.CharField(max_length=50, null=True, blank=True)
+    email = models.CharField(max_length=50, null=True, blank=True)
+    purpose = models.CharField(max_length=10, default='SPC')
+    attendance = models.BooleanField(default=False)
+
+
+class Scipy_speaker(models.Model):
+    id = models.IntegerField(default=0, null=False, primary_key=True, blank=False)
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='SPC')
+    attendance = models.BooleanField(default=False)

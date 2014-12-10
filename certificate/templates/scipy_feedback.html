@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block header%}
-    <h1> Scilab India Conference 2014 </h1>
+    <h1> SciPy India Conference 2014 </h1>
 {% endblock %}
 {% block content %}
-<form  action="{% url 'certificate:feedback' %}" method="post" style="width:1000px">
+<form  action="{% url 'certificate:scipy_feedback' %}" method="post" style="width:1000px">
 
         <div style="padding-left:100px;width:940px;text-align:center;margin:0 auto;">
             <div align=center style="padding-left:200px">    <h1> Feedback </h1>
@@ -22,7 +22,7 @@
                     <textarea cols="80" class="form-control" id="{{ question.id }}" name="{{ question.id }}"></textarea><br>
                     {% endfor %}
               <span><button class="btn btn-primary" type="submit">Submit</button></span>
-              <span style="float:right"><a href="{% url 'certificate:download' %}" >I have already submitted</a></span>
+              <span style="float:right"><a href="{% url 'certificate:scipy_download' %}" >I have already submitted</a></span>
           </div>
     </div>      
      </form>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block header%}
-    <h1> Scilab India Conference 2014 </h1>
+    <h1> SciPy India Conference 2014 </h1>
 {% endblock %}
 {% block content %}
           <div class="modal fade" id="invalidModal" tabindex="-1" role="dialog" aria-labelledby="invalidModalLabel" aria-hidden="true">
@@ -16,18 +16,13 @@
                 </div>
               </div>
           </div>
-            <form class="col-lg-12" action="{% url 'certificate:download' %}" method="post">
+          <form class="col-lg-12" action="{% url 'certificate:scipy_download' %}" method="post">
             {% csrf_token %}
-            {% if error %}
-                <p class="lead"> Sorry your certificate cannot be processed. Kindly contact the fossee team.<p>
-            {% else %}
-                {{ message }}
-            {% endif %}
+            {{ message }}
             <hr>
             <p>Please choose the appropriate category</p>
             <input type="radio" name="type" id="P" value="P" checked="True">Participant
             &nbsp;&nbsp;<input type="radio" name="type" id="A" value="A">Speaker
-            &nbsp;&nbsp;<input type="radio" name="type" id="W" value="W">Workshop
             <hr>
             <center>
             <div id ="paper">
@@ -39,17 +34,6 @@
                 {% endfor %}
                 </div>
             {% endif %}
-        </div>
-        <div id="workshop">
-            {% if workshops %}
-                <span><h3>Workshop Attended</h3><span>
-                <div style="text-align:left">
-                {% for user in workshops %}
-                <input type="radio" name="workshop" value="{{ user.workshops }}">{{ user.workshops }}<br>
-                {% endfor %}
-                </div>
-                {% endif %}
-
         </div>
           </center>
             <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
@@ -69,10 +53,6 @@
             $('#A').prop('checked', true)
             email = "{{ user_papers.0.email }}";
         }
-        if(value == "workshop"){
-            $('#W').prop('checked', true)
-            email = "{{ workshops.0.email }}"
-        }
         $('#email').val(email);
         notreg = "{{ notregistered }}";
         if(notreg == "1"){
@@ -80,7 +60,6 @@
         }
         $("[name=type]").change(function(){
             $("#paper").remove();
-            $("#workshop").remove();
         });
    });
 </script>

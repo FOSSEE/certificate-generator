@@ -21,9 +21,11 @@
 
               <div class="row">
                
-                <div class="col-lg-12 text-center v-center">
+                  <div class="col-lg-12 text-center v-center">
+                      {% block header%}
                   
-                  <h1>Scilab India Conference 2014</h1>
+                      <!--<h1>Scilab India Conference 2014</h1>-->
+                      {% endblock %}
                   <hr>
                   {% block content %}
                   {% endblock %}
@@ -31,7 +33,22 @@
                 
               </div> <!-- /row -->
             <hr>
-          	<br>
+            <br>
+            <div id="footer-wrapper" class="container">
+                        <div id="footer-inner" class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="pull-left">
+                               <!--[if lte IE 8]><span style="filter: FlipH; -ms-filter: "FlipH"; display: inline-block;"><![endif]-->
+                                <span style="-moz-transform: scaleX(-1); -o-transform: scaleX(-1); -webkit-transform: scaleX(-1); transform: scaleX(-1); display: inline-block;">
+                                    <a href="http://www.gnu.org/copyleft/" target="_blank">&copy;</a>
+                                </span>
+                                <!--[if lte IE 8]></span><![endif]--> 
+                                2013 <a href="http://fossee.in" target="_blank">fossee.in</a>
+                            </div> 
+                            <div class="pull-right">
+                                Developed at IIT Bombay
+                            </div>
+                        </div> <!-- /#footer-inner -->
+          </div> <!-- /#footer-wrapper -->
         </div> <!-- /container full -->
     </body>
 </html>

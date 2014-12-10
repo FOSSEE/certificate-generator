@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block header%}
+    <h1> FOSSEE Certificates </h1>
+{% endblock %}
+{% block content %}
+<div style="margin:auto; width:45%">
+    <p>Below links will take you to a feedback form.<br> Please fill the feedback form and download your <b>e-certificate</b>.</h5></p>
+        <ul class="nav nav-list">
+          <li ><a href="{% url 'certificate:feedback' %}" >Scilab India Conference 2014</a></li>
+          <li><a href="{% url 'certificate:scipy_feedback' %}" >SciPy India Conference 2014</a></li>
+        </ul>
+    <div>
+{% endblock %}
+
+

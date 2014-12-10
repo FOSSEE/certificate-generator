@@ -1,14 +1,18 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from certificate.models import Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack
+from certificate.models import Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker
 import subprocess
 import os
 from string import Template
 from certificate.forms import FeedBackForm
 
 # Create your views here.
+
+def index(request):
+    return render_to_response('index.html')
+
 def download(request):
     context = {}
     err = ""
@@ -245,3 +249,148 @@ def feedback(request):
     context['questions'] = questions
 
     return render_to_response('feedback.html', context, ci)
+
+
+def scipy_feedback(request):
+    context = {}
+    ci = RequestContext(request)
+    form = FeedBackForm()
+    questions = Question.objects.filter(purpose='SPC')
+    if request.method == 'POST':
+        form = FeedBackForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            try:
+                FeedBack.objects.get(email=data['email'].strip(), purpose='SPC')
+                context['message'] = 'You have already submitted the feedback. You can download your certificate.'
+                return render_to_response('scipy_download.html', context, ci)
+            except FeedBack.DoesNotExist:
+                feedback = FeedBack()
+                feedback.name = data['name'].strip()
+                feedback.email = data['email'].strip()
+                feedback.purpose = 'SPC'
+                feedback.submitted = True
+                feedback.save()
+                for question in questions:
+                    answered = request.POST.get('{0}'.format(question.id), None)
+                    answer = Answer()
+                    answer.question = question
+                    answer.answer = answered.strip()
+                    answer.save()
+                    feedback.answer.add(answer)
+                    feedback.save()
+                context['message'] = 'Thank you for the feedback. You can download your certificate.'
+                return render_to_response('scipy_download.html', context, ci)
+
+    context['form'] = form
+    context['questions'] = questions
+
+    return render_to_response('scipy_feedback.html', context, ci)
+
+
+def scipy_download(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/scipy_template/'.format(cur_path)
+
+    if request.method == 'POST':
+        paper = request.POST.get('paper', None)
+        workshop = None
+        email = request.POST.get('email').strip()
+        type = request.POST.get('type')
+        if type == 'P':
+            user = Scipy_participant.objects.filter(email=email)
+            if not user:
+                context["notregistered"] = 1
+                return render_to_response('scipy_download.html', context, context_instance=ci)
+            else:
+                user = user[0]
+        elif type == 'A':
+            if paper:
+                user = Scipy_speaker.objects.filter(email=email, paper=paper)
+                if user:
+                    user = [user[0]]
+            else:
+                user = Scipy_speaker.objects.filter(email=email)
+            if not user:
+                context["notregistered"] = 1
+                return render_to_response('scipy_download.html', context, context_instance=ci)
+            if len(user) > 1:
+                context['user_papers'] = user
+                context['v'] = 'paper'
+                return render_to_response('scipy_download.html', context, context_instance=ci)
+            else:
+                user = user[0]
+                paper = user.paper
+        name = user.name
+        purpose = user.purpose
+        year = '14'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
+        qrcode = 'NAME: {0}; SERIAL-NO: {1}; '.format(name, serial_no)
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            certificate = create_scipy_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            certificate = create_scipy_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email, serial_no=serial_no, counter=1, workshop=workshop, paper=paper)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('scipy_download.html', context, ci)
+    context['message'] = 'You can download the certificate'
+    return render_to_response('scipy_download.html', context, ci)
+
+
+def create_scipy_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
+    error = False
+    try:
+        download_file_name = None
+        if type == 'P':
+            template = 'template_SPC2014Pcertificate'
+            download_file_name = 'SPC2014Pcertificate.pdf'
+        elif type == 'A':
+            template = 'template_SPC2014Acertificate'
+            download_file_name = 'SPC2014Acertificate.pdf'
+
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        if type == 'P':
+            content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode)
+        elif type == 'A':
+            content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode,
+                    paper=paper)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        print e
+        error = True
+    return [None, error]
