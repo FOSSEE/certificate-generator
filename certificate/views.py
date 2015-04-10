@@ -94,7 +94,7 @@ def download(request):
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             return render_to_response('download.html', context, ci)
-    context['message'] = 'You can download the certificate'
+    context['message'] = ''
     return render_to_response('download.html', context, ci)
 
 def verification(serial, _type):
@@ -110,7 +110,7 @@ def verification(serial, _type):
             certificate.save()
             purpose, year, type = _get_detail(serial_no)
             if type == 'P':
-                if purpose == 'Drupal Mumbai Camp':
+                if purpose == 'DrupalCamp Mumbai':
                     drupal_user = Drupal_camp.objects.get(email=certificate.email)
                     DAY = drupal_user.attendance
                     if DAY == 1:
@@ -145,7 +145,7 @@ def verification(serial, _type):
             certificate.save()
             purpose, year, type = _get_detail(serial)
             if type == 'P':
-                if purpose == 'Drupal Mumbai Camp':
+                if purpose == 'DrupalCamp Mumbai':
                     drupal_user = Drupal_camp.objects.get(email=certificate.email)
                     DAY = drupal_user.attendance
                     if DAY == 1:
@@ -193,7 +193,7 @@ def _get_detail(serial_no):
     elif serial_no[0:3] == 'SPC':
         purpose = 'SciPy India'
     elif serial_no[0:3] == 'DCM':
-        purpose = 'Drupal Mumbai Camp'
+        purpose = 'DrupalCamp Mumbai'
 
     if serial_no[3:5] == '14':
         year = '2014'
@@ -489,7 +489,7 @@ def drupal_feedback(request):
                     answer.save()
                     feedback.answer.add(answer)
                     feedback.save()
-                context['message'] = 'Thank you for the feedback. You can download your certificate.'
+                context['message'] = ''
                 return render_to_response('drupal_download.html', context, ci)
 
     context['form'] = form
@@ -574,7 +574,7 @@ def drupal_download(request):
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             return render_to_response('drupal_download.html', context, ci)
-    context['message'] = 'You can download the certificate'
+    context['message'] = ''
     return render_to_response('drupal_download.html', context, ci)
 
 
