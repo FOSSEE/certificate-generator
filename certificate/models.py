@@ -119,3 +119,12 @@ class Drupal_camp(models.Model):
     role = models.CharField(max_length=100, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='DCM')
     is_student = models.IntegerField(default=0)
+
+class Tbc_freeeda(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    college = models.CharField(max_length=200)
+    book = models.CharField(max_length=200)
+    author = models.CharField(max_length=200)
+    role = models.CharField(max_length=50)
+    purpose = models.CharField(max_length=10, default='FET')

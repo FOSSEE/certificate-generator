@@ -17,4 +17,5 @@ urlpatterns = patterns('certificate.views',
     url(r'^drupal_feedback/$', 'drupal_feedback', name='drupal_feedback'),
     url(r'^scipy_download/$', 'scipy_download', name='scipy_download'),
     url(r'^drupal_download/$', 'drupal_download', name='drupal_download'),
+    url(r'^tbc_freeeda_download/$', 'tbc_freeeda_download', name='tbc_freeeda_download'),
 )
