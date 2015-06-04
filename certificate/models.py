@@ -130,3 +130,9 @@ class Tbc_freeeda(models.Model):
     author = models.CharField(max_length=200)
     role = models.CharField(max_length=50)
     purpose = models.CharField(max_length=10, default='FET')
+
+
+class Dwsim_participant(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    purpose = models.CharField(max_length=10, default='DWS')
