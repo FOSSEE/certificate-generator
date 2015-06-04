@@ -7,6 +7,8 @@ events = (
             ('SPC', 'Scipy Conference'),
             ('PTC', 'Python Textbook Companion'),
             ('STC', 'Scilab Textbook Companion'),
+            ('DCM', 'DrupalCamp Mumbai'),
+            ('FET', 'FreeEda Textbook Companion'),
         )
 
 class Profile(models.Model):
