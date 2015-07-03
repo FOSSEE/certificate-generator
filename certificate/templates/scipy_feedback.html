@@ -4,29 +4,23 @@
     <h1> SciPy India Conference 2014 </h1>
 {% endblock %}
 {% block content %}
-<form  action="{% url 'certificate:scipy_feedback' %}" method="post" style="width:1000px">
+    <div style="width:50%; margin: 0 auto" >
+<form  action="{% url 'certificate:scipy_feedback' %}" method="post">
 
-        <div style="padding-left:100px;width:940px;text-align:center;margin:0 auto;">
-            <div align=center style="padding-left:200px">    <h1> Feedback </h1>
-                <p>Your feedback will help us improve our services. Thank you for your time.</p>
-            </div>
+    <h1> Feedback </h1>
+    <p>Your feedback will help us improve our services. Thank you for your time.</p>
 
         {{ detail }}
         {% csrf_token %}
-        <div style="padding-left:200px;text-align:left;" >
             <table class="table">
                 {{ form }}
             </table>
                 {% for question in questions %}
-                <label>{{ forloop.counter }}. {{ question.question }} </label><br>
+                <label style="float:left">{{ forloop.counter }}. {{ question.question }} </label><br>
                     <textarea cols="80" class="form-control" id="{{ question.id }}" name="{{ question.id }}"></textarea><br>
                     {% endfor %}
-              <span><button class="btn btn-primary" type="submit">Submit</button></span>
-              <span style="float:right"><a href="{% url 'certificate:scipy_download' %}" >Skip feedback and download</a></span>
-          </div>
-    </div>      
+              <button style="float:left" class="btn btn-primary" type="submit">Submit</button>
+                <a style="float:right" href="{% url 'certificate:scipy_download' %}" >Skip feedback and download</a>
      </form>
-    <hr>
+    </div>
 {% endblock %}
-
-
