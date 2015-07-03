@@ -136,3 +136,9 @@ class Dwsim_participant(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
     purpose = models.CharField(max_length=10, default='DWS')
+
+
+class Scilab_arduino(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    purpose = models.CharField(max_length=10, default='SCA')
