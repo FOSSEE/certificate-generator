@@ -876,6 +876,10 @@ def create_dwsim_certificate(certificate_path, name, qrcode, type, paper, worksh
     return [None, error]
 
 
+def arduino_google_feedback(request):
+    return render_to_response('arduino_google_feedback.html')
+
+
 def arduino_feedback(request):
     context = {}
     ci = RequestContext(request)

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1> Scilab Arduino Workshop 2015 </h1>
+{% endblock %}
+
+{% block content %}
+<p> Your feedback will help us improve our services. Thank you for your time. </p>
+    <div style = "width:50%; margin:auto">
+    <ul class = "nav nav-list">
+        <li><a href = "http://tinyurl.com/scilab-arduinoWS" target = "popup" >Feedback on Scilab-Arduino Workshop</a></li>
+        <li><a href = "http://tinyurl.com/scilab-arduino-book" target = "popup">Feedback on Scilab-Arduino Book</a></li>
+<!--    <div class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item" src="https://docs.google.com/forms/d/1Unv2txg2zd2uNvGNnqycSJtKLtLUd3SgjeUs-fi6e4A/viewform"></iframe>
+    </div>
+    -->         </ul>
+    <br>
+    <a class="btn btn-primary" style="float:right" href = "{% url 'certificate:arduino_download' %}">Skip feedback and download</a>
+   </div>
+{% endblock %}
