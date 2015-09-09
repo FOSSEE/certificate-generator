@@ -23,4 +23,5 @@ urlpatterns = patterns('certificate.views',
     url(r'^tbc_freeeda_download/$', 'tbc_freeeda_download', name='tbc_freeeda_download'),
     url(r'^dwsim_download/$', 'dwsim_download', name='dwsim_download'),
     url(r'^arduino_download/$', 'arduino_download', name='arduino_download'),
+    url(r'^esim_download/$', 'esim_download', name='esim_download'),
 )
