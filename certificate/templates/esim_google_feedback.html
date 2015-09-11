@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>  eSim Faculty Meet 2015 </h1>
+{% endblock %}
+
+{% block content %}
+<p> Your feedback will help us improve our services. Thank you for your time. </p>
+    <div style = "width:50%; margin:auto">
+    <ul class = "nav nav-list">
+        <li><a href = "https://docs.google.com/forms/d/1Dt0aR-X689JdpoDLTWu-UXhBzPZv_G1FX1XzVpZGCqQ/viewform?usp=send_form" target = "popup" >Feedback on eSim Faculty Meet 2015</a></li>
+    </ul>
+    <br>
+    <a class="btn btn-primary" style="float:right" href = "{% url 'certificate:esim_download' %}">Skip feedback and download</a>
+   </div>
+{% endblock %}

@@ -1025,6 +1025,10 @@ def create_arduino_certificate(certificate_path, name, qrcode, type, paper, work
     return [None, error]
 
 
+def esim_google_feedback(request):
+    return render_to_response('esim_google_feedback.html')
+
+
 def esim_download(request):
     context = {}
     err = ""
