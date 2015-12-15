@@ -148,3 +148,16 @@ class Esim_faculty(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
     purpose = models.CharField(max_length=10, default='ESM')
+
+
+class Scipy_participant_2015(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    email = models.CharField(max_length=50, null=True, blank=True)
+    purpose = models.CharField(max_length=10, default='SPC')
+
+
+class Scipy_speaker_2015(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='SPC')
