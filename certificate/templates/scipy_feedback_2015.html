@@ -1,26 +1,16 @@
 {% extends 'base.html' %}
 
-{% block header%}
+{% block header %}
     <h1> SciPy India Conference 2015 </h1>
 {% endblock %}
+
 {% block content %}
-    <div style="width:50%; margin: 0 auto" >
-<form  action="{% url 'certificate:scipy_feedback_2015' %}" method="post">
-
-    <h1> Feedback </h1>
-    <p>Your feedback will help us improve our services. Thank you for your time.</p>
-
-        {{ detail }}
-        {% csrf_token %}
-            <table class="table">
-                {{ form }}
-            </table>
-                {% for question in questions %}
-                <label style="float:left">{{ forloop.counter }}. {{ question.question }} </label><br>
-                    <textarea cols="80" class="form-control" id="{{ question.id }}" name="{{ question.id }}"></textarea><br>
-                    {% endfor %}
-              <button style="float:left" class="btn btn-primary" type="submit">Submit</button>
-                <a style="float:right" href="{% url 'certificate:scipy_download_2015' %}" >Skip feedback and download</a>
-     </form>
+<p> Your feedback will help us improve our services. Thank you for your time. </p>
+    <div>
+    <div class="embed-responsive embed-responsive-16by9" style="width:100%;height:2000px">
+        <iframe class="embed-responsive-item" src="https://docs.google.com/forms/d/1OAtVUGG5MmoJyX81ODxorIOhnJeJ0Qu36PBGBQyYWNA/viewform"></iframe>
     </div>
+    <br>
+    <a class="btn" style="float:right" href = "{% url 'certificate:scipy_download_2015' %}">Click here to download certificate</a>
+   </div>
 {% endblock %}
