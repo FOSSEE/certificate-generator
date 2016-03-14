@@ -9,6 +9,7 @@ events = (
             ('STC', 'Scilab Textbook Companion'),
             ('DCM', 'DrupalCamp Mumbai'),
             ('FET', 'FreeEda Textbook Companion'),
+	    ('OFSC', 'OpenFOAM Symposium'),
         )
 
 class Profile(models.Model):
@@ -161,3 +162,16 @@ class Scipy_speaker_2015(models.Model):
     email = models.CharField(max_length=300)
     paper = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='SPC')
+
+
+class OpenFOAM_Symposium_participant_2016(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    email = models.CharField(max_length=50, null=True, blank=True)
+    purpose = models.CharField(max_length=10, default='OFSC')
+
+
+class OpenFOAM_Symposium_speaker_2016(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='OFSC')
