@@ -1,0 +1,91 @@
+%% Internship Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{niceframe}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.2cm,bmargin=.2cm,
+  lmargin=.2cm, rmargin=.2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+%\TileWallPaper{4cm}{2cm}{aakash-logo.png}
+\TileWallPaper{28cm}{30cm}{cer_bg_2.png}
+
+\centering
+\scalebox{3.1}{\color{green!30!black!60}
+\begin{minipage}{.33\textwidth}
+\font\border=umrandb
+\generalframe
+{\border \char113} % up left
+{\border \char109} % up
+{\border \char112} % up right
+{\border \char108} % left 
+{\border \char110} % right
+{\border \char114} % lower left
+{\border \char111} % bottom
+{\border \char115} % lower right
+{
+
+\begin{centering}
+%% logo - top
+%%\vspace{2.0mm}
+%%\vspace{.5mm}
+%\textcolor{red!10!black!90}
+%{\tiny Drupal Camp Mumbai 2015}\\
+\textcolor{red!30!black!90}
+{\textsc{Certificate of Internship}}\\
+\end{centering}
+\vspace{0.3cm}
+%%\medskip
+{\tiny \color{black!90} This is to certify that  {\color{blue!40!black}{$name,}} {\color{blue!40!black}$student_edu_detail} from {\color{blue!40!black}$student_institute_detail,} has undertaken and successfully completed his project work entitled: {\color{blue!40!black}$paper}  under the supervision of {\color{blue!40!black}$superviser_name_detail,} during {\color{blue!40!black}$internship_project_duration}. 
+ }
+ 
+\vspace{0.6cm}
+{\color{blue!40!black}
+\hspace{122pt}
+\scalebox{0.6}{
+  \begin{tabular}{c c c}
+    \hspace{122pt}&\small{\includegraphics[height=0.6cm]{kannan-moudgalya-sign.png}} 
+    &\\ 
+    \hspace{122pt}&\small{~~~~~~~~Prof. Kannan Moudgalya~~~~~~~~} 
+    &\\
+    \hspace{122pt}&\small{Project In-charge} &\\ 
+  \end{tabular}
+}
+}
+\\
+\vspace{1.9mm}
+\begin{centering}
+
+\includegraphics[height=0.6cm]{fossee_logo.png}\hspace{22pt}
+\includegraphics[height=0.7cm]{iitb-logo.png}\hspace{22pt}
+\begin{pspicture}(0.1cm,0.1cm)  \psbarcode{$qr_code}{eclevel=L width=0.25 height=0.25}{qrcode}\end{pspicture}\\
+\vspace{0mm}
+\hspace{100pt}\tiny{\texttt{$serial_key}}\\
+\includegraphics[height=0.095cm]{text.png}
+\end{centering}
+}
+
+\end{minipage}
+}
+\end{document}
