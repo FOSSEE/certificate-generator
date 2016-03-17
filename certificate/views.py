@@ -14,9 +14,6 @@ from collections import OrderedDict
 def index(request):
     return render_to_response('index.html')
 
-#def internship_certificate_download(request):
-#    return render_to_response('internship-certificate-download.html')
-
 def download(request):
     context = {}
     err = ""
@@ -112,7 +109,6 @@ def verification(serial, _type):
             certificate.verified += 1
             certificate.save()
             purpose, year, type = _get_detail(serial_no)
-            print purpose, year, type
             if type == 'P':
                 if purpose == 'DWSIM Workshop':
                     dwsim_user = Dwsim_participant.objects.get(email=certificate.email)
@@ -227,7 +223,6 @@ def verify(request, serial_key=None):
     return render_to_response('verify.html',{}, ci)
 
 def _get_detail(serial_no):
-    print serial_no
     purpose = None
     if serial_no[0:3] == 'SLC':
         purpose = 'Scilab Conference'
@@ -254,14 +249,6 @@ def _get_detail(serial_no):
         year = '2015'
     elif serial_no[3:5] == '16':
         year = '2016'
-
-    #if serial_no[-1] == 'P':
-    #    type = 'Participant'
-    #elif serial_no[-1] == 'A':
-    
-    #type = 'Paper'
-    #elif serial_no[-1] == 'W':
-    #    type = 'Workshop'
     return purpose, year, serial_no[-1]
 
 
@@ -344,13 +331,6 @@ def feedback(request):
                 feedback = FeedBack()
                 feedback.name = data['name'].strip()
                 feedback.email = data['email'].strip()
-                #feedback.phone = data['phone'].strip()
-                #feedback.institution = data['organisation'].strip()
-                #feedback.role = data['role'].strip()
-                #feedback.address = data['address'].strip()
-                #feedback.city = data['city'].strip()
-                #feedback.pin_number = data['pincode_number'].strip()
-                #feedback.state = data['state'].strip()
                 feedback.submitted = True
                 feedback.save()
                 for question in questions:
@@ -1310,7 +1290,6 @@ def create_scipy_certificate_2015(certificate_path, name, qrcode, type, paper, w
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
-        print err
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
@@ -1475,7 +1454,6 @@ def create_openfoam_symposium_certificate_2016(certificate_path, name, qrcode, t
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
-        print err
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
@@ -1612,7 +1590,6 @@ def create_fossee_internship_cerificate(certificate_path, name, qrcode, type, pa
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
-        print err
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
