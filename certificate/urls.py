@@ -29,4 +29,8 @@ urlpatterns = patterns('certificate.views',
     url(r'^scipy_download_2015/$', 'scipy_download_2015', name='scipy_download_2015'),
     url(r'^openfoam_symposium_download_2016/$', 'openfoam_symposium_download_2016', name='openfoam_symposium_download_2016'),
     url(r'^openfoam_symposium_feedback_2016/$', 'openfoam_symposium_feedback_2016', name='openfoam_symposium_feedback_2016'),
+    url(r'^fossee_internship_cerificate_download/$', 'fossee_internship_cerificate_download', name='fossee_internship_cerificate_download'),
+    
+    
+    
 )

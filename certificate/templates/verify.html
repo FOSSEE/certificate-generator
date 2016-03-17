@@ -7,7 +7,11 @@
 {% if serial_key %}
 <div>
     <table class="table table-bordered" align="center" style="width:50%">
-        <caption>Participation Details</caption>
+    {% if intern_ship %}
+        <caption>Internship Details</caption>
+     {% else %} 
+        <caption>Participation Details</caption> 
+     {% endif %}    
         <tbody>
             {% for key, value in detail.items %}
             <tr>
