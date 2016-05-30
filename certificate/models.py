@@ -9,8 +9,9 @@ events = (
             ('STC', 'Scilab Textbook Companion'),
             ('DCM', 'DrupalCamp Mumbai'),
             ('FET', 'FreeEda Textbook Companion'),
-	    ('OFC', 'OpenFOAM Symposium'),
-	    ('FIC', 'Fossee Internship'),
+	        ('OFC', 'OpenFOAM Symposium'),
+	        ('FIC', 'Fossee Internship'),
+            ('OWS', 'Osdag Workshop')
         )
 
 class Profile(models.Model):
@@ -151,6 +152,10 @@ class Esim_faculty(models.Model):
     email = models.EmailField()
     purpose = models.CharField(max_length=10, default='ESM')
 
+class Osdag_WS(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    purpose = models.CharField(max_length=10, default='OWS')
 
 class Scipy_participant_2015(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
@@ -187,4 +192,4 @@ class Internship_participant(models.Model):
     project_title = models.CharField(max_length=1000)
     internship_project_duration = models.CharField(max_length=500, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='FIC')
-
+    # year = models.CharField(max_length = 4)
