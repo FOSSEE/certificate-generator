@@ -1,20 +1,26 @@
- {% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block header %}
-    <h1>  Osdag Workshop </h1>
+{% block header%}
+    <h1> OSDAG Workshop 2015 </h1>
 {% endblock %}
-
 {% block content %}
-<p> Your feedback will help us improve our services. Thank you for your time. </p>
-    <div style = "width:50%; margin:auto">
-    <ul class = "nav nav-list">
-        <li><a href = "https://docs.google.com/forms/d/1X7TXaEhwUCpkZWXZMxoF4aywv1XUXNaKhfLpd1BC3w8/viewform?c=0&w=1&usp=mail_form_link" target = "popup" >Feedback on Osdag Workshop 2016</a></li>
-    </ul>
-    <br>
-    <a class="btn btn-primary" style="float:right" href = "{% url 'certificate:osdag_workshop_download' %}">Skip feedback and download</a>
-   </div>
+    <div style="width:50%; margin: 0 auto" >
+<form  action="{% url 'certificate:osdag_workshop_feedback' %}" method="post">
+
+    <h1> Feedback </h1>
+    <p>Your feedback will help us improve our services. Thank you for your time.</p>
+
+        {{ detail }}
+        {% csrf_token %}
+            <table class="table">
+                {{ form }}
+            </table>
+                {% for question in questions %}
+                <label style="float:left">{{ forloop.counter }}. {{ question.question }} </label><br>
+                    <textarea cols="80" class="form-control" id="{{ question.id }}" name="{{ question.id }}"></textarea><br>
+                    {% endfor %}
+              <button style="float:left" class="btn btn-primary" type="submit">Submit</button>
+                <a style="float:right" href="{% url 'certificate:osdag_workshop_download' %}" >Skip feedback and download</a>
+     </form>
+    </div>
 {% endblock %}
-
-
-
-

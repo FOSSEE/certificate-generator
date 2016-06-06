@@ -1110,7 +1110,41 @@ def osdag_workshop_download(request):
     return render_to_response('osdag_workshop_download.html', context, ci)
 
 def osdag_workshop_feedback(request):
-    return render_to_response('osdag_workshop_feedback.html')
+    context = {}
+    ci = RequestContext(request)
+    form = FeedBackForm()
+    questions = Question.objects.filter(purpose='OWS')
+    if request.method == 'POST':
+        form = FeedBackForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            try:
+                FeedBack.objects.get(email=data['email'].strip(), purpose='DWS')
+                context['message'] = 'You have already submitted the feedback. You can download your certificate.'
+                return render_to_response('osdag_workshop_download.html', context, ci)
+            except FeedBack.DoesNotExist:
+                feedback = FeedBack()
+                feedback.name = data['name'].strip()
+                feedback.email = data['email'].strip()
+                feedback.purpose = 'DWS'
+                feedback.submitted = True
+                feedback.save()
+                for question in questions:
+                    answered = request.POST.get('{0}'.format(question.id), None)
+                    answer = Answer()
+                    answer.question = question
+                    answer.answer = answered.strip()
+                    answer.save()
+                    feedback.answer.add(answer)
+                    feedback.save()
+                context['message'] = ''
+                return render_to_response('osdag_workshop_download.html', context, ci)
+
+    context['form'] = form
+    context['questions'] = questions
+
+    return render_to_response('osdag_workshop_feedback.html', context, ci)
+
 
 def create_osdag_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
     error = False
