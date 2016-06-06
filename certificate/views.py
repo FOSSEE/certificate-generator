@@ -1126,7 +1126,7 @@ def osdag_workshop_feedback(request):
                 feedback = FeedBack()
                 feedback.name = data['name'].strip()
                 feedback.email = data['email'].strip()
-                feedback.purpose = 'DWS'
+                feedback.purpose = 'OWS'
                 feedback.submitted = True
                 feedback.save()
                 for question in questions:
