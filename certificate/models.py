@@ -11,7 +11,8 @@ events = (
             ('FET', 'FreeEda Textbook Companion'),
 	        ('OFC', 'OpenFOAM Symposium'),
 	        ('FIC', 'Fossee Internship'),
-            ('OWS', 'Osdag Workshop')
+            ('OWS', 'Osdag Workshop'),
+            ('EWS', 'eSim Workshop')
         )
 
 class Profile(models.Model):
@@ -156,6 +157,11 @@ class Osdag_WS(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
     purpose = models.CharField(max_length=10, default='OWS')
+
+class eSim_WS(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    purpose = models.CharField(max_length=10, default='EWS')
 
 class Scipy_participant_2015(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
