@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block header%}
-    <h1> OSDAG Workshop 2016 </h1>
+    <h1> eSim Workshop 2016 </h1>
 {% endblock %}
 {% block content %}
     <div style="width:50%; margin: 0 auto" >
-<form  action="{% url 'certificate:osdag_workshop_feedback' %}" method="post">
+<form  action="{% url 'certificate:esim_workshop_feedback' %}" method="post">
 
     <h1> Feedback </h1>
     <p>Your feedback will help us improve our services. Thank you for your time.</p>
@@ -20,7 +20,7 @@
                     <textarea cols="80" class="form-control" id="{{ question.id }}" name="{{ question.id }}"></textarea><br>
                     {% endfor %}
               <button style="float:left" class="btn btn-primary" type="submit">Submit</button>
-                <a style="float:right" href="{% url 'certificate:osdag_workshop_download' %}" >Skip feedback and download</a>
+                <a style="float:right" href="{% url 'certificate:esim_workshop_download' %}" >Skip feedback and download</a>
      </form>
     </div>
 {% endblock %}
