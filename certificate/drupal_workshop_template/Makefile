@@ -24,10 +24,10 @@ help:
 name = $(file_name)
 
 # certificate
-participant_cert: $(name).tex fossee-logo.png bashful.sty
+participant_cert: $(name).tex bashful.sty
 	pdflatex -shell-escape $(name).tex
 
-paper_cert:	$(name).tex fossee-logo.png bashful.sty
+paper_cert:	$(name).tex bashful.sty
 	pdflatex -shell-escape $(name).tex
 
 clean:
