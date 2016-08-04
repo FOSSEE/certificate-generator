@@ -252,7 +252,7 @@ def _get_detail(serial_no):
         purpose = 'eSim Faculty Meet'
     elif serial_no[0:3] == 'OWS':
         purpose = 'Osdag Workshop'
-    elif serial_no[0:3] == 'DWS':
+    elif serial_no[0:3] == 'DRP':
         purpose = 'Drupal Workshop'
     elif serial_no[0:3] == 'EWS':
         purpose = 'eSim Workshop'

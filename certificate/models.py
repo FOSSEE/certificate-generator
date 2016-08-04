@@ -13,7 +13,7 @@ events = (
 	        ('FIC', 'Fossee Internship'),
             ('OWS', 'Osdag Workshop'),
             ('EWS', 'eSim Workshop'),
-            ('DWS', 'Drupal Workshop'),
+            ('DRP', 'Drupal Workshop'),
         )
 
 class Profile(models.Model):
@@ -162,7 +162,7 @@ class Osdag_WS(models.Model):
 class Drupal_WS(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
-    purpose = models.CharField(max_length=10, default='DWS')
+    purpose = models.CharField(max_length=10, default='DRP')
 
 class eSim_WS(models.Model):
     name = models.CharField(max_length=200)
