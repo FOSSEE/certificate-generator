@@ -12,7 +12,8 @@ events = (
 	        ('OFC', 'OpenFOAM Symposium'),
 	        ('FIC', 'Fossee Internship'),
             ('OWS', 'Osdag Workshop'),
-            ('EWS', 'eSim Workshop')
+            ('EWS', 'eSim Workshop'),
+            ('DWS', 'Drupal Workshop'),
         )
 
 class Profile(models.Model):
@@ -157,6 +158,11 @@ class Osdag_WS(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
     purpose = models.CharField(max_length=10, default='OWS')
+
+class Drupal_WS(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    purpose = models.CharField(max_length=10, default='DWS')
 
 class eSim_WS(models.Model):
     name = models.CharField(max_length=200)
