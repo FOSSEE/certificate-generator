@@ -34,6 +34,7 @@ urlpatterns = patterns('certificate.views',
     url(r'^openfoam_symposium_download_2016/$', 'openfoam_symposium_download_2016', name='openfoam_symposium_download_2016'),
     url(r'^openfoam_symposium_feedback_2016/$', 'openfoam_symposium_feedback_2016', name='openfoam_symposium_feedback_2016'),
     url(r'^fossee_internship_cerificate_download/$', 'fossee_internship_cerificate_download', name='fossee_internship_cerificate_download'),
+    url(r'^fossee_internship16_cerificate_download/$', 'fossee_internship16_cerificate_download', name='fossee_internship16_cerificate_download'),
     url(r'^drupal_workshop_download/$', 'drupal_workshop_download', name='drupal_workshop_download'),
     
     
