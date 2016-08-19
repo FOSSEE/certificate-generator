@@ -176,7 +176,7 @@ def verification(serial, _type):
                     user_project_title = Internship16_participant.objects.filter(email=certificate.email)
                     context['intern_ship'] = True                    
                     detail = OrderedDict([('Name', name), ('Internship Completed', 'Yes'),
-                        ('Project', intership_detail.project_title), ('Internship Duration', intership_detail.internship_project_duration), ('Superviser Name', intership_detail.superviser_name_detail)])
+                        ('Project', intership_detail.project_title), ('Internship Duration', intership_detail.internship_project_duration)])
                 
                 else:
                     detail = '{0} had attended {1} {2}'.format(name, purpose, year)
