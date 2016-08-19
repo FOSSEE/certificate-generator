@@ -11,6 +11,7 @@ events = (
             ('FET', 'FreeEda Textbook Companion'),
 	        ('OFC', 'OpenFOAM Symposium'),
 	        ('FIC', 'Fossee Internship'),
+            ('F16', 'Fossee Internship 2016'),
             ('OWS', 'Osdag Workshop'),
             ('EWS', 'eSim Workshop'),
             ('DRP', 'Drupal Workshop'),
@@ -205,3 +206,13 @@ class Internship_participant(models.Model):
     internship_project_duration = models.CharField(max_length=500, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='FIC')
     # year = models.CharField(max_length = 4)
+
+class Internship16_participant(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    student_edu_detail = models.CharField(max_length=1000, null=True, blank=True)
+    student_institute_detail = models.CharField(max_length=2000, null=True, blank=True)
+    superviser_name_detail = models.CharField(max_length=2000, null=True, blank=True)
+    project_title = models.CharField(max_length=1000)
+    internship_project_duration = models.CharField(max_length=500, null=True, blank=True)
+    purpose = models.CharField(max_length=10, default='F16')
