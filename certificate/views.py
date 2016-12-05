@@ -2,13 +2,15 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from certificate.models import Drupal_WS, Osdag_WS, eSim_WS, Internship_participant,Internship16_participant, Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker, Drupal_camp, Tbc_freeeda, Dwsim_participant, Scilab_arduino, Esim_faculty, Scipy_participant_2015, Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016, OpenFOAM_Symposium_speaker_2016
+from certificate.models import Drupal_WS, Osdag_WS, Scipy_participant_2016, Scipy_speaker_2016, Scipy_workshop_2016, eSim_WS, Internship_participant,Internship16_participant, Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker, Drupal_camp, Tbc_freeeda, Dwsim_participant, Scilab_arduino, Esim_faculty, Scipy_participant_2015, Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016, OpenFOAM_Symposium_speaker_2016
 import subprocess
 import os
 from string import Template
 import hashlib
 from certificate.forms import FeedBackForm
 from collections import OrderedDict
+from django.core.mail import EmailMultiAlternatives
+
 # Create your views here.
 
 def index(request):
@@ -136,7 +138,7 @@ def verification(serial, _type):
                         ('Days', '11 June'), ('Year', year)])
                 elif purpose == 'SciPy India':
                     detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '14 - 16 December'), ('Year', year)])
+                        ('Days', '10 - 11 December'), ('Year', year)])
                 elif purpose == 'OpenFOAM Symposium':
                     detail = OrderedDict([('Name', name), ('Event', purpose),
                         ('Days', '27 February'), ('Year', year)])
@@ -162,7 +164,7 @@ def verification(serial, _type):
                 detail = '{0} had presented paper on {3} in the {1} {2}'.format\
                         (name, purpose, year, paper)
                 if purpose == 'SciPy India':
-                    detail = OrderedDict([('Name', name), ('Event', purpose), ('paper', paper), ('Days', '14 - 16 December'), ('Year', year)])
+                    detail = OrderedDict([('Name', name), ('Event', purpose), ('paper', paper), ('Days', '10 - 11 December'), ('Year', year)])
                 elif purpose == 'OpenFOAM Symposium':
                     detail = OrderedDict([('Name', name), ('Event', purpose), ('paper', paper), ('Days', '27 February'), ('Year', year)])
                 elif purpose == 'FOSSEE Internship':
@@ -1703,6 +1705,221 @@ def create_scipy_certificate_2015(certificate_path, name, qrcode, type, paper, w
             response.write(pdf.read())
             _clean_certificate_certificate(certificate_path, file_name)
             return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
+def scipy_feedback_2016(request):
+    context = {}
+    ci = RequestContext(request)
+    form = FeedBackForm()
+    questions = Question.objects.filter(purpose='SPC2016')
+    if request.method == 'POST':
+        form = FeedBackForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            try:
+                FeedBack.objects.get(email=data['email'].strip(), purpose='SPC2016')
+                context['message'] = 'You have already submitted the feedback. You can download your certificate.'
+                return render_to_response('scipy_download_2016.html', context, ci)
+            except FeedBack.DoesNotExist:
+                feedback = FeedBack()
+                feedback.name = data['name'].strip()
+                feedback.email = data['email'].strip()
+                feedback.purpose = 'SPC2016'
+                feedback.submitted = True
+                feedback.save()
+                for question in questions:
+                    answered = request.POST.get('{0}'.format(question.id), None)
+                    answer = Answer()
+                    answer.question = question
+                    answer.answer = answered.strip()
+                    answer.save()
+                    feedback.answer.add(answer)
+                    feedback.save()
+                context['message'] = ''
+                return render_to_response('scipy_download_2016.html', context, ci)
+
+    context['form'] = form
+    context['questions'] = questions
+
+    return render_to_response('scipy_feedback_2016.html', context, ci)
+
+
+def scipy_download_2016(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/scipy_template_2016/'.format(cur_path)
+
+    if request.method == 'POST':
+        paper = request.POST.get('paper', None)
+        workshop = None
+        email = request.POST.get('email').strip()
+        type = request.POST.get('type')
+        if type == 'P':
+            user = Scipy_participant_2016.objects.filter(email=email)
+            if not user:
+                context["notregistered"] = 1
+                return render_to_response('scipy_download_2016.html', context, context_instance=ci)
+            else:
+                user = user[0]
+        elif type == 'A':
+            if paper:
+                user = Scipy_speaker_2016.objects.filter(email=email, paper=paper)
+                if user:
+                    user = [user[0]]
+            else:
+                user = Scipy_speaker_2016.objects.filter(email=email)
+            if not user:
+                context["notregistered"] = 1
+                return render_to_response('scipy_download_2016.html', context, context_instance=ci)
+            if len(user) > 1:
+                context['user_papers'] = user
+                context['v'] = 'paper'
+                return render_to_response('scipy_download_2016.html', context, context_instance=ci)
+            else:
+                user = user[0]
+                paper = user.paper
+        elif type == 'W':
+            print " type w"
+            if paper:
+                print " paper"
+                user = Scipy_workshop_2016.objects.filter(email=email, paper=paper)
+                if user:
+                    print " user"
+                    user = [user[0]]
+            else:
+                print "else 1"
+                user = Scipy_workshop_2016.objects.filter(email=email)
+                for u in user:
+                    print "user", u.email
+            if not user:
+                print "no user"
+                context["notregistered"] = 1
+                return render_to_response('scipy_download_2016.html', context, context_instance=ci)
+            if len(user) > 1:
+                print "len > 1"
+                context['user_papers'] = user
+                context['v'] = 'paper'
+                return render_to_response('scipy_download_2016.html', context, context_instance=ci)
+            else:
+                user = user[0]
+                paper = user.paper
+        name = user.name
+        purpose = user.purpose
+        year = '16'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_scipy_certificate_2016(certificate_path, details, qrcode, type, paper, workshop, file_name)
+            print "==========", certificate[1]
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return render(request, 'scipy_download_2016.html')
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_scipy_certificate_2016(certificate_path, details,
+                    qrcode, type, paper, workshop, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
+                            counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return render(request, 'scipy_download_2016.html')
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('scipy_download_2016.html', context, ci)
+    context['message'] = ''
+    return render_to_response('scipy_download_2016.html', context, ci)
+
+
+def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, workshop, file_name):
+    error = False
+    try:
+        download_file_name = None
+        if type == 'P':
+            template = 'template_SPC2016Pcertificate'
+            download_file_name = 'SPC2016Pcertificate.pdf'
+        elif type == 'W':
+            template = 'template_SPC2016Wcertificate'
+            download_file_name = 'SPC2016Wcertificate.pdf'
+        elif type == 'A':
+            template = 'template_SPC2016Acertificate'
+            download_file_name = 'SPC2016Acertificate.pdf'
+
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        if type == 'P':
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                    serial_key=name['serial_key'], qr_code=qrcode)
+        elif type == 'A':
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                    serial_key=name['serial_key'], qr_code=qrcode, paper=paper)
+        elif type == 'W':
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                    serial_key=name['serial_key'], qr_code=qrcode, paper=paper)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            path = os.path.join(certificate_path, str(file_name)+ ".pdf")
+            print "path-------------", path
+            try : 
+                subject = 'subject' 
+                from_email = 'from_email@gmail.com' 
+                to = ['inbox.komal@gmail.com',]
+                message = path
+                msg = EmailMultiAlternatives(subject, message, from_email, [to]) 
+                msg.attach_file(path)
+                msg.content_subtype = "html" 
+                msg.send() 
+            except Exception as e:
+                print e
+                # cur_path = os.path.dirname(os.path.abspath(__file__))
+            # response = HttpResponse(pdf, content_type='application/pdf')
+            # response['Content-Disposition'] = 'attachment; \
+                    # filename=%s' % (download_file_name)
+            _clean_certificate_certificate(certificate_path, file_name)
+            # response.write(pdf.read())
+            # subject = 'subject' 
+            # from_email = 'from_email@gmail.com' 
+            # to = 'to_email@gmail.com' 
+            # ctx = {} 
+            # message = render_to_string('email.html', ctx) 
+            # msg = EmailMultiAlternatives(subject, message, from_email, [to]) 
+            # msg.content_subtype = "html" 
+            # msg.attach_file(pdf) # Here I need to attached the pdf file 
+            # msg.send() 
+            return [None, False]
         else:
             error = True
     except Exception, e:
