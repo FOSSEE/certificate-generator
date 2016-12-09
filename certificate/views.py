@@ -1266,12 +1266,14 @@ def drupal_workshop_download(request):
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
+            context['err'] = certificate[0]
             return render_to_response('drupal_workshop_download.html', context, ci)
     context['message'] = ''
     return render_to_response('drupal_workshop_download.html', context, ci)
 
 def create_drupal_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
     error = False
+    err = None
     try:
         download_file_name = None
         template = 'template_DWS2016Pcertificate'
@@ -1819,16 +1821,57 @@ def scipy_download_2016(request):
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
+
+
+    #     try:
+    #         old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+    #         qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+    #         details = {'name': name, 'serial_key': old_user.short_key}
+    #         certificate = create_scipy_certificate_2016(certificate_path, details, qrcode, type, paper, workshop, file_name)
+    #         print "==========", certificate[1]
+    #         if not certificate[1]:
+    #             old_user.counter = old_user.counter + 1
+    #             old_user.save()
+    #             return render(request, 'scipy_download_2016.html')
+    #     except Certificate.DoesNotExist:
+    #         uniqueness = False
+    #         num = 5
+    #         while not uniqueness:
+    #             present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+    #             if not present:
+    #                 short_key = serial_key[0:num]
+    #                 uniqueness = True
+    #             else:
+    #                 num += 1
+    #         qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
+    #         details = {'name': name,  'serial_key': short_key}
+    #         certificate = create_scipy_certificate_2016(certificate_path, details,
+    #                 qrcode, type, paper, workshop, file_name)
+    #         if not certificate[1]:
+    #                 certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
+    #                         counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
+    #                 certi_obj.save()
+    #                 return render(request, 'scipy_download_2016.html')
+
+    #     if certificate[1]:
+    #         _clean_certificate_certificate(certificate_path, file_name)
+    #         context['error'] = True
+    #         return render_to_response('scipy_download_2016.html', context, ci)
+    # context['message'] = ''
+    # return render_to_response('scipy_download_2016.html', context, ci)
+
+
+
+
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_scipy_certificate_2016(certificate_path, details, qrcode, type, paper, workshop, file_name)
-            print "==========", certificate[1]
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
-                return render(request, 'scipy_download_2016.html')
+                return certificate[0]
         except Certificate.DoesNotExist:
             uniqueness = False
             num = 5
@@ -1847,7 +1890,7 @@ def scipy_download_2016(request):
                     certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
                             counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
                     certi_obj.save()
-                    return render(request, 'scipy_download_2016.html')
+                    return certificate[0]
 
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
@@ -1891,37 +1934,32 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
         return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
-            path = os.path.join(certificate_path, str(file_name)+ ".pdf")
-            print "path-------------", path
-            try : 
-                subject = 'subject' 
-                from_email = 'from_email@gmail.com' 
-                to = ['inbox.komal@gmail.com',]
-                message = path
-                msg = EmailMultiAlternatives(subject, message, from_email, [to]) 
-                msg.attach_file(path)
-                msg.content_subtype = "html" 
-                msg.send() 
-            except Exception as e:
-                print e
-                # cur_path = os.path.dirname(os.path.abspath(__file__))
-            # response = HttpResponse(pdf, content_type='application/pdf')
-            # response['Content-Disposition'] = 'attachment; \
-                    # filename=%s' % (download_file_name)
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
             _clean_certificate_certificate(certificate_path, file_name)
-            # response.write(pdf.read())
-            # subject = 'subject' 
-            # from_email = 'from_email@gmail.com' 
-            # to = 'to_email@gmail.com' 
-            # ctx = {} 
-            # message = render_to_string('email.html', ctx) 
-            # msg = EmailMultiAlternatives(subject, message, from_email, [to]) 
-            # msg.content_subtype = "html" 
-            # msg.attach_file(pdf) # Here I need to attached the pdf file 
-            # msg.send() 
-            return [None, False]
+            return [response, False]
         else:
             error = True
+        # if return_value == 0:
+        #     pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+        #     path = os.path.join(certificate_path, str(file_name)+ ".pdf")
+        #     print "path-------------", path
+        #     try : 
+        #         subject = 'subject' 
+        #         from_email = 'from_email@gmail.com' 
+        #         to = ['inbox.komal@gmail.com',]
+        #         message = path
+        #         msg = EmailMultiAlternatives(subject, message, from_email, [to]) 
+        #         msg.attach_file(path)
+        #         msg.content_subtype = "html" 
+        #         msg.send() 
+        #     except Exception as e:
+        #         print e
+        #     return [None, False]
+        # else:
+            # error = True
     except Exception, e:
         error = True
     return [None, error]
