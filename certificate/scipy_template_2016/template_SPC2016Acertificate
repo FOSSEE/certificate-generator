@@ -1,21 +1,85 @@
-* certificate template
+%% Internship Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{niceframe}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+%% package to execute bash commands
+%% \usepackage{bashful}
 
-** Usage
-   - To generate a PDF file type,
-     #+BEGIN_SRC sh
-       make $command  
-     #+END_SRC sh
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
 
-   - To clean the project 
-     #+BEGIN_SRC sh
-       make clean   
-     #+END_SRC sh
+\geometry{tmargin=.2cm,bmargin=.2cm,
+  lmargin=.2cm, rmargin=.2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
 
-** License
-   The tex file and all the images within this project are entirely
-   PRIVATE. It's usage outside the `Fossee Project` is an legal
-   offense and will be subject to suitable punishment by Indian law.
+\begin{document}
 
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
 
-** Website
-   [[http://fossee.in]]
+%\TileWallPaper{4cm}{2cm}{aakash-logo.png}
+\TileWallPaper{cer_bg.png}
+
+\centering
+\scalebox{3}
+{
+\color{green!30!black!60}
+\begin{minipage}{.33\textwidth}
+\font\border=umrandb
+
+{
+
+\begin{center}
+\vspace{2.3cm}
+{\scriptsize \color{black} \hspace{2cm} This is to certify that } \\
+{\small {\color{black}\hspace{2cm}{$name}} }\\
+{\tiny {\color{black}  \hspace{2cm} from  the Department of speaker,\\
+\hspace{2cm} speaker,\\
+\hspace{2cm}has successfully completed an internship from speaker \\
+\hspace{2cm} in the Sponsored Project, FOSSEE (Free and Open Source Software for Education) at IIT Bombay.\\ 
+\vspace{.1cm}
+\hspace{2cm} During this tenure, he/she had worked on \\ 
+\hspace{2cm}  \color{red} speaker. \\ {\tiny{}}
+}}	
+\end{center}
+
+\vspace{.2cm}
+\begin{minipage}{.33\textwidth}
+{\color{blue!40!black} \vspace{.2cm}
+\scalebox{0.6}{
+\hspace{3cm}
+  \begin{tabular}{c c c}
+    \small{} & \small{\includegraphics[height=0.6cm]{kannan-moudgalya-sign.png}} &\\ 
+      \small{} & \small{~~~~~~~~Prof. Kannan Moudgalya~~~~~~~~} &\\
+    \small{} & \small{Project In-charge} &\\ 
+  \end{tabular}
+}
+}
+\end{minipage}
+\hfill
+\begin{minipage}{.33\textwidth}
+\begin{centering}
+\vspace{.2cm}
+%%\includegraphics[height=0.6cm]{fossee_logo.png}\hspace{22pt}
+%%\includegraphics[height=0.7cm]{iitb-logo.png}\hspace{22pt}
+\begin{pspicture}(0.1cm,0.1cm) \psbarcode{$qr_code}{eclevel=L width=0.25 height=0.25}{qrcode}\end{pspicture}\\
+\tiny{\texttt{$serial_key}}\\
+\end{centering}
+\end{minipage}
+
+}
+
+\end{minipage}
+}
+\end{document}
