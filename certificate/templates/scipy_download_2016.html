@@ -38,24 +38,23 @@
             <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
             <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
               <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit" id = 'myBtn' data-toggle = "modal">Mail Certificate</button></span>
+           
               <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <div class="modal-dialog">
+              <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                  <h4 class="modal-title" id="myModalLabel">Certificate Instructions</h4>
 
-            </div>
-            <div class="modal-body"><ol style="text-align:left"><li>Instructions to be added here</li>
+              </div>
+              <div class="modal-body"><ol style="text-align:left"><li>Instructions to be added here</li>
                                         <li>Instructions regarding certificates</li>
                                         <li>Add the contents</li>
                                    </ol></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
-            </div>
-        </div>
-            </div>
-          </form>
+                   </div>
+              </div>
+              
+              </form>
           <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:certificates@fossee.in">certificates[at]fossee[dot]in</a></h4>
 {% endblock %}
 
@@ -65,8 +64,12 @@
         value = "{{ v }}"
         email = ""
         error = "{{ error }}"
+       
         if(error == "True"){
             $("#invalidModal").modal();
+        }
+        if(error == "False"){
+            $("#myModal").modal();
         }
         if(value == "paper"){
             $('#A').prop('checked', true)
@@ -82,11 +85,4 @@
         });
    });
 </script>
-<script>
-$(document).ready(function () {
-      
-    $("#myBtn").click(function(){
-         $('#myModal').modal('show');
-    });
-});</script>
 {% endblock %}
