@@ -1949,16 +1949,33 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
             path = os.path.join(certificate_path, str(file_name)+ ".pdf")
             print "path-------------", path
             try : 
-                subject = 'subject' 
-                from_email = 'from_email@gmail.com' 
+                sender_name = "scipy"
+                sender_email = "from_email@gmail.com"
+                subject = "SciPy India 2016 - Certificate"
                 to = ['inbox.komal@gmail.com',]
-                message = path
-                msg = EmailMultiAlternatives(subject, message, from_email, [to]) 
-                msg.attach_file(path)
-                msg.content_subtype = "html" 
-                msg.send() 
+
+                message = """ Hello,
+                    Sending plain mail for testing
+                """
+
+                email = EmailMultiAlternatives(
+                    subject,'',
+                    sender_email, to,
+                    headers={"Content-type":"text/html;charset=iso-8859-1"}
+                )
+                email.attach_alternative(message, "text/html")
+                email.send(fail_silently=True)
+
+                # subject = 'subject' 
+                # from_email = 'from_email@gmail.com' 
+                # to = ['inbox.komal@gmail.com',]
+                # message = path
+                # msg = EmailMultiAlternatives(subject, message, from_email, [to]) 
+                # msg.attach_file(path)
+                # msg.content_subtype = "html" 
+                # msg.send() 
             except Exception as e:
-                print e
+                print "===============================", e
             return [None, False]
         else:
             error = True
