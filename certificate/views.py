@@ -10,6 +10,8 @@ import hashlib
 from certificate.forms import FeedBackForm
 from collections import OrderedDict
 from django.core.mail import EmailMultiAlternatives
+from django.views.decorators.csrf import csrf_exempt
+
 
 # Create your views here.
 
@@ -1713,7 +1715,7 @@ def create_scipy_certificate_2015(certificate_path, name, qrcode, type, paper, w
         error = True
     return [None, error]
 
-
+@csrf_exempt
 def scipy_feedback_2016(request):
     context = {}
     ci = RequestContext(request)
@@ -1750,7 +1752,7 @@ def scipy_feedback_2016(request):
 
     return render_to_response('scipy_feedback_2016.html', context, ci)
 
-
+@csrf_exempt
 def scipy_download_2016(request):
     context = {}
     err = ""
@@ -1902,7 +1904,7 @@ def scipy_download_2016(request):
     # context['message'] = ''
     # return render_to_response('scipy_download_2016.html', context, ci)
 
-
+@csrf_exempt
 def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, workshop, file_name):
     error = False
     try:
@@ -1957,9 +1959,9 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
                 subject = "SciPy India 2016 - Certificate"
                 to = ['scipy@fossee.in', name['email'],]
 
-                message = """ Hello,
-                    Sending plain mail for testing
+                message = """ Dear Participant,<br>Please find attached the participation certificate for SciPy India 2016.<br>If you wish to print this certificate, for optimal printing, please follow these instructions:<br><br>Recommended Paper: Ivory (Matt or Glossy) White <br>Recommended GSM: Minimum of 170<br>Size:  Letter size (8.5 x 11 in)<br>Print Settings: Fit to page<br><br>Regards,<br>SciPy India Team
                 """
+
 
                 email = EmailMultiAlternatives(
                     subject,'',
@@ -1970,20 +1972,14 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
                 email.attach_file(path) 
                 email.send(fail_silently=True)
 
-                # subject = 'subject' 
-                # from_email = 'from_email@gmail.com' 
-                # to = ['inbox.komal@gmail.com',]
-                # message = path
-                # msg = EmailMultiAlternatives(subject, message, from_email, [to]) 
-                # msg.attach_file(path) 
-                # msg.content_subtype = "html" 
-                # msg.send() 
             except Exception as e:
                 print "===============================", e
             _clean_certificate_certificate(certificate_path, file_name)
             return [None, False]
         else:
             error = True
+
+
     except Exception, e:    
         error = True
     return [None, error]
