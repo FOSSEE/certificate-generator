@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 events = (
             ('SLC', 'Scilab Conference'),
             ('SPC', 'Scipy Conference'),
+            ('S16', 'Scipy 2016 Conference'),
             ('PTC', 'Python Textbook Companion'),
             ('STC', 'Scilab Textbook Companion'),
             ('DCM', 'DrupalCamp Mumbai'),
@@ -185,20 +186,25 @@ class Scipy_speaker_2015(models.Model):
 class Scipy_participant_2016(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     email = models.CharField(max_length=50, null=True, blank=True)
-    purpose = models.CharField(max_length=10, default='SPC')
-
+    purpose = models.CharField(max_length=10, default='S16')
 
 class Scipy_speaker_2016(models.Model):
     name = models.CharField(max_length=300)
     email = models.CharField(max_length=300)
     paper = models.CharField(max_length=300)
-    purpose = models.CharField(max_length=10, default='SPC')
+    purpose = models.CharField(max_length=10, default='S16')
 
 class Scipy_workshop_2016(models.Model):
     name = models.CharField(max_length=300)
     email = models.CharField(max_length=300)
     paper = models.CharField(max_length=300)
-    purpose = models.CharField(max_length=10, default='SPC')
+    purpose = models.CharField(max_length=10, default='S16')
+
+class Scipy_TA_2016(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='S16')
 
 class OpenFOAM_Symposium_participant_2016(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
