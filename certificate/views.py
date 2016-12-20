@@ -165,7 +165,7 @@ def verification(serial, _type):
                         ('Project', 'FreeEDA Textbook Companion'), ('Books completed', ','.join(books))])
                 else:
                     detail = '{0} had attended {1} {2}'.format(name, purpose, year)
-            elif type == 'A':
+            elif type == 'A' or type == 'T':
                 detail = '{0} had presented paper on {3} in the {1} {2}'.format\
                         (name, purpose, year, paper)
                 if purpose == 'SciPy India':
@@ -189,7 +189,7 @@ def verification(serial, _type):
                 
                 else:
                     detail = '{0} had attended {1} {2}'.format(name, purpose, year)
-            elif type == 'W' or type == 'T':
+            elif type == 'W':
                 detail = '{0} had attended workshop on {3} in the {1} {2}'.format\
                         (name, purpose, year, workshop)
             context['serial_key'] = True
@@ -225,9 +225,9 @@ def verification(serial, _type):
                     detail['Year'] = year
                 else:
                     detail = '{0} had attended {1} {2}'.format(name, purpose, year)
-            elif type == 'A':
+            elif type == 'A' or type == 'T':
                 detail = '{0} had presented paper on {3} in the {1} {2}'.format(name, purpose, year, paper)
-            elif type == 'W' or type == 'T':
+            elif type == 'W' :
                 detail = '{0} had attended workshop on {3} in the {1} {2}'.format(name, purpose, year, workshop)
             context['detail'] = detail
         except Certificate.DoesNotExist:
@@ -1936,8 +1936,6 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
 
                 message = """ Dear Participant,<br>Please find attached the participation certificate for SciPy India 2016.<br>If you wish to print this certificate, for optimal printing, please follow these instructions:<br><br>Recommended Paper: Ivory (Matt or Glossy) White <br>Recommended GSM: Minimum of 170<br>Size:  Letter size (8.5 x 11 in)<br>Print Settings: Fit to page<br><br>Regards,<br>SciPy India Team
                 """
-
-
                 email = EmailMultiAlternatives(
                     subject,'',
                     sender_email, to,
@@ -1953,7 +1951,6 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
             return [None, False]
         else:
             error = True
-
 
     except Exception, e:  
         error = True
