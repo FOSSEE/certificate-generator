@@ -1726,40 +1726,8 @@ def create_scipy_certificate_2015(certificate_path, name, qrcode, type, paper, w
 
 @csrf_exempt
 def scipy_feedback_2016(request):
-    context = {}
-    ci = RequestContext(request)
-    form = FeedBackForm()
-    questions = Question.objects.filter(purpose='SPC2016')
-    if request.method == 'POST':
-        form = FeedBackForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            try:
-                FeedBack.objects.get(email=data['email'].strip(), purpose='SPC2016')
-                context['message'] = 'You have already submitted the feedback. You can download your certificate.'
-                return render_to_response('scipy_download_2016.html', context, ci)
-            except FeedBack.DoesNotExist:
-                feedback = FeedBack()
-                feedback.name = data['name'].strip()
-                feedback.email = data['email'].strip()
-                feedback.purpose = 'SPC2016'
-                feedback.submitted = True
-                feedback.save()
-                for question in questions:
-                    answered = request.POST.get('{0}'.format(question.id), None)
-                    answer = Answer()
-                    answer.question = question
-                    answer.answer = answered.strip()
-                    answer.save()
-                    feedback.answer.add(answer)
-                    feedback.save()
-                context['message'] = ''
-                return render_to_response('scipy_download_2016.html', context, ci)
+   return render_to_response('scipy_feedback_2016.html')
 
-    context['form'] = form
-    context['questions'] = questions
-
-    return render_to_response('scipy_feedback_2016.html', context, ci)
 
 @csrf_exempt
 def scipy_download_2016(request):
