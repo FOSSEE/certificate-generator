@@ -1728,6 +1728,7 @@ def create_scipy_certificate_2015(certificate_path, name, qrcode, type, paper, w
 def scipy_feedback_2016(request):
    return render_to_response('scipy_feedback_2016.html')
 
+
 @csrf_exempt
 def scipy_download_2016(request):
     context = {}
@@ -1901,14 +1902,14 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
                 subject = "SciPy India 2016 - Certificate"
                 to = ['scipy@fossee.in', name['email'],]
 
-                message = """ Dear Participant,<br>Please find attached the participation certificate for SciPy India 2016.<br>If you wish to print this certificate, for optimal printing, please follow these instructions:<br><br>Recommended Paper: Ivory (Matt or Glossy) White <br>Recommended GSM: Minimum of 170<br>Size:  Letter size (8.5 x 11 in)<br>Print Settings: Fit to page<br><br>Regards,<br>SciPy India Team
-                """
+                message_text = """Dear Participant,\nPlease find attached the participation certificate for SciPy India 2016.\nIf you wish to print this certificate, for optimal printing, please follow these instructions:\n\nRecommended Paper: Ivory (Matt or Glossy) White \nRecommended GSM: Minimum of 170\nSize:  Letter size (8.5 x 11 in)\nPrint Settings: Fit to page\n\nRegards,\nSciPy India Team"""
+                message_html = """Dear Participant,<br>Please find attached the participation certificate for SciPy India 2016.<br>If you wish to print this certificate, for optimal printing, please follow these instructions:<br><br>Recommended Paper: Ivory (Matt or Glossy) White <br>Recommended GSM: Minimum of 170<br>Size:  Letter size (8.5 x 11 in)<br>Print Settings: Fit to page<br><br>Regards,<br>SciPy India Team"""
                 email = EmailMultiAlternatives(
-                    subject,message,
+                    subject,message_text,
                     sender_email, to,
                     headers={"Content-type":"text/html;charset=iso-8859-1"}
                 )
-                email.attach_alternative(message, "text/html")
+                email.attach_alternative(message_html, "text/html")
                 email.attach_file(path) 
                 email.send(fail_silently=True)
 
