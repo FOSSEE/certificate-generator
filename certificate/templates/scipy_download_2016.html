@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 {% block header%}
     <h1> SciPy India Conference 2016 </h1>
 {% endblock %}
@@ -49,9 +51,9 @@
                 </div>
             {% endif %}
         </div>
-            <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
-            <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
-              <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit" id = 'myBtn' data-toggle = "modal">Mail Certificate</button></span>
+            
+            <input class="form-control" style="width: 100%;" ptype="text" id="email" name=email>
+              <span class="input-group-btn"><button class="btn btn-primary" type="submit" id = 'myBtn' data-toggle = "modal">Email Certificate</button></span></input>
            
               <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
               <div class="modal-dialog">
