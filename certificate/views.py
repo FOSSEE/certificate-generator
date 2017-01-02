@@ -1902,8 +1902,8 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
                 subject = "SciPy India 2016 - Certificate"
                 to = ['scipy@fossee.in', name['email'],]
 
-                message_text = """Dear Participant,\n\nPlease find attached the participation certificate for SciPy India 2016.\nIf you wish to print this certificate, for optimal printing, please follow these instructions:\n\nRecommended Paper: Ivory (Matt or Glossy) White \nRecommended GSM: Minimum of 170\nSize:  Letter size (8.5 x 11 in)\nPrint Settings: Fit to page\n\nRegards,\nSciPy India Team"""
-                message_html = """Dear Participant,<br><br>Please find attached the participation certificate for SciPy India 2016.<br>If you wish to print this certificate, for optimal printing, please follow these instructions:<br><br>Recommended Paper: Ivory (Matt or Glossy) White <br>Recommended GSM: Minimum of 170<br>Size:  Letter size (8.5 x 11 in)<br>Print Settings: Fit to page<br><br>Regards,<br>SciPy India Team"""
+                message_text = """Dear Participant,\n\nPlease find attached the participation certificate for SciPy India 2016.\nIf you wish to print this certificate, for optimal printing, please follow these instructions:\n\nRecommended Paper: Ivory (Matt or Glossy) White \nRecommended GSM: Minimum of 170\nSize:  Letter size (8.5 x 11 in)\nPrint Settings: Fit to page\n\nRegards,\nSciPy India Team."""
+                message_html = """Dear Participant,<br><br>Please find attached the participation certificate for SciPy India 2016.<br>If you wish to print this certificate, for optimal printing, please follow these instructions:<br><br>Recommended Paper: Ivory (Matt or Glossy) White <br>Recommended GSM: Minimum of 170<br>Size:  Letter size (8.5 x 11 in)<br>Print Settings: Fit to page<br><br>Regards,<br>SciPy India Team."""
                 email = EmailMultiAlternatives(
                     subject,message_text,
                     sender_email, to,
