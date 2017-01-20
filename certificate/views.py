@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from certificate.models import Drupal_WS, Osdag_WS, Scipy_TA_2016, Scipy_participant_2016, Scipy_speaker_2016, Scipy_workshop_2016, eSim_WS, Internship_participant,Internship16_participant, Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker, Drupal_camp, Tbc_freeeda, Dwsim_participant, Scilab_arduino, Esim_faculty, Scipy_participant_2015, Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016, OpenFOAM_Symposium_speaker_2016
+from certificate.models import Python_Workshop, OpenModelica_WS, Drupal_WS, Osdag_WS, Scipy_TA_2016, Scipy_participant_2016, Scipy_speaker_2016, Scipy_workshop_2016, eSim_WS, Internship_participant,Internship16_participant, Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker, Drupal_camp, Tbc_freeeda, Dwsim_participant, Scilab_arduino, Esim_faculty, Scipy_participant_2015, Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016, OpenFOAM_Symposium_speaker_2016
 import subprocess
 import os
 from string import Template
@@ -134,6 +134,14 @@ def verification(serial, _type):
                     faculty = Drupal_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
                         ('Days', '30 July'), ('Year', year)])
+                elif purpose == 'OpenModelica Workshop':
+                    faculty = OpenModelica_WS.objects.get(email=certificate.email)
+                    detail = OrderedDict([('Name', name), ('Event', purpose),
+                        ('Days', '4-5 January'), ('Year', year)])
+                elif purpose == 'Python Workshop':
+                    faculty = Python_Workshop.objects.get(email=certificate.email)
+                    detail = OrderedDict([('Name', name), ('Event', purpose),
+                        ('Days', '13 January'), ('Year', year)])
                 elif purpose == 'eSim Workshop':
                     faculty = eSim_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
@@ -272,6 +280,10 @@ def _get_detail(serial_no):
         purpose = 'Osdag Workshop'
     elif serial_no[0:3] == 'DRP':
         purpose = 'Drupal Workshop'
+    elif serial_no[0:3] == 'OMW':
+        purpose = 'OpenModelica Workshop'
+    elif serial_no[0:3] == 'PWS':
+        purpose = 'Python Workshop'
     elif serial_no[0:3] == 'EWS':
         purpose = 'eSim Workshop'
     elif serial_no[0:3] == 'OFC':
@@ -287,6 +299,8 @@ def _get_detail(serial_no):
         year = '2015'
     elif serial_no[3:5] == '16':
         year = '2016'
+    elif serial_no[3:5] == '17':
+        year = '2017'
     return purpose, year, serial_no[-1]
 
 
@@ -1925,6 +1939,123 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
     return [None, error]
 
 
+
+
+@csrf_exempt
+def openmodelica_feedback_2017(request):
+   return render_to_response('openmodelica_feedback_2017.html')
+
+@csrf_exempt
+def openmodelica_download_2017(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/openmodelica_workshop_template/'.format(cur_path)
+
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        type = request.POST.get('type', 'P')
+        paper = None
+        workshop = None
+        if type == 'P':
+            user = OpenModelica_WS.objects.filter(email=email)
+            if not user:
+                context["notregistered"] = 1
+                return render_to_response('openmodelica_download_2017.html',
+                        context, context_instance=ci)
+            else:
+                user = user[0]
+        name = user.name
+        purpose = user.purpose
+        year = '17'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_openmodelica_workshop_certificate(certificate_path, details,
+                    qrcode, type, paper, workshop, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_openmodelica_workshop_certificate(certificate_path, details,
+                    qrcode, type, paper, workshop, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1, workshop=workshop,
+                            paper=paper, serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('openmodelica_download_2017.html', context, ci)
+    context['message'] = ''
+    return render_to_response('openmodelica_download_2017.html', context, ci)
+
+def create_openmodelica_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
+    error = False
+    err = None
+    try:
+        download_file_name = None
+        template = 'template_OMW2017Pcertificate'
+        download_file_name = 'OMW2017Pcertificate.pdf'
+
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+
+        content_tex = content.safe_substitute(name=name['name'].title(),
+                serial_key = name['serial_key'], qr_code=qrcode)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
+
+
+
+
+
+
 ###############################################################################
 # OpenFOAM Symposium 2016
 ###############################################################################
@@ -2355,3 +2486,112 @@ def create_fossee_internship16_cerificate(certificate_path, name, qrcode, type, 
         error = True
     return [None, error]
 
+# def python_workshop_download(request):
+#     return render_to_response("python_workshop_download.html")
+
+
+@csrf_exempt
+def python_workshop_download(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/python_workshop_template/'.format(cur_path)
+
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        type = request.POST.get('type', 'P')
+        paper = None
+        workshop = None
+        if type == 'P':
+            user = Python_Workshop.objects.filter(email=email)
+            if not user:
+                context["notregistered"] = 1
+                return render_to_response('python_workshop_download.html',
+                        context, context_instance=ci)
+            else:
+                user = user[0]
+        name = user.name
+        college = user.college
+        purpose = user.purpose
+        paper = user.paper
+        year = '17'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_python_workshop_certificate(certificate_path, details,
+                    qrcode, type, paper, workshop, file_name, college)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_python_workshop_certificate(certificate_path, details,
+                    qrcode, type, paper, workshop, file_name, college)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1, workshop=workshop,
+                            paper=paper, serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('python_workshop_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('python_workshop_download.html', context, ci)
+
+def create_python_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name, college):
+    error = False
+    err = None
+    try:
+        download_file_name = None
+        template = 'template_PWS2017Pcertificate'
+        download_file_name = 'PWS2017Pcertificate.pdf'
+
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+
+        content_tex = content.safe_substitute(name=name['name'].title(),
+                serial_key = name['serial_key'], qr_code=qrcode, college = college, paper = paper)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
