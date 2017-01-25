@@ -141,7 +141,7 @@ def verification(serial, _type):
                 elif purpose == 'Python Workshop':
                     faculty = Python_Workshop.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '13 January'), ('Year', year)])
+                        ('Days', faculty.ws_date), ('Year', year)])
                 elif purpose == 'eSim Workshop':
                     faculty = eSim_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
@@ -2514,6 +2514,7 @@ def python_workshop_download(request):
         name = user.name
         college = user.college
         purpose = user.purpose
+        ws_date = user.ws_date
         paper = user.paper
         year = '17'
         id =  int(user.id)
@@ -2527,7 +2528,7 @@ def python_workshop_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_python_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name, college)
+                    qrcode, type, paper, workshop, file_name, college, ws_date)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -2545,7 +2546,7 @@ def python_workshop_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_python_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name, college)
+                    qrcode, type, paper, workshop, file_name, college, ws_date)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, workshop=workshop,
@@ -2561,7 +2562,7 @@ def python_workshop_download(request):
     context['message'] = ''
     return render_to_response('python_workshop_download.html', context, ci)
 
-def create_python_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name, college):
+def create_python_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name, college, ws_date):
     error = False
     err = None
     try:
@@ -2575,7 +2576,7 @@ def create_python_workshop_certificate(certificate_path, name, qrcode, type, pap
         template_file.close()
 
         content_tex = content.safe_substitute(name=name['name'].title(),
-                serial_key = name['serial_key'], qr_code=qrcode, college = college, paper = paper)
+                serial_key = name['serial_key'], qr_code=qrcode, college = college, paper = paper, ws_date= ws_date)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
