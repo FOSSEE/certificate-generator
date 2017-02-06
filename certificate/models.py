@@ -195,7 +195,7 @@ class Scipy_participant_2016(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     email = models.CharField(max_length=50, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='S16')
-True
+
 class Scipy_speaker_2016(models.Model):
     name = models.CharField(max_length=300)
     email = models.CharField(max_length=300)
