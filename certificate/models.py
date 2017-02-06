@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import datetime
 # Create your models here.
 
 events = (
@@ -194,7 +195,7 @@ class Scipy_participant_2016(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
     email = models.CharField(max_length=50, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='S16')
-
+True
 class Scipy_speaker_2016(models.Model):
     name = models.CharField(max_length=300)
     email = models.CharField(max_length=300)
@@ -231,7 +232,7 @@ class Python_Workshop(models.Model):
     paper = models.CharField(max_length=300) #grades
     purpose = models.CharField(max_length=10, default='PWS')
     college = models.CharField(max_length = 200)
-    ws_date = models.CharField(max_length = 100)
+    ws_date = models.CharField(max_length = 100, null=True, blank=True)
 
 class Internship_participant(models.Model):
     name = models.CharField(max_length=200)
