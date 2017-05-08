@@ -2516,6 +2516,7 @@ def python_workshop_download(request):
         purpose = user.purpose
         ws_date = user.ws_date
         paper = user.paper
+        is_coordinator = user.is_coordinator
         year = '17'
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
@@ -2528,7 +2529,7 @@ def python_workshop_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_python_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name, college, ws_date)
+                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -2546,7 +2547,7 @@ def python_workshop_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_python_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name, college, ws_date)
+                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, workshop=workshop,
@@ -2562,14 +2563,15 @@ def python_workshop_download(request):
     context['message'] = ''
     return render_to_response('python_workshop_download.html', context, ci)
 
-def create_python_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name, college, ws_date):
+def create_python_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator=False):
     error = False
     err = None
     try:
         download_file_name = None
         template = 'template_PWS2017Pcertificate'
         download_file_name = 'PWS2017Pcertificate.pdf'
-
+        if is_coordinator:
+            template = 'coordinator_template_PWS2017Pcertificate' # coordinator_template_PWS2017Pcertificate
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())

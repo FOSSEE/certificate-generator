@@ -233,6 +233,7 @@ class Python_Workshop(models.Model):
     purpose = models.CharField(max_length=10, default='PWS')
     college = models.CharField(max_length = 200)
     ws_date = models.CharField(max_length = 100, null=True, blank=True)
+    is_coordinator = models.BooleanField(default=False)
 
 class Internship_participant(models.Model):
     name = models.CharField(max_length=200)
