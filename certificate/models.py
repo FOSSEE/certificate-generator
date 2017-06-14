@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import datetime
 # Create your models here.
 
 events = (
@@ -16,6 +17,8 @@ events = (
             ('OWS', 'Osdag Workshop'),
             ('EWS', 'eSim Workshop'),
             ('DRP', 'Drupal Workshop'),
+            ('OMW', 'OpenModelica Workshop'),
+            ('PWS', 'Python Workshop')
         )
 
 class Profile(models.Model):
@@ -166,6 +169,11 @@ class Drupal_WS(models.Model):
     email = models.EmailField()
     purpose = models.CharField(max_length=10, default='DRP')
 
+class OpenModelica_WS(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    purpose = models.CharField(max_length=10, default='OMW')
+
 class eSim_WS(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
@@ -217,6 +225,25 @@ class OpenFOAM_Symposium_speaker_2016(models.Model):
     email = models.CharField(max_length=300)
     paper = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='OFC')
+
+class Python_Workshop(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300) #grades
+    purpose = models.CharField(max_length=10, default='PWS')
+    college = models.CharField(max_length = 200)
+    ws_date = models.CharField(max_length = 100, null=True, blank=True)
+    is_coordinator = models.BooleanField(default=False)
+
+
+class Python_Workshop_BPPy(models.Model):#3day python workshop
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300) #grades
+    purpose = models.CharField(max_length=10, default='PWS')
+    college = models.CharField(max_length = 200)
+    ws_date = models.CharField(max_length = 100, null=True, blank=True)
+    is_coordinator = models.BooleanField(default=False)
 
 
 class Internship_participant(models.Model):
