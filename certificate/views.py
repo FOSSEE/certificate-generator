@@ -2552,7 +2552,6 @@ def python_workshop_download(request):
             details = {'name': name,  'serial_key': short_key}
             certificate = create_python_workshop_certificate(certificate_path, details,
                     qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
-            print (certificate)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, workshop=workshop,
