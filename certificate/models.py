@@ -236,7 +236,10 @@ class Python_Workshop(models.Model):
     is_coordinator = models.BooleanField(default=False)
 
 
-class Python_Workshop_BPPy(models.Model):#3day python workshop
+class Python_Workshop_BPPy(models.Model):
+    """
+    3day python workshop user details
+    """
     name = models.CharField(max_length=300)
     email = models.CharField(max_length=300)
     paper = models.CharField(max_length=300) #grades
