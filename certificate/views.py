@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from certificate.models import Python_Workshop, OpenModelica_WS, Drupal_WS, Osdag_WS, Scipy_TA_2016, Scipy_participant_2016, Scipy_speaker_2016, Scipy_workshop_2016, eSim_WS, Internship_participant,Internship16_participant, Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker, Drupal_camp, Tbc_freeeda, Dwsim_participant, Scilab_arduino, Esim_faculty, Scipy_participant_2015, Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016, OpenFOAM_Symposium_speaker_2016
+from certificate.models import Python_Workshop, Python_Workshop_BPPy, OpenModelica_WS, Drupal_WS, Osdag_WS, Scipy_TA_2016, Scipy_participant_2016, Scipy_speaker_2016, Scipy_workshop_2016, eSim_WS, Internship_participant,Internship16_participant, Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker, Drupal_camp, Tbc_freeeda, Dwsim_participant, Scilab_arduino, Esim_faculty, Scipy_participant_2015, Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016, OpenFOAM_Symposium_speaker_2016
 import subprocess
 import os
 from string import Template
@@ -2501,10 +2501,14 @@ def python_workshop_download(request):
     if request.method == 'POST':
         email = request.POST.get('email').strip()
         type = request.POST.get('type', 'P')
+        format = request.POST.get('format','iscp')
         paper = None
         workshop = None
         if type == 'P':
-            user = Python_Workshop.objects.filter(email=email)
+            if format=='iscp':
+                user = Python_Workshop.objects.filter(email=email)
+            else:
+                user = Python_Workshop_BPPy.objects.filter(email=email)
             if not user:
                 context["notregistered"] = 1
                 return render_to_response('python_workshop_download.html',
@@ -2529,7 +2533,7 @@ def python_workshop_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_python_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator)
+                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -2547,7 +2551,7 @@ def python_workshop_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_python_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator)
+                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, workshop=workshop,
@@ -2563,15 +2567,24 @@ def python_workshop_download(request):
     context['message'] = ''
     return render_to_response('python_workshop_download.html', context, ci)
 
-def create_python_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator=False):
+def create_python_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator=False,format='iscp'):
     error = False
     err = None
     try:
         download_file_name = None
-        template = 'template_PWS2017Pcertificate'
+        if format=='iscp': # use templates based on 3day or 1day workshop
+            if is_coordinator:
+                template = 'coordinator_template_PWS2017Pcertificate'
+            else:
+                template = 'template_PWS2017Pcertificate'
+        else:
+            if is_coordinator:
+                template = '3day_coordinator_template_PWS2017Pcertificate'
+            else:
+                template = '3day_template_PWS2017Pcertificate'
+
         download_file_name = 'PWS2017Pcertificate.pdf'
-        if is_coordinator:
-            template = 'coordinator_template_PWS2017Pcertificate' # coordinator_template_PWS2017Pcertificate
+
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())

@@ -3,6 +3,14 @@
     <h1> Python Workshop </h1>
 {% endblock %}
 {% block content %}
+<style>
+.radioLeft {
+  padding-top:30px;
+    display: block;
+  text-align: left;
+   padding-left: 10cm;
+}
+</style>
           <div class="modal fade" id="invalidModal" tabindex="-1" role="dialog" aria-labelledby="invalidModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
@@ -14,7 +22,7 @@
                       {% if notregistered == 1 %}
                         Please enter a proper email address.
                       {% else %}
-                        You have not attended the Drupal Camp Mumbai 2015.
+                        You have not attended the Python workshop.
                       {% endif %}
                   </div>
                 </div>
@@ -28,9 +36,16 @@
             <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
               <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Download Certificate</button></span>
             </div>
+
+            <div class="radioLeft">
+            <h4>Select the workshop category</h4>
+            <input type="radio" name="format" id="format" value="iscp"> Introduction to Scientific Computing using Python(ISCP)</label><br>
+            <input type="radio" name="format" id="format" value="3day"> Basic Programming using Python</label><br>
+          </div>
+
           </form>
           <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:certificates@fossee.in">certificates[at]fossee[dot]in</a></h4>
-              
+          <center><h4>To get more details on upcoming workshops, follow us on<a href="https://www.facebook.com/FOSSEENMEICT/"> facebook</a></h4>
           <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
