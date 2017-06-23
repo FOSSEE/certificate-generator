@@ -142,6 +142,10 @@ def verification(serial, _type):
                     faculty = Python_Workshop.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
                         ('Days', faculty.ws_date), ('Year', year)])
+                elif purpose == 'Python 3day Workshop':
+                    faculty = Python_Workshop_BPPy.objects.get(email=certificate.email)
+                    detail = OrderedDict([('Name', name), ('Event', purpose),
+                        ('Days', faculty.ws_date), ('Year', year)])
                 elif purpose == 'eSim Workshop':
                     faculty = eSim_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
@@ -284,6 +288,8 @@ def _get_detail(serial_no):
         purpose = 'OpenModelica Workshop'
     elif serial_no[0:3] == 'PWS':
         purpose = 'Python Workshop'
+    elif serial_no[0:3] == 'P3W':
+        purpose = 'Python 3day Workshop'
     elif serial_no[0:3] == 'EWS':
         purpose = 'eSim Workshop'
     elif serial_no[0:3] == 'OFC':
@@ -292,6 +298,7 @@ def _get_detail(serial_no):
         purpose = 'FOSSEE Internship'
     elif serial_no[0:3] == 'F16':
         purpose = 'FOSSEE Internship 2016'
+
 
     if serial_no[3:5] == '14':
         year = '2014'
