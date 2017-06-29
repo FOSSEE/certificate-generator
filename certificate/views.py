@@ -2322,12 +2322,13 @@ def create_fossee_internship_cerificate(certificate_path, name, qrcode, type, pa
     error = False
     try:
         download_file_name = None
+        year = internship_project_duration[internship_project_duration.find('to')-5:internship_project_duration.find('to')].strip()
         if type == 'P':
             template = 'template_FIC2016Pcertificate'
             download_file_name = 'FIC2016Pcertificate.pdf'
         elif type == 'A':
             template = 'template_FIC2016Acertificate'
-            download_file_name = 'FIC2016Acertificate.pdf'
+            download_file_name = 'FIC{0}Acertificate.pdf'.format(year)
 
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
