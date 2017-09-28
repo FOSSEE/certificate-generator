@@ -5,7 +5,8 @@
 {% endblock %}
 {% block content %}
 <div style="margin:auto; width:45%">
-    <p>Below links will take you to a feedback form.<br> Please fill the feedback form and download your <b>e-certificate</b>.</h5></p>
+    <p>Below links will take you to a feedback form.<br> Please fill the feedback form and download your <b>e-certificate</b>.</h5>
+    </p>
         <ul class="nav nav-list">
           <li><a href="{% url 'certificate:python_workshop_download' %}" >Python Workshop</a></li>
           <li><a href="{% url 'certificate:openmodelica_feedback_2017' %}" >OpenModelica Workshop 2017</a></li>
@@ -25,7 +26,32 @@
           <li><a href="{% url 'certificate:scipy_feedback' %}" >SciPy India Conference 2014</a></li>
           <li><a href="{% url 'certificate:feedback' %}" >Scilab India Conference 2014</a></li>
         </ul>
-    <div>
+</div>
+
+<footer class="footer" style="background-color: #373434">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-sm-3 address wow fadeInUp animated" data-wow-duration="2s" data-wow-delay=".1s" data-wow-animation-name="fadeInUp" style="visibility: visible; animation-duration: 2s; animation-delay: 0.1s; animation-name: fadeInUp;">
+                  <a href="http://fossee.in" target="_blank"><img class="img" src="http://fossee.in/sites/all/themes/software_responsive_theme/img/logo.png" /></a><br/> <br/>
+                  <a href="http://www.iitb.ac.in" target="_blank"> <img height="100" width="100" src="http://fossee.in/sites/all/themes/software_responsive_theme/img/iitb-logo.png" style=""></a>
+                </div>
+                <div class="col-lg-3 col-sm-3 wow fadeInUp animated" data-wow-duration="2s" data-wow-delay=".3s" data-wow-animation-name="fadeInUp" style="visibility: visible; animation-duration: 2s; animation-delay: 0.3s; animation-name: fadeInUp;">
+                  <a href="https://www.facebook.com/FOSSEENMEICT/" target="_blank"> <img height="100" width="100" src="/home/binson/workspace/Certificate-Generator/certificate-generator/certificate/templates/social_media_icons/fb.png" style=""></a>
+                  </div>
+                  <div class="col-lg-3 col-sm-3 wow fadeInUp animated" data-wow-duration="2s" data-wow-delay=".3s" data-wow-animation-name="fadeInUp" style="visibility: visible; animation-duration: 2s; animation-delay: 0.3s; animation-name: fadeInUp;">
+                  </div>
+                <div class="col-lg-3 col-sm-3">
+                     <h1 style="color: #000000">CONTACT</h1>
+                     <address style="color: #000000">
+                         <p>FOSSEE, IIT Bombay</p>
+                         <p>Mumbai, India</p>
+                       
+                         <p>Phone : (+91) 22 25764133 </p>
+                         <p>Email : certificates[at]fossee[dot]in</p>
+                     </address>
+                     </div>
+                </div>
+                </div>
+
+    </footer>
 {% endblock %}
-
-
