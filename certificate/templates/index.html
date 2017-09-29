@@ -4,8 +4,9 @@
     <h1> FOSSEE Certificates </h1>
 {% endblock %}
 {% block content %}
-<div style="margin:auto; width:45%">
+<div style="margin:auto;">
     <p>Below links will take you to a feedback form.<br> Please fill the feedback form and download your <b>e-certificate</b>.</h5>
+      <div>
     </p>
         <ul class="nav nav-list">
           <li><a href="{% url 'certificate:python_workshop_download' %}" >Python Workshop</a></li>
@@ -27,31 +28,41 @@
           <li><a href="{% url 'certificate:feedback' %}" >Scilab India Conference 2014</a></li>
         </ul>
 </div>
-
-<footer class="footer" style="background-color: #373434">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-sm-3 address wow fadeInUp animated" data-wow-duration="2s" data-wow-delay=".1s" data-wow-animation-name="fadeInUp" style="visibility: visible; animation-duration: 2s; animation-delay: 0.1s; animation-name: fadeInUp;">
-                  <a href="http://fossee.in" target="_blank"><img class="img" src="http://fossee.in/sites/all/themes/software_responsive_theme/img/logo.png" /></a><br/> <br/>
-                  <a href="http://www.iitb.ac.in" target="_blank"> <img height="100" width="100" src="http://fossee.in/sites/all/themes/software_responsive_theme/img/iitb-logo.png" style=""></a>
+<div class="row" id="bottom" style="background-color: #373434">
+            <div class="col-md-4">
+                <br><br>
+                <h4 style="color: #000000">Organized By:</h4>
+                <img  height="52.99" width="142.986" src="http://fossee.in/sites/all/themes/software_responsive_theme/img/logo.png" >
+                &nbsp; &nbsp;
+                <img height="55" width="47" src="http://fossee.in/sites/all/themes/software_responsive_theme/img/iitb-logo.png">
+            </div>
+            <!-- /.col-md-4 -->
+            <div class="col-md-4">
+                <br>
+                <h3 style="color: #000000">Related Links</h3>
+                <a href="http://fossee.in" target="_blank">fossee.in</a><br>
+                <a href="http://yaksh.fossee.in" target="_blank">yaksh.fossee.in</a><br>
+                <a href="http://python.fossee.in" target="_blank">python.fossee.in</a>
+            </div>
+            
+            <div class="col-md-4" style="color: #000000">
+                <h3>Contact Us</h3>
+                FOSSEE, IIT-Bombay<br>
+                Mumbai, India <br> 
+                Phone: (+91) 22 2576 4133<br>
+                Email: workshops[at]fossee[dot]in
+                <div id="social" style="padding-bottom: 2%; padding-top: 2%">
+                <a href="https://www.facebook.com/FOSSEENMEICT/" target="_blank" class="fa fa-facebook">
+                  <img height="25" width="25" src="/static/img/fb.png" style="padding-right: 10px;padding-left: 10px;width: 45px;">
+                </a> &nbsp;
+                <a href="https://twitter.com/FOSSEENMEICT" target="_blank" class="fa fa-google">
+                  <img height="25" width="25" src="/static/img/tw.png" style="padding-right: 10px; width: 35px;"/>
+                </a> &nbsp;
+                <a href="https://www.youtube.com/channel/UCMtt6exSCmZI7JU73S6Wz_A" target="_blank" class="fa fa-youtube">
+                  <img height="25" width="25" src="/static/img/yt.png" style="padding-right: 10px; width: 35px;"/>
+                </a>  <br>
                 </div>
-                <div class="col-lg-3 col-sm-3 wow fadeInUp animated" data-wow-duration="2s" data-wow-delay=".3s" data-wow-animation-name="fadeInUp" style="visibility: visible; animation-duration: 2s; animation-delay: 0.3s; animation-name: fadeInUp;">
-                  <a href="https://www.facebook.com/FOSSEENMEICT/" target="_blank"> <img height="100" width="100" src="/home/binson/workspace/Certificate-Generator/certificate-generator/certificate/templates/social_media_icons/fb.png" style=""></a>
-                  </div>
-                  <div class="col-lg-3 col-sm-3 wow fadeInUp animated" data-wow-duration="2s" data-wow-delay=".3s" data-wow-animation-name="fadeInUp" style="visibility: visible; animation-duration: 2s; animation-delay: 0.3s; animation-name: fadeInUp;">
-                  </div>
-                <div class="col-lg-3 col-sm-3">
-                     <h1 style="color: #000000">CONTACT</h1>
-                     <address style="color: #000000">
-                         <p>FOSSEE, IIT Bombay</p>
-                         <p>Mumbai, India</p>
-                       
-                         <p>Phone : (+91) 22 25764133 </p>
-                         <p>Email : certificates[at]fossee[dot]in</p>
-                     </address>
-                     </div>
                 </div>
-                </div>
-
-    </footer>
+        </div>
+</div>
 {% endblock %}
