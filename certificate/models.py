@@ -18,7 +18,8 @@ events = (
             ('EWS', 'eSim Workshop'),
             ('DRP', 'Drupal Workshop'),
             ('OMW', 'OpenModelica Workshop'),
-            ('PWS', 'Python Workshop')
+            ('PWS', 'Python Workshop'),
+            ('S17', 'Scipy 2017 Conference')
         )
 
 class Profile(models.Model):
@@ -269,3 +270,27 @@ class Internship16_participant(models.Model):
     project_title = models.CharField(max_length=1000)
     internship_project_duration = models.CharField(max_length=500, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='F16')
+
+
+class Scipy_participant_2017(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    email = models.CharField(max_length=50, null=True, blank=True)
+    purpose = models.CharField(max_length=10, default='S17')
+
+class Scipy_speaker_2017(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='S17')
+
+class Scipy_workshop_2017(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='S17')
+
+class Scipy_TA_2017(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='S17')

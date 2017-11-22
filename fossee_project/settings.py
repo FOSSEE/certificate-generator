@@ -7,7 +7,7 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-from local import DBNAME, DBUSER, DBPASS
+#from local import DBNAME, DBUSER, DBPASS
 from os.path import *
 PROJDIR = abspath(dirname(__file__))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -68,11 +68,11 @@ WSGI_APPLICATION = 'fossee_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME' : DBNAME,
-        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'USER' : DBUSER,
-        'PASSWORD': DBPASS,
+        'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME' : DBNAME,
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #'USER' : DBUSER,
+        #'PASSWORD': DBPASS,
     }
 }
 

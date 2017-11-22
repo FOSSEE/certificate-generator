@@ -1,0 +1,71 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.2cm,bmargin=.2cm,
+  lmargin=.2cm, rmargin=.2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+%\TileWallPaper{4cm}{2cm}{aakash-logo.png}
+\TileWallPaper{28cm}{22cm}{cert_bg_1.png}
+
+\centering
+\scalebox{3}{\color{brown!30!brown!60}
+\begin{minipage}{.33\textwidth}
+
+
+{\centering
+
+%% logo - top
+\vspace{1.5cm}
+\textcolor{black}{\textsc{Certificate of Teaching Assistantship}}
+\hspace{10cm} 
+\textcolor{black!100}{\scriptsize  This is to certify that}\\
+{\textcolor{blue} {~~~~~~~~{$name}}~~~~~~~~}\\
+{\scriptsize  {\color{black} Participated in SciPy India Conference 2016\\
+as a teaching assistant in the Satellite Centre : {\textcolor{blue}{$paper.}} \\
+The event was organized by FOSSEE at Indian Institute of Technology Bombay \\
+on 10, 11 December 2016.}\\}
+
+\vspace{0.3cm}
+{\color{black!40!black}
+\scalebox{1}{
+ \begin{tabular}{c c c c c}
+    \small{\includegraphics[height=0.6cm]{pr_sign.png}} & \small{} &  \small{} &   \hspace{2cm} &\small{\begin{pspicture}(0.3cm,0.3cm) \psbarcode{$qr_code}{eclevel=L width=0.25 height=0.25}{qrcode}\end{pspicture}} \\ 
+    \small{} & \small{} & \small{} & \small{} & \tiny{\color{black}\texttt{$serial_key}} 
+  \end{tabular}
+
+}}
+\\
+
+%%\includegraphics[height=0.6cm]{fossee-logo.png}\hspace{22pt}
+%%\includegraphics[height=0.7cm]{bottom_logo.png}\hspace{22pt}
+%%\includegraphics[height=0.7cm]{iitb-logo.png}\hspace{22pt}\\
+
+
+}
+
+\end{minipage}
+}
+\end{document}
