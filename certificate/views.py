@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from certificate.models import Python_Workshop, Python_Workshop_BPPy, OpenModelica_WS, Drupal_WS, Osdag_WS, Scipy_TA_2016, Scipy_participant_2016, Scipy_speaker_2016, Scipy_workshop_2016, eSim_WS, Internship_participant,Internship16_participant, Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker, Drupal_camp, Tbc_freeeda, Dwsim_participant, Scilab_arduino, Esim_faculty, Scipy_participant_2015, Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016, OpenFOAM_Symposium_speaker_2016, Scipy_TA_2017, Scipy_participant_2017, Scipy_speaker_2017, Scipy_workshop_2017
+from certificate.models import Python_Workshop, Python_Workshop_BPPy, OpenModelica_WS, Drupal_WS, Osdag_WS, Scipy_TA_2016, Scipy_participant_2016, Scipy_speaker_2016, Scipy_workshop_2016, eSim_WS, Internship_participant,Internship16_participant, Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker, Drupal_camp, Tbc_freeeda, Dwsim_participant, Scilab_arduino, Esim_faculty, Scipy_participant_2015, Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016, OpenFOAM_Symposium_speaker_2016, Scipy_2017
 import subprocess
 import os
 from string import Template
@@ -2633,69 +2633,17 @@ def scipy_download_2017(request):
         paper = request.POST.get('paper', None)
         workshop = None
         email = request.POST.get('email').strip()
-        type = request.POST.get('type')
-        if type == 'P':
-            user = Scipy_participant_2017.objects.filter(email=email)
-            if not user:
-                context["notregistered"] = 1
-                return render_to_response('scipy_download_2017.html', context, context_instance=ci)
-            else:
-                user = user[0]
-            paper = "paper name temporary"
-        elif type == 'A':
-            if paper:
-                user = Scipy_speaker_2017.objects.filter(email=email, paper=paper)
-                if user:
-                    user = [user[0]]
-            else:
-                user = Scipy_speaker_2017.objects.filter(email=email)
-            if not user:
-                context["notregistered"] = 1
-                return render_to_response('scipy_download_2017.html', context, context_instance=ci)
-            if len(user) > 1:
-                context['user_papers'] = user
-                context['v'] = 'paper'
-                return render_to_response('scipy_download_2017.html', context, context_instance=ci)
-            else:
-                user = user[0]
-                paper = user.paper
-        elif type == 'W':
-            if paper:
-                user = Scipy_workshop_2017.objects.filter(email=email, paper=paper)
-                if user:
-                    user = [user[0]]
-            else:
-                user = Scipy_workshop_2017.objects.filter(email=email)
-            if not user:
-                context["notregistered"] = 1
-                return render_to_response('scipy_download_2017.html', context, context_instance=ci)
-            if len(user) > 1:
-                context['user_papers'] = user
-                context['v'] = 'paper'
-                return render_to_response('scipy_download_2017.html', context, context_instance=ci)
-            else:
-                user = user[0]
-                paper = user.paper
-        elif type == 'T':
-            if paper:
-                user = Scipy_TA_2017.objects.filter(email=email, paper=paper)
-                if user:
-                    user = [user[0]]
-            else:
-                user = Scipy_TA_2017.objects.filter(email=email)
-            if not user:
-                context["notregistered"] = 1
-                return render_to_response('scipy_download_2017.html', context, context_instance=ci)
-            if len(user) > 1:
-                context['user_papers'] = user
-                context['v'] = 'paper'
-                return render_to_response('scipy_download_2017.html', context, context_instance=ci)
-            else:
-                user = user[0]
-                paper = user.paper
+        attendee_type = request.POST.get('type')
+        user = Scipy_2017.objects.filter(email=email, attendee_type=attendee_type)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('scipy_download_2017.html', context, context_instance=ci)
+        else:
+            user = user[0]
         name = user.name
         email = user.email
         purpose = user.purpose
+        paper = user.paper
         year = '17'
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
@@ -2709,7 +2657,7 @@ def scipy_download_2017(request):
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key, 'email' : email}
-            certificate = create_scipy_certificate_2017(certificate_path, details, qrcode, type, paper, workshop, file_name)
+            certificate = create_scipy_certificate_2017(certificate_path, details, qrcode, attendee_type, paper, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -2728,7 +2676,7 @@ def scipy_download_2017(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key, 'email': email}
             certificate = create_scipy_certificate_2017(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                    qrcode, attendee_type, paper, workshop, file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
                             counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
@@ -2744,44 +2692,26 @@ def scipy_download_2017(request):
 
 
 @csrf_exempt
-def create_scipy_certificate_2017(certificate_path, name, qrcode, type, paper, workshop, file_name):
+def create_scipy_certificate_2017(certificate_path, name, qrcode, attendee_type, paper, workshop, file_name):
     error = False
     try:
-        download_file_name = None
-        if type == 'P':
-            template = 'template_SPC2017Pcertificate'
-            download_file_name = 'SPC2017Pcertificate.pdf'
-        elif type == 'W':
-            template = 'template_SPC2017Wcertificate'
-            download_file_name = 'SPC2017Wcertificate.pdf'
-        elif type == 'A':
-            template = 'template_SPC2017Acertificate'
-            download_file_name = 'SPC2017Acertificate.pdf'
-        elif type == 'T':
-            template = 'template_SPC2017Tcertificate'
-            download_file_name = 'SPC2017Tcertificate.pdf'
-
+        template = 'template_SPC2017%scertificate' % attendee_type
+        download_file_name = 'SPC2017%scertificate.pdf' % attendee_type
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
-        if type == 'P':
+        if attendee_type == 'P' or attendee_type == 'T':
             content_tex = content.safe_substitute(name=name['name'].title(),
                     serial_key=name['serial_key'], qr_code=qrcode)
-        elif type == 'A':
+        else:
             content_tex = content.safe_substitute(name=name['name'].title(),
-                    serial_key=name['serial_key'], qr_code=qrcode, paper=paper)
-        elif type == 'W':content.safe_substitute(name=name['name'].title(),
-                    serial_key=name['serial_key'], qr_code=qrcode, paper=paper)
-        elif type == 'T':
-            content_tex = content.safe_substitute(name=name['name'].title(),
-                    serial_key=name['serial_key'], qr_code=qrcode, paper=paper)
+                        serial_key=name['serial_key'], qr_code=qrcode, paper=paper)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
-        return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
-        print return_value
+        return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
     
 
         if return_value == 0:
@@ -2827,5 +2757,3 @@ else:
 except Exception, e:  
 error = True
 return [None, error]'''
-
-

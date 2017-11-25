@@ -15,7 +15,7 @@
 \usepackage{auto-pst-pdf}
 
 \geometry{tmargin=.2cm,bmargin=.2cm,
-  lmargin=.2cm, rmargin=.2cm}
+  lmargin=6cm, rmargin=.2cm}
 \usepackage{multicol}
 \setlength{\columnseprule}{1pt}
 \columnwidth=0.6\textwidth
@@ -28,7 +28,7 @@
 %% \END
 
 %\TileWallPaper{4cm}{2cm}{aakash-logo.png}
-\TileWallPaper{28cm}{22cm}{cert_bg_1.png}
+\TileWallPaper{28cm}{22cm}{cert_bg_2.png}
 
 \centering
 \scalebox{3}{\color{brown!30!brown!60}
