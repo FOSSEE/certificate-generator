@@ -113,6 +113,20 @@ def verification(serial, _type):
             certificate.verified += 1
             certificate.save()
             purpose, year, type = _get_detail(serial_no)
+            if purpose == 'SciPy India 2017':
+                detail_list = [
+                ('Name', name), ('Event', purpose),
+                ('Days', '29 - 30 November'),
+                ('Year', year)
+                ]
+                if not type == 'P':
+                    detail_list.append(('Paper', paper))
+
+                detail = OrderedDict(detail_list)
+                context['serial_key'] = True
+                context['detail'] = detail
+                return context
+
             if type == 'P':
                 if purpose == 'DWSIM Workshop':
                     dwsim_user = Dwsim_participant.objects.get(email=certificate.email)
@@ -298,6 +312,8 @@ def _get_detail(serial_no):
         purpose = 'FOSSEE Internship'
     elif serial_no[0:3] == 'F16':
         purpose = 'FOSSEE Internship 2016'
+    elif serial_no[0:3] == 'S17':
+        purpose = 'SciPy India 2017'
 
 
     if serial_no[3:5] == '14':
@@ -2647,7 +2663,7 @@ def scipy_download_2017(request):
         year = '17'
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
-        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, attendee_type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
@@ -2727,33 +2743,3 @@ def create_scipy_certificate_2017(certificate_path, name, qrcode, attendee_type,
     except Exception, e:
         error = True
     return [None, error]
-    '''pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
-    path = os.path.join(certificate_path, str(file_name)+ ".pdf")
-    
-    try : 
-        sender_name = "scipy"
-        sender_email = "scipy@fossee.in"
-        subject = "SciPy India 2017 - Certificate"
-        to = ['scipy@fossee.in', name['email'],]
-
-        message_text = """Dear Participant,\n\nPlease find attached the participation certificate for SciPy India 2016.\nIf you wish to print this certificate, for optimal printing, please follow these instructions:\n\nRecommended Paper: Ivory (Matt or Glossy) White \nRecommended GSM: Minimum of 170\nSize:  Letter size (8.5 x 11 in)\nPrint Settings: Fit to page\n\nRegards,\nSciPy India Team."""
-        message_html = """Dear Participant,<br><br>Please find attached the participation certificate for SciPy India 2016.<br>If you wish to print this certificate, for optimal printing, please follow these instructions:<br><br>Recommended Paper: Ivory (Matt or Glossy) White <br>Recommended GSM: Minimum of 170<br>Size:  Letter size (8.5 x 11 in)<br>Print Settings: Fit to page<br><br>Regards,<br>SciPy India Team."""
-        email = EmailMultiAlternatives(
-            subject,message_text,
-            sender_email, to,
-            headers={"Content-type":"text/html;charset=iso-8859-1"}
-        )
-        email.attach_alternative(message_html, "text/html")
-        email.attach_file(path) 
-        email.send(fail_silently=True)
-
-    except Exception as e:
-        pass
-    _clean_certificate_certificate(certificate_path, file_name)
-    return [None, False]
-else:
-    error = True
-
-except Exception, e:  
-error = True
-return [None, error]'''

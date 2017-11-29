@@ -284,4 +284,4 @@ class Scipy_2017(models.Model):
     email = models.CharField(max_length=300)
     paper = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='S17')
-    attendee_type = models.CharField(max_length=25, choices=(attendee_types)
+    attendee_type = models.CharField(max_length=25, choices=attendee_types)
