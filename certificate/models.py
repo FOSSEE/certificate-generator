@@ -18,7 +18,8 @@ events = (
             ('EWS', 'eSim Workshop'),
             ('DRP', 'Drupal Workshop'),
             ('OMW', 'OpenModelica Workshop'),
-            ('PWS', 'Python Workshop')
+            ('PWS', 'Python Workshop'),
+            ('S17', 'Scipy 2017 Conference')
         )
 
 class Profile(models.Model):
@@ -269,3 +270,18 @@ class Internship16_participant(models.Model):
     project_title = models.CharField(max_length=1000)
     internship_project_duration = models.CharField(max_length=500, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='F16')
+
+
+attendee_types = (
+    ('P','Participants'),
+    ('A','Speaker'),
+    ('W','Workshop'),
+    ('T','Organizers')
+    )
+
+class Scipy_2017(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='S17')
+    attendee_type = models.CharField(max_length=25, choices=attendee_types)

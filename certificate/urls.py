@@ -41,6 +41,7 @@ urlpatterns = patterns('certificate.views',
     url(r'^fossee_internship_cerificate_download/$', 'fossee_internship_cerificate_download', name='fossee_internship_cerificate_download'),
     url(r'^fossee_internship16_cerificate_download/$', 'fossee_internship16_cerificate_download', name='fossee_internship16_cerificate_download'),
     url(r'^drupal_workshop_download/$', 'drupal_workshop_download', name='drupal_workshop_download'),
+    url(r'^scipy_download_2017/$', 'scipy_download_2017', name='scipy_download_2017'),
     
     
 )
