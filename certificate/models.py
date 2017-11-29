@@ -272,13 +272,16 @@ class Internship16_participant(models.Model):
     purpose = models.CharField(max_length=10, default='F16')
 
 
+attendee_types = (
+    ('P','Participants'),
+    ('A','Speaker'),
+    ('W','Workshop'),
+    ('T','Organizers')
+    )
+
 class Scipy_2017(models.Model):
     name = models.CharField(max_length=300)
     email = models.CharField(max_length=300)
     paper = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='S17')
-    attendee_type = models.CharField(max_length=25, choices=(('P','Participants'),
-        ('A','Speaker'),
-        ('W','Workshop'),
-        ('T','Organizers')
-        ))
+    attendee_type = models.CharField(max_length=25, choices=(attendee_types)
