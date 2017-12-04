@@ -2638,6 +2638,10 @@ def create_python_workshop_certificate(certificate_path, name, qrcode, type, pap
 
 
 @csrf_exempt
+def scipy_feedback_2017(request):
+   return render_to_response('scipy_feedback_2017.html')
+
+@csrf_exempt
 def scipy_download_2017(request):
     context = {}
     err = ""
@@ -2671,7 +2675,7 @@ def scipy_download_2017(request):
 
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key, 'email' : email}
             certificate = create_scipy_certificate_2017(certificate_path, details, qrcode, attendee_type, paper, workshop, file_name)
             if not certificate[1]:
@@ -2689,7 +2693,7 @@ def scipy_download_2017(request):
                     uniqueness = True
                 else:
                     num += 1
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key, 'email': email}
             certificate = create_scipy_certificate_2017(certificate_path, details,
                     qrcode, attendee_type, paper, workshop, file_name)
