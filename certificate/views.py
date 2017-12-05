@@ -2658,6 +2658,9 @@ def scipy_download_2017(request):
         if not user:
             context["notregistered"] = 1
             return render_to_response('scipy_download_2017.html', context, context_instance=ci)
+        elif len(user) > 1:
+            context["duplicate"] = True
+            return render_to_response('scipy_download_2017.html', context, context_instance=ci)
         else:
             user = user[0]
         name = user.name
@@ -2732,6 +2735,7 @@ def create_scipy_certificate_2017(certificate_path, name, qrcode, attendee_type,
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
+        print ">>>>>>>>>>>>>>>>>>>>>", err
     
 
         if return_value == 0:
