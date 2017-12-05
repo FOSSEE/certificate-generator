@@ -2658,6 +2658,9 @@ def scipy_download_2017(request):
         if not user:
             context["notregistered"] = 1
             return render_to_response('scipy_download_2017.html', context, context_instance=ci)
+        elif len(user) > 1:
+            context["duplicate"] = True
+            return render_to_response('scipy_download_2017.html', context, context_instance=ci)
         else:
             user = user[0]
         name = user.name
