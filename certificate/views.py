@@ -2735,7 +2735,6 @@ def create_scipy_certificate_2017(certificate_path, name, qrcode, attendee_type,
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
-        print ">>>>>>>>>>>>>>>>>>>>>", err
     
 
         if return_value == 0:
