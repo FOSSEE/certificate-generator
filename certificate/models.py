@@ -163,6 +163,9 @@ class Esim_faculty(models.Model):
 class Osdag_WS(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
+    college = models.CharField(max_length=200, null=True, blank=True)
+    ws_date = models.CharField(max_length = 100, null=True, blank=True)
+    ws_year = models.CharField(max_length = 100, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='OWS')
 
 class Drupal_WS(models.Model):

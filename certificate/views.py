@@ -143,7 +143,7 @@ def verification(serial, _type):
                 elif purpose == 'Osdag Workshop':
                     faculty = Osdag_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '4 June'), ('Year', year)])
+                        ('Days', faculty.ws_date), ('Year', year)])
                 elif purpose == 'Drupal Workshop':
                     faculty = Drupal_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
@@ -315,15 +315,7 @@ def _get_detail(serial_no):
     elif serial_no[0:3] == 'S17':
         purpose = 'SciPy India 2017'
 
-
-    if serial_no[3:5] == '14':
-        year = '2014'
-    elif serial_no[3:5] == '15':
-        year = '2015'
-    elif serial_no[3:5] == '16':
-        year = '2016'
-    elif serial_no[3:5] == '17':
-        year = '2017'
+    year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
 
 
@@ -1135,17 +1127,22 @@ def osdag_workshop_download(request):
                 user = user[0]
         name = user.name
         purpose = user.purpose
-        year = '16'
+        year = user.ws_year[2:]
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
+        details = {
+        'name': name, 'year': user.ws_year,
+        'college': user.college,
+        'date': user.ws_date
+        }
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
-            details = {'name': name, 'serial_key': old_user.short_key}
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details.update({'serial_key': old_user.short_key})
             certificate = create_osdag_workshop_certificate(certificate_path, details,
                     qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
@@ -1159,11 +1156,11 @@ def osdag_workshop_download(request):
                 present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
                 if not present:
                     short_key = serial_key[0:num]
+                    details.update({'serial_key': short_key})
                     uniqueness = True
                 else:
                     num += 1
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
-            details = {'name': name,  'serial_key': short_key}
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             certificate = create_osdag_workshop_certificate(certificate_path, details,
                     qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
@@ -1217,20 +1214,18 @@ def osdag_workshop_feedback(request):
     return render_to_response('osdag_workshop_feedback.html', context, ci)
 
 
-def create_osdag_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
+def create_osdag_workshop_certificate(certificate_path, details, qrcode, type, paper, workshop, file_name):
     error = False
     try:
-        download_file_name = None
         template = 'template_OWS2016Pcertificate'
-        download_file_name = 'OWS2016Pcertificate.pdf'
+        download_file_name = 'OWS%sPcertificate.pdf' %(details['year'])
 
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
-
-        content_tex = content.safe_substitute(name=name['name'].title(),
-                serial_key = name['serial_key'], qr_code=qrcode)
+        content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key = details['serial_key'], qr_code=qrcode, college=details['college'], date=details['date'])
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
