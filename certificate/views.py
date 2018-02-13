@@ -141,9 +141,9 @@ def verification(serial, _type):
                     detail = OrderedDict([('Name', name), ('Event', purpose),
                         ('Days', '22 August'), ('Year', year)])
                 elif purpose == 'Osdag Workshop':
-                    faculty = Osdag_WS.objects.get(email=certificate.email)
+                    osdag_workshop = Osdag_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', faculty.ws_date), ('Year', year)])
+                        ('Days', osdag_workshop.date), ('Year', year)])
                 elif purpose == 'Drupal Workshop':
                     faculty = Drupal_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
@@ -1127,7 +1127,7 @@ def osdag_workshop_download(request):
                 user = user[0]
         name = user.name
         purpose = user.purpose
-        year = user.ws_year[2:]
+        year = user.year[2:]
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
@@ -1135,9 +1135,9 @@ def osdag_workshop_download(request):
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
         details = {
-        'name': name, 'year': user.ws_year,
-        'college': user.college,
-        'date': user.ws_date
+            'name': name, 'year': user.year,
+            'college': user.college,
+            'date': user.date
         }
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
