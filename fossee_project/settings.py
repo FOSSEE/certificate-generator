@@ -26,7 +26,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = [] #['localhost'] when debug is False
+ALLOWED_HOSTS = ['localhost'] #['localhost'] when debug is False
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
