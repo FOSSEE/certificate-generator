@@ -1124,7 +1124,12 @@ def osdag_workshop_download(request):
                 return render_to_response('osdag_workshop_download.html',
                         context, context_instance=ci)
             else:
-                user = user[0]
+                if len(user) > 1:
+                    user_list = [(each_user, int(each_user.year)) for each_user in user]
+                    sorted(user_list, key=lambda x: x[1], reverse=True)
+                    user = user_list[0][0]
+                else:
+                    user = user[0]
         name = user.name
         purpose = user.purpose
         year = user.year[2:]
