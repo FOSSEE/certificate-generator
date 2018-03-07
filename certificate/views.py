@@ -160,6 +160,10 @@ def verification(serial, _type):
                     faculty = Python_Workshop_BPPy.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
                         ('Days', faculty.ws_date), ('Year', year)])
+                elif purpose == 'Self Learning':
+                    self_workshop = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='SEL')
+                    detail = OrderedDict([('Name', name), ('Event', purpose),
+                        ('Days', self_workshop.ws_date), ('Year', year)])
                 elif purpose == 'eSim Workshop':
                     faculty = eSim_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
@@ -314,6 +318,8 @@ def _get_detail(serial_no):
         purpose = 'FOSSEE Internship 2016'
     elif serial_no[0:3] == 'S17':
         purpose = 'SciPy India 2017'
+    elif serial_no[0:3] == 'SEL':
+        purpose = 'Self Learning'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -2527,11 +2533,14 @@ def python_workshop_download(request):
         email = request.POST.get('email').strip()
         type = request.POST.get('type', 'P')
         format = request.POST.get('format','iscp')
+        
         paper = None
         workshop = None
         if type == 'P':
             if format=='iscp':
                 user = Python_Workshop.objects.filter(email=email)
+            elif format=='sel':
+                user = Python_Workshop_BPPy.objects.filter(email=email, purpose=format)
             else:
                 user = Python_Workshop_BPPy.objects.filter(email=email)
             if not user:
@@ -2546,7 +2555,7 @@ def python_workshop_download(request):
         ws_date = user.ws_date
         paper = user.paper
         is_coordinator = user.is_coordinator
-        year = '17'
+        year = ws_date.split()[-1][2:]
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
