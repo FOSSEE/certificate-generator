@@ -11,6 +11,7 @@ from certificate.forms import FeedBackForm
 from collections import OrderedDict
 from django.core.mail import EmailMultiAlternatives
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
 
 
 # Create your views here.
@@ -142,8 +143,10 @@ def verification(serial, _type):
                         ('Days', '22 August'), ('Year', year)])
                 elif purpose == 'Osdag Workshop':
                     osdag_workshop = Osdag_WS.objects.get(email=certificate.email)
+                    days = '%s to %s' %( datetime.strftime(osdag_workshop.start_date, '%d %b'),
+                        datetime.strftime(osdag_workshop.end_date, '%d %b'))
                     detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', osdag_workshop.date), ('Year', year)])
+                        ('Days', days), ('Year', year)])
                 elif purpose == 'Drupal Workshop':
                     faculty = Drupal_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
@@ -1115,34 +1118,32 @@ def osdag_workshop_download(request):
     if request.method == 'POST':
         email = request.POST.get('email').strip()
         type = request.POST.get('type', 'P')
+        ws_date = request.POST.get('ws_date')        
+        ws_date = datetime.strptime(ws_date, '%Y-%m-%d')
         paper = None
         workshop = None
         if type == 'P':
-            user = Osdag_WS.objects.filter(email=email)
-            if not user:
+            users = Osdag_WS.objects.filter(email=email, start_date=ws_date)
+            if not users:
                 context["notregistered"] = 1
                 return render_to_response('osdag_workshop_download.html',
                         context, context_instance=ci)
             else:
-                if len(user) > 1:
-                    user_list = [(each_user, int(each_user.year)) for each_user in user]
-                    sorted(user_list, key=lambda x: x[1], reverse=True)
-                    user = user_list[0][0]
-                else:
-                    user = user[0]
+                user = users[0]
         name = user.name
         purpose = user.purpose
-        year = user.year[2:]
+        year = user.start_date.year
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
-        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
+        serial_no = '{0}{1}{2}{3}'.format(purpose, str(year)[2:], hexa, type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
         details = {
-            'name': name, 'year': user.year,
+            'name': name, 'year': year,
             'college': user.college,
-            'date': user.date
+            'start_date': datetime.strftime(user.start_date, '%d %b'),
+            'end_date': datetime.strftime(user.end_date, '%d %b')
         }
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
@@ -1231,7 +1232,7 @@ def create_osdag_workshop_certificate(certificate_path, details, qrcode, type, p
         template_file.close()
         content_tex = content.safe_substitute(name=details['name'].title(),
                 serial_key = details['serial_key'], qr_code=qrcode, college=details['college'],
-                date='%s %s' % (details['date'],details['year']))
+                date='%s to %s %s' % (details['start_date'],details['end_date'], details['year']))
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
