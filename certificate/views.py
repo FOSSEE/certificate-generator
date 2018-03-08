@@ -161,7 +161,7 @@ def verification(serial, _type):
                     detail = OrderedDict([('Name', name), ('Event', purpose),
                         ('Days', faculty.ws_date), ('Year', year)])
                 elif purpose == 'Self Learning':
-                    self_workshop = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='SEL')
+                    self_workshop = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='sel')
                     detail = OrderedDict([('Name', name), ('Event', purpose),
                         ('Days', self_workshop.ws_date), ('Year', year)])
                 elif purpose == 'eSim Workshop':
@@ -318,7 +318,7 @@ def _get_detail(serial_no):
         purpose = 'FOSSEE Internship 2016'
     elif serial_no[0:3] == 'S17':
         purpose = 'SciPy India 2017'
-    elif serial_no[0:3] == 'SEL':
+    elif serial_no[0:3] == 'sel':
         purpose = 'Self Learning'
 
     year = '20%s' % serial_no[3:5]
@@ -2611,14 +2611,15 @@ def create_python_workshop_certificate(certificate_path, name, qrcode, type, pap
                 template = 'coordinator_template_PWS2017Pcertificate'
             else:
                 template = 'template_PWS2017Pcertificate'
+        elif format=='sel':
+            template = '3day_template_self_certificate'
         else:
             if is_coordinator:
                 template = '3day_coordinator_template_PWS2017Pcertificate'
             else:
                 template = '3day_template_PWS2017Pcertificate'
 
-        download_file_name = 'PWS2017Pcertificate.pdf'
-
+        download_file_name = 'PWS%sPcertificate.pdf' % ws_date.split()[-1]
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
