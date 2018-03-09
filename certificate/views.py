@@ -11,7 +11,7 @@ from certificate.forms import FeedBackForm
 from collections import OrderedDict
 from django.core.mail import EmailMultiAlternatives
 from django.views.decorators.csrf import csrf_exempt
-
+import calendar
 
 # Create your views here.
 
@@ -2533,16 +2533,19 @@ def python_workshop_download(request):
         email = request.POST.get('email').strip()
         type = request.POST.get('type', 'P')
         format = request.POST.get('format','iscp')
-        
+        ws_date = request.POST.get('ws_date').split('-')
+        ws_date[1] = calendar.month_name[int(ws_date[1])]
+        ws_date.reverse()
+        ws_date = ' '.join(ws_date)
         paper = None
         workshop = None
         if type == 'P':
             if format=='iscp':
-                user = Python_Workshop.objects.filter(email=email)
+                user = Python_Workshop.objects.filter(email=email, ws_date=ws_date)
             elif format=='sel':
-                user = Python_Workshop_BPPy.objects.filter(email=email, purpose=format)
+                user = Python_Workshop_BPPy.objects.filter(email=email, purpose=format, ws_date=ws_date)
             else:
-                user = Python_Workshop_BPPy.objects.filter(email=email)
+                user = Python_Workshop_BPPy.objects.filter(email=email, ws_date=ws_date)
             if not user:
                 context["notregistered"] = 1
                 return render_to_response('python_workshop_download.html',
