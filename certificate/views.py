@@ -11,8 +11,8 @@ from certificate.forms import FeedBackForm
 from collections import OrderedDict
 from django.core.mail import EmailMultiAlternatives
 from django.views.decorators.csrf import csrf_exempt
+import calendar
 from datetime import datetime
-
 
 # Create your views here.
 
@@ -160,9 +160,13 @@ def verification(serial, _type):
                     detail = OrderedDict([('Name', name), ('Event', purpose),
                         ('Days', faculty.ws_date), ('Year', year)])
                 elif purpose == 'Python 3day Workshop':
-                    faculty = Python_Workshop_BPPy.objects.get(email=certificate.email)
+                    faculty = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='P3W')
                     detail = OrderedDict([('Name', name), ('Event', purpose),
                         ('Days', faculty.ws_date), ('Year', year)])
+                elif purpose == 'Self Learning':
+                    self_workshop = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='sel')
+                    detail = OrderedDict([('Name', name), ('Event', purpose),
+                        ('Days', self_workshop.ws_date), ('Year', year)])
                 elif purpose == 'eSim Workshop':
                     faculty = eSim_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name), ('Event', purpose),
@@ -317,6 +321,8 @@ def _get_detail(serial_no):
         purpose = 'FOSSEE Internship 2016'
     elif serial_no[0:3] == 'S17':
         purpose = 'SciPy India 2017'
+    elif serial_no[0:3] == 'sel':
+        purpose = 'Self Learning'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -1118,7 +1124,7 @@ def osdag_workshop_download(request):
     if request.method == 'POST':
         email = request.POST.get('email').strip()
         type = request.POST.get('type', 'P')
-        ws_date = request.POST.get('ws_date')        
+        ws_date = request.POST.get('ws_date')
         ws_date = datetime.strptime(ws_date, '%Y-%m-%d')
         paper = None
         workshop = None
@@ -2528,13 +2534,19 @@ def python_workshop_download(request):
         email = request.POST.get('email').strip()
         type = request.POST.get('type', 'P')
         format = request.POST.get('format','iscp')
+        ws_date = request.POST.get('ws_date').split('-')
+        ws_date[1] = calendar.month_name[int(ws_date[1])]
+        ws_date.reverse()
+        ws_date = ' '.join(ws_date)
         paper = None
         workshop = None
         if type == 'P':
             if format=='iscp':
-                user = Python_Workshop.objects.filter(email=email)
+                user = Python_Workshop.objects.filter(email=email, ws_date=ws_date)
+            elif format=='sel':
+                user = Python_Workshop_BPPy.objects.filter(email=email, purpose=format, ws_date=ws_date)
             else:
-                user = Python_Workshop_BPPy.objects.filter(email=email)
+                user = Python_Workshop_BPPy.objects.filter(email=email, ws_date=ws_date)
             if not user:
                 context["notregistered"] = 1
                 return render_to_response('python_workshop_download.html',
@@ -2547,7 +2559,7 @@ def python_workshop_download(request):
         ws_date = user.ws_date
         paper = user.paper
         is_coordinator = user.is_coordinator
-        year = '17'
+        year = ws_date.split()[-1][2:]
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
@@ -2603,14 +2615,15 @@ def create_python_workshop_certificate(certificate_path, name, qrcode, type, pap
                 template = 'coordinator_template_PWS2017Pcertificate'
             else:
                 template = 'template_PWS2017Pcertificate'
+        elif format=='sel':
+            template = '3day_template_self_certificate'
         else:
             if is_coordinator:
                 template = '3day_coordinator_template_PWS2017Pcertificate'
             else:
                 template = '3day_template_PWS2017Pcertificate'
 
-        download_file_name = 'PWS2017Pcertificate.pdf'
-
+        download_file_name = 'PWS%sPcertificate.pdf' % ws_date.split()[-1]
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())

@@ -35,13 +35,16 @@
             <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
             <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
               <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Download Certificate</button></span>
-            </div>
-
-            <div class="radioLeft">
-            <h4>Select the workshop category</h4>
-            <input type="radio" name="format" id="format" value="iscp"> Introduction to Scientific Computing using Python(ISCP)</label><br>
-            <input type="radio" name="format" id="format" value="3day"> Basic Programming using Python</label><br>
-          </div>
+            </div><br>
+            <div>
+              <select name="format" onchange="myFunction(event)" required>
+                <option disabled selected>Select the workshop category</option>
+                <option value="iscp">Introduction to Scientific Computing using Python(ISCP)</option>
+                <option value="3day">Basic Programming using Python</option>
+                <option value="sel">Self Learning(Basics of Python)</option>
+            </select>
+            </div><br>
+            <div id='WsDate'></div>
 
           </form>
           <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:certificates@fossee.in">certificates[at]fossee[dot]in</a></h4>
@@ -59,6 +62,18 @@
                 </div>
               </div>
           </div>
+          <script>
+              function myFunction(e) {
+                var date_input;
+                if (e.target.value === 'sel') {
+                  date_input = 'Workshop month: <input id="myText" type="month" name="ws_date" value="2018-01" style="width:150;height:25" required>'
+                }
+                else {
+                  date_input = 'Workshop date: <input id="myText" type="date" name="ws_date" value="2018-01-01" style="width:150;height:25" required>'
+                  }
+                document.getElementById("WsDate").innerHTML = date_input;
+                }
+          </script>
 {% endblock %}
 
 {% block javascript %}
