@@ -28,6 +28,26 @@
                 </div>
               </div>
           </div>
+          <div class="modal fade" id="failModal" tabindex="-1" role="dialog" aria-labelledby="failModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="invalidModalLabel">Certificate not Awarded</h4>
+                  </div>
+                  <div class="modal-body">
+                      {% if failed == 1 %}
+                        As per our records, you have not secured sufficient marks to get a certificate. Please try our <a href="https://python-workshops.fossee.in/self_workshop">self-learning course</a> to improve your knowledge of Python.
+                      {% else %}
+                        You have not attended the Python workshop.
+                      {% endif %}
+                  </div>
+                  <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+          </div>
           <form class="col-lg-12" action="{% url 'certificate:python_workshop_download' %}" method="post">
             {% csrf_token %}
             {{ message }}
@@ -47,7 +67,7 @@
             <div id='WsDate'></div>
 
           </form>
-          <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:certificates@fossee.in">certificates[at]fossee[dot]in</a></h4>
+          <center><h4>Problem in downloading the certificate? <a href="./contact">Write to us</a></h4>
           <center><h4>To get more details on upcoming workshops, follow us on<a href="https://www.facebook.com/FOSSEENMEICT/"> facebook</a></h4>
           <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
               <div class="modal-dialog">
@@ -91,6 +111,11 @@
         if(notreg == "2"){
             $("#invalidModal").modal();
         }
+        fail = "{{ failed }}";
+        if(fail == "1"){
+            $("#failModal").modal();
+        }
    });
 </script>
+
 {% endblock %}

@@ -7,12 +7,18 @@ import subprocess
 import os
 from string import Template
 import hashlib
-from certificate.forms import FeedBackForm
+from certificate.forms import FeedBackForm,ContactForm
 from collections import OrderedDict
 from django.core.mail import EmailMultiAlternatives
 from django.views.decorators.csrf import csrf_exempt
 import calendar
 from datetime import datetime
+from django.http import HttpResponse, HttpResponseRedirect
+import json
+import urllib
+import urllib2
+from django.conf import settings
+import sending_emails
 
 # Create your views here.
 
@@ -390,6 +396,7 @@ def _make_certificate_certificate(path, type, file_name):
     process = subprocess.Popen('timeout 15 make -C {0} {1} file_name={2}'.format(path, command, file_name),
             stderr = subprocess.PIPE, shell = True)
     err = process.communicate()[1]
+    print(process.returncode)
     return process.returncode, err
 
 def feedback(request):
@@ -2538,11 +2545,13 @@ def python_workshop_download(request):
         ws_date[1] = calendar.month_name[int(ws_date[1])]
         ws_date.reverse()
         ws_date = ' '.join(ws_date)
+        print(ws_date)
         paper = None
         workshop = None
         if type == 'P':
             if format=='iscp':
                 user = Python_Workshop.objects.filter(email=email, ws_date=ws_date)
+                print(user)
             elif format=='sel':
                 user = Python_Workshop_BPPy.objects.filter(email=email, purpose=format, ws_date=ws_date)
             else:
@@ -2553,6 +2562,10 @@ def python_workshop_download(request):
                         context, context_instance=ci)
             else:
                 user = user[0]
+        if user.paper == 'F':
+            context["failed"] = 1
+            return render_to_response('python_workshop_download.html',
+                        context, context_instance=ci)
         name = user.name
         college = user.college
         purpose = user.purpose
@@ -2591,6 +2604,7 @@ def python_workshop_download(request):
             certificate = create_python_workshop_certificate(certificate_path, details,
                     qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
             if not certificate[1]:
+                    print('here')
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, workshop=workshop,
                             paper=paper, serial_key=serial_key, short_key=short_key)
@@ -2765,3 +2779,58 @@ def create_scipy_certificate_2017(certificate_path, name, qrcode, attendee_type,
     except Exception, e:
         error = True
     return [None, error]
+
+
+# @csrf_exempt
+# def send_email(request):
+#     name = request.POST.get('firstname')
+#     subject = request.POST.get('subject')
+#     message = request.POST.get('body')
+#     from_email = request.POST.get('email')
+
+#     if subject and message and from_email:
+#         try:
+#             send_mail(subject,message,from_email,['arun@fossee.in'])
+#         except BadHeaderError:
+#             return HttpResponse('Invalid header found.')
+#         return HttpResponse('Thanks')
+#     else:
+#         return HttpResponse('Make sure all fields are entered and valid.')
+
+@csrf_exempt
+def contact(request):
+    """
+This view function is used to submit contact form, It used Google's reCAPTCHA validation
+"""
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            from_email = form.cleaned_data['email']
+            ws_date = form.cleaned_data['date']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            recaptcha_response = request.POST.get('g-recaptcha-response')
+            url = 'https://www.google.com/recaptcha/api/siteverify'
+            values = {
+            'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
+            'response': recaptcha_response
+            }
+            data = urllib.urlencode(values)
+            req =  urllib2.Request(url, data=data)
+            response = urllib2.urlopen(req)
+            result = json.load(response)
+            if result['success']:
+                done = sending_emails.send_email(subject,from_email,message)
+                if done:
+                    return HttpResponse('We have received your message and would like to thank you for writing to us. We will reply by email as soon as possible.')
+                else:
+                    return HttpResponse('Email your query/issue to  certificates@fossee.in')
+            else:
+                return render(request,'contact_us.html',{'form':form})        
+        else:
+            return HttpResponse('Make sure all fields are entered and valid.')       
+    else:
+        form = ContactForm()
+    return render(request,'contact_us.html',{'form':form})
