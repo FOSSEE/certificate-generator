@@ -2811,6 +2811,7 @@ This view function is used to submit contact form, It used Google's reCAPTCHA va
             ws_date = form.cleaned_data['date']
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
+            msg = "Name : {0} \n Workshop Date:{1} \n Message:{2}".format(name,ws_date,message)
             recaptcha_response = request.POST.get('g-recaptcha-response')
             url = 'https://www.google.com/recaptcha/api/siteverify'
             values = {
@@ -2822,7 +2823,7 @@ This view function is used to submit contact form, It used Google's reCAPTCHA va
             response = urllib2.urlopen(req)
             result = json.load(response)
             if result['success']:
-                done = sending_emails.send_email(subject,from_email,message)
+                done = sending_emails.send_email(subject,from_email,msg)
                 if done:
                     return HttpResponse('We have received your message and would like to thank you for writing to us. We will reply by email as soon as possible.')
                 else:
