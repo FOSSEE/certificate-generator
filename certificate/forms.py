@@ -24,11 +24,16 @@ email_subject_choice = [
 ('Issue with Workshop Date','Issue with Workshop Date'),
 ('Invalid Email Address','Invalid Email Address'),
 ('Others','Others')]
+ws_type_choice = [
+('iscp','Introduction to Scientific Computing using Python(ISCP)'),
+('3day','Basic Programming using Python'),
+('sel','Self Learning(Basics of Python)')]
 
 class ContactForm(forms.Form):
     name = forms.CharField(label= 'Full Name',max_length=30)
     email = forms.EmailField()
     date = forms.DateField(label="Workshop Date",initial=datetime.date.today)
+    category = forms.CharField(widget=forms.Select(choices=ws_type_choice))
     subject = forms.CharField(widget=forms.Select(choices=email_subject_choice))
     message = forms.CharField(label='Message',widget=forms.Textarea)
     

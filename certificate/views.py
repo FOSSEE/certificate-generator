@@ -2809,9 +2809,10 @@ This view function is used to submit contact form, It used Google's reCAPTCHA va
             name = form.cleaned_data['name']
             from_email = form.cleaned_data['email']
             ws_date = form.cleaned_data['date']
+            category = form.cleaned_data['category']
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
-            msg = "Name : {0} \n Workshop Date:{1} \n Message:{2}".format(name,ws_date,message)
+            msg = "Name : {0} \n Workshop Date:{1} \n Category:{2} \n Message:{3}".format(name,ws_date,category,message)
             recaptcha_response = request.POST.get('g-recaptcha-response')
             url = 'https://www.google.com/recaptcha/api/siteverify'
             values = {
@@ -2827,11 +2828,11 @@ This view function is used to submit contact form, It used Google's reCAPTCHA va
                 if done:
                     return HttpResponse('We have received your message and would like to thank you for writing to us. We will reply by email as soon as possible.')
                 else:
-                    return HttpResponse('Email your query/issue to  certificates@fossee.in')
+                    return HttpResponse('Email your query/issue to  certificates[at]fossee[dot]in')
             else:
                 return render(request,'contact_us.html',{'form':form})        
         else:
-            return HttpResponse('Make sure all fields are entered and valid.')       
+            return render(request,'contact_us.html',{'form':form})
     else:
         form = ContactForm()
     return render(request,'contact_us.html',{'form':form})
