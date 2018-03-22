@@ -2780,23 +2780,6 @@ def create_scipy_certificate_2017(certificate_path, name, qrcode, attendee_type,
         error = True
     return [None, error]
 
-
-# @csrf_exempt
-# def send_email(request):
-#     name = request.POST.get('firstname')
-#     subject = request.POST.get('subject')
-#     message = request.POST.get('body')
-#     from_email = request.POST.get('email')
-
-#     if subject and message and from_email:
-#         try:
-#             send_mail(subject,message,from_email,['arun@fossee.in'])
-#         except BadHeaderError:
-#             return HttpResponse('Invalid header found.')
-#         return HttpResponse('Thanks')
-#     else:
-#         return HttpResponse('Make sure all fields are entered and valid.')
-
 @csrf_exempt
 def contact(request):
     """
