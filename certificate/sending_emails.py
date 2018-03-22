@@ -3,14 +3,14 @@ from email.mime.text import MIMEText
 from django.conf import settings
 
 
-TO = 'certificate@fossee.in'
+TO = 'certificates@fossee.in'
 EMAIL_HOST = settings.EMAIL_HOST
 EMAIL_PORT = settings.EMAIL_PORT
 AUTH = 'LOGIN DIGEST-MD5 PLAIN'
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 
-def send_email(subject="Dummy",FROM_EMAIL="dummy@gmail.com",MESSAGE="Testing"):
+def send_email(subject="Dummy",FROM_EMAIL="certificates@fossee.in",MESSAGE="Testing"):
 	smtpserver = smtplib.SMTP(EMAIL_HOST,EMAIL_PORT)
 	smtpserver.ehlo()
 	smtpserver.starttls()
