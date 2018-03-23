@@ -5,12 +5,13 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-from local import DBNAME, DBUSER, DBPASS
+#from local import DBNAME, DBUSER, DBPASS
 from os.path import *
 PROJDIR = abspath(dirname(__file__))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+from certificate.google_secret import GOOGLE_RECAPTCHA_SECRET_KEY
 
 
 # Quick-start development settings - unsuitable for production
@@ -20,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'j_4@2e^e*byl1c2@^=^)bo75r5h$l01aa8*)ladv7+8druq6f*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = True
 
@@ -127,4 +128,3 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # For example queries@<your_organization>.in can be used.
 #REPLY_EMAIL = ''
 
-GOOGLE_RECAPTCHA_SECRET_KEY = '6LcDdk0UAAAAAOVRYSFOh07HwXMl0I9fPzTw4_VR'

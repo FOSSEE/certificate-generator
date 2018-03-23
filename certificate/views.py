@@ -1,29 +1,43 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.shortcuts import render_to_response, redirect
-from django.template import RequestContext
-from certificate.models import Python_Workshop, Python_Workshop_BPPy, OpenModelica_WS, Drupal_WS, Osdag_WS, Scipy_TA_2016, Scipy_participant_2016, Scipy_speaker_2016, Scipy_workshop_2016, eSim_WS, Internship_participant,Internship16_participant, Scilab_participant, Certificate, Event, Scilab_speaker, Scilab_workshop, Question, Answer, FeedBack, Scipy_participant, Scipy_speaker, Drupal_camp, Tbc_freeeda, Dwsim_participant, Scilab_arduino, Esim_faculty, Scipy_participant_2015, Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016, OpenFOAM_Symposium_speaker_2016, Scipy_2017
 import subprocess
 import os
 from string import Template
 import hashlib
-from certificate.forms import FeedBackForm,ContactForm
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render_to_response, redirect
+from django.template import RequestContext
+from certificate.forms import FeedBackForm, ContactForm
 from collections import OrderedDict
 from django.core.mail import EmailMultiAlternatives
 from django.views.decorators.csrf import csrf_exempt
 import calendar
 from datetime import datetime
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 import json
 import urllib
 import urllib2
 from django.conf import settings
 import sending_emails
+from certificate.models import Python_Workshop,\
+Python_Workshop_BPPy, OpenModelica_WS, Drupal_WS,\
+Osdag_WS, Scipy_TA_2016, Scipy_participant_2016,\
+Scipy_speaker_2016, Scipy_workshop_2016, eSim_WS,\
+Internship_participant, Internship16_participant,\
+Scilab_participant, Certificate, Event, Scilab_speaker,\
+Scilab_workshop, Question, Answer, FeedBack,\
+Scipy_participant, Scipy_speaker, Drupal_camp,\
+Tbc_freeeda, Dwsim_participant, Scilab_arduino,\
+Esim_faculty, Scipy_participant_2015,\
+Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016,\
+OpenFOAM_Symposium_speaker_2016, Scipy_2017
+
 
 # Create your views here.
 
+
 def index(request):
     return render_to_response('index.html')
+
 
 def download(request):
     context = {}
@@ -41,7 +55,8 @@ def download(request):
             user = Scilab_participant.objects.filter(email=email)
             if not user:
                 context["notregistered"] = 1
-                return render_to_response('download.html', context, context_instance=ci)
+                return render_to_response('download.html', context,
+                                          context_instance=ci)
             else:
                 user = user[0]
         elif type == 'A':
@@ -53,60 +68,73 @@ def download(request):
                 user = Scilab_speaker.objects.filter(email=email)
             if not user:
                 context["notregistered"] = 1
-                return render_to_response('download.html', context, context_instance=ci)
+                return render_to_response('download.html', context,
+                                          context_instance=ci)
             if len(user) > 1:
                 context['user_papers'] = user
                 context['v'] = 'paper'
-                return render_to_response('download.html', context, context_instance=ci)
+                return render_to_response('download.html', context,
+                                          context_instance=ci)
             else:
                 user = user[0]
                 paper = user.paper
         elif type == 'W':
             if workshop:
-                user = Scilab_workshop.objects.filter(email=email, workshops=workshop)
+                user = Scilab_workshop.objects.filter(email=email,
+                                                      workshops=workshop)
                 if user:
                     user = [user[0]]
             else:
                 user = Scilab_workshop.objects.filter(email=email)
             if not user:
                 context["notregistered"] = 1
-                return render_to_response('download.html', context, context_instance=ci)
+                return render_to_response('download.html', context,
+                                          context_instance=ci)
             if len(user) > 1:
                 context['workshops'] = user
                 context['v'] = 'workshop'
-                return render_to_response('download.html', context, context_instance=ci)
+                return render_to_response('download.html', context,
+                                          context_instance=ci)
             else:
                 user = user[0]
                 workshop = user.workshops
         name = user.name
         purpose = user.purpose
         year = '14'
-        id =  int(user.id)
-        hexa = hex(id).replace('0x','').zfill(6).upper()
+        id = int(user.id)
+        hexa = hex(id).replace('0x', '').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         qrcode = 'NAME: {0}; SERIAL-NO: {1}; '.format(name, serial_no)
-        file_name = '{0}{1}'.format(email,id)
+        file_name = '{0}{1}'.format(email, id)
         file_name = file_name.replace('.', '')
         try:
-            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            certificate = create_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name)
+            old_user = Certificate.objects.get(email=email,
+                                               serial_no=serial_no)
+            certificate = create_certificate(certificate_path,
+                                             name, qrcode, type, paper,
+                                             workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
                 return certificate[0]
         except Certificate.DoesNotExist:
-            certificate = create_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name)
+            certificate = create_certificate(certificate_path,
+                                             name, qrcode, type, paper,
+                                             workshop, file_name)
             if not certificate[1]:
-                    certi_obj = Certificate(name=name, email=email, serial_no=serial_no, counter=1, workshop=workshop, paper=paper)
+                    certi_obj = Certificate(name=name, email=email,
+                                            serial_no=serial_no,
+                                            counter=1, workshop=workshop,
+                                            paper=paper)
                     certi_obj.save()
                     return certificate[0]
-        
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             return render_to_response('download.html', context, ci)
     context['message'] = ''
     return render_to_response('download.html', context, ci)
+
 
 def verification(serial, _type):
     context = {}
@@ -122,10 +150,10 @@ def verification(serial, _type):
             purpose, year, type = _get_detail(serial_no)
             if purpose == 'SciPy India 2017':
                 detail_list = [
-                ('Name', name), ('Event', purpose),
-                ('Days', '29 - 30 November'),
-                ('Year', year)
-                ]
+                              ('Name', name), ('Event', purpose),
+                              ('Days', '29 - 30 November'),
+                              ('Year', year)
+                              ]
                 if not type == 'P':
                     detail_list.append(('Paper', paper))
 
@@ -137,55 +165,107 @@ def verification(serial, _type):
             if type == 'P':
                 if purpose == 'DWSIM Workshop':
                     dwsim_user = Dwsim_participant.objects.get(email=certificate.email)
-                    detail = OrderedDict([('Name', name),
-                        ('Event', purpose), ('Days', '29 - 30 May'), ('Year', year)])
+                    detail = OrderedDict([
+                                         ('Name', name),
+                                         ('Event', purpose),
+                                         ('Days', '29 - 30 May'),
+                                         ('Year', year)
+                                         ])
                 elif purpose == 'Scilab Arduino Workshop':
                     arduino_user = Scilab_arduino.objects.get(email=certificate.email)
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '3 - 4 July'), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', '3 - 4 July'),
+                                          ('Year', year)
+                                         ])
                 elif purpose == 'eSim Faculty Meet':
                     faculty = Esim_faculty.objects.get(email=certificate.email)
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '22 August'), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', '22 August'),
+                                          ('Year', year)
+                                        ])
                 elif purpose == 'Osdag Workshop':
                     osdag_workshop = Osdag_WS.objects.get(email=certificate.email)
-                    days = '%s to %s' %( datetime.strftime(osdag_workshop.start_date, '%d %b'),
-                        datetime.strftime(osdag_workshop.end_date, '%d %b'))
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', days), ('Year', year)])
+                    days = '%s to %s' % (datetime.strftime(osdag_workshop.start_date, '%d %b'),
+                                         datetime.strftime(osdag_workshop.end_date, '%d %b'))
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', days),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'Drupal Workshop':
                     faculty = Drupal_WS.objects.get(email=certificate.email)
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '30 July'), ('Year', year)])
+                    detail = OrderedDict([
+                                         ('Name', name),
+                                         ('Event', purpose),
+                                         ('Days', '30 July'),
+                                         ('Year', year)
+                                         ])
                 elif purpose == 'OpenModelica Workshop':
                     faculty = OpenModelica_WS.objects.get(email=certificate.email)
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '4-5 January'), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', '4-5 January'),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'Python Workshop':
                     faculty = Python_Workshop.objects.get(email=certificate.email)
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', faculty.ws_date), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', faculty.ws_date),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'Python 3day Workshop':
                     faculty = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='P3W')
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', faculty.ws_date), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', faculty.ws_date),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'Self Learning':
                     self_workshop = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='sel')
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', self_workshop.ws_date), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', self_workshop.ws_date),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'eSim Workshop':
                     faculty = eSim_WS.objects.get(email=certificate.email)
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '11 June'), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', '11 June'),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'SciPy India':
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '14 - 16 December'), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', '14 - 16 December'),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'SciPy India 2016':
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '10 - 11 December'), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', '10 - 11 December'),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'OpenFOAM Symposium':
-                    detail = OrderedDict([('Name', name), ('Event', purpose),
-                        ('Days', '27 February'), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', '27 February'),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'DrupalCamp Mumbai':
                     drupal_user = Drupal_camp.objects.get(email=certificate.email)
                     DAY = drupal_user.attendance
@@ -195,18 +275,24 @@ def verification(serial, _type):
                         day = 'Day 2'
                     elif DAY == 3:
                         day = 'Day 1 and Day 2'
-                    detail = OrderedDict([('Name', name), ('Attended', day),
-                        ('Event', purpose), ('Year', year)])
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Attended', day),
+                                          ('Event', purpose),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'FreeEDA Textbook Companion':
                     user_books = Tbc_freeeda.objects.filter(email=certificate.email).values_list('book')
-                    books = [ book[0] for book in user_books ]
-                    detail = OrderedDict([('Name', name), ('Participant', 'Yes'),
-                        ('Project', 'FreeEDA Textbook Companion'), ('Books completed', ','.join(books))])
+                    books = [book[0] for book in user_books]
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Participant', 'Yes'),
+                                          ('Project', 'FreeEDA Textbook Companion'),
+                                          ('Books completed', ','.join(books))])
                 else:
                     detail = '{0} had attended {1} {2}'.format(name, purpose, year)
             elif type == 'A' or type == 'T':
-                detail = '{0} had presented paper on {3} in the {1} {2}'.format\
-                        (name, purpose, year, paper)
+                detail = '{0} had presented paper on {3} in the {1} {2}'.format(name, purpose, year, paper)
                 if purpose == 'SciPy India':
                     detail = OrderedDict([('Name', name), ('Event', purpose), ('paper', paper), ('Days', '14 - 16 December'), ('Year', year)])
                 elif purpose == 'SciPy India 2016':
@@ -216,23 +302,20 @@ def verification(serial, _type):
                 elif purpose == 'FOSSEE Internship':
                     intership_detail = Internship_participant.objects.get(email=certificate.email)
                     user_project_title = Internship_participant.objects.filter(email=certificate.email)
-                    context['intern_ship'] = True                    
+                    context['intern_ship'] = True
                     detail = OrderedDict([('Name', name), ('Internship Completed', 'Yes'),
-                        ('Project', intership_detail.project_title), ('Internship Duration', intership_detail.internship_project_duration), ('Superviser Name', intership_detail.superviser_name_detail)])
+                                          ('Project', intership_detail.project_title), ('Internship Duration', intership_detail.internship_project_duration), ('Superviser Name', intership_detail.superviser_name_detail)])
                 elif purpose == 'FOSSEE Internship 2016':
                     intership_detail = Internship16_participant.objects.get(email=certificate.email)
                     user_project_title = Internship16_participant.objects.filter(email=certificate.email)
-                    context['intern_ship'] = True                    
+                    context['intern_ship'] = True
                     detail = OrderedDict([('Name', name), ('Internship Completed', 'Yes'),
-                        ('Project', intership_detail.project_title), ('Internship Duration', intership_detail.internship_project_duration)])
-                
+                                          ('Project', intership_detail.project_title), ('Internship Duration', intership_detail.internship_project_duration)])
                 else:
                     detail = '{0} had attended {1} {2}'.format(name, purpose, year)
             elif type == 'W':
-                detail = '{0} had attended workshop on {3} in the {1} {2}'.format\
-                        (name, purpose, year, workshop)
+                detail = '{0} had attended workshop on {3} in the {1} {2}'.format(name, purpose, year, workshop)
             context['serial_key'] = True
-            
         except Certificate.DoesNotExist:
             detail = 'User does not exist'
             context["invalidserial"] = 1
@@ -266,7 +349,7 @@ def verification(serial, _type):
                     detail = '{0} had attended {1} {2}'.format(name, purpose, year)
             elif type == 'A' or type == 'T':
                 detail = '{0} had presented paper on {3} in the {1} {2}'.format(name, purpose, year, paper)
-            elif type == 'W' :
+            elif type == 'W':
                 detail = '{0} had attended workshop on {3} in the {1} {2}'.format(name, purpose, year, workshop)
             context['detail'] = detail
         except Certificate.DoesNotExist:
@@ -284,10 +367,11 @@ def verify(request, serial_key=None):
     if request.method == 'POST':
         serial_no = request.POST.get('serial_no').strip()
         context = verification(serial_no, 'number')
-        if 'invalidserial' in  context:
+        if 'invalidserial' in context:
             context = verification(serial_no, 'key')
         return render_to_response('verify.html', context, ci)
-    return render_to_response('verify.html',{}, ci)
+    return render_to_response('verify.html', {}, ci)
+
 
 def _get_detail(serial_no):
     purpose = None
@@ -348,41 +432,41 @@ def create_certificate(certificate_path, name, qrcode, type, paper, workshop, fi
             template = 'template_SLC2014Wcertificate'
             download_file_name = 'SLC2014Wcertificate.pdf'
 
-        template_file = open('{0}{1}'.format\
-                (certificate_path, template), 'r')
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
         if type == 'P':
             content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode)
         elif type == 'A':
             content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode,
-                    paper=paper)
+                                                  paper=paper)
         elif type == 'W':
             content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode,
-                    workshop=workshop)
-        create_tex = open('{0}{1}.tex'.format\
-                (certificate_path, file_name), 'w')
+                                                  workshop=workshop)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
         if return_value == 0:
-            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name), 'r')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
                     filename=%s' % (download_file_name)
             response.write(pdf.read())
             _clean_certificate_certificate(certificate_path, file_name)
-            return [response, False] 
+            return [response, False]
         else:
             error = True
     except Exception, e:
         error = True
     return [None, error]
 
+
 def _clean_certificate_certificate(path, file_name):
     clean_process = subprocess.Popen('make -C {0} clean file_name={1}'.format(path, file_name),
-            shell=True)
+                                     shell=True)
     clean_process.wait()
+
 
 def _make_certificate_certificate(path, type, file_name):
     if type == 'P':
@@ -394,10 +478,10 @@ def _make_certificate_certificate(path, type, file_name):
     elif type == 'T':
         command = 'workshop_cert'
     process = subprocess.Popen('timeout 15 make -C {0} {1} file_name={2}'.format(path, command, file_name),
-            stderr = subprocess.PIPE, shell = True)
+                               stderr=subprocess.PIPE, shell=True)
     err = process.communicate()[1]
-    print(process.returncode)
     return process.returncode, err
+
 
 def feedback(request):
     context = {}
@@ -511,11 +595,11 @@ def scipy_download(request):
         name = user.name
         purpose = user.purpose
         year = '14'
-        id =  int(user.id)
-        hexa = hex(id).replace('0x','').zfill(6).upper()
+        id = int(user.id)
+        hexa = hex(id).replace('0x', '').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         qrcode = 'NAME: {0}; SERIAL-NO: {1}; '.format(name, serial_no)
-        file_name = '{0}{1}'.format(email,id)
+        file_name = '{0}{1}'.format(email, id)
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
@@ -549,23 +633,20 @@ def create_scipy_certificate(certificate_path, name, qrcode, type, paper, worksh
         elif type == 'A':
             template = 'template_SPC2014Acertificate'
             download_file_name = 'SPC2014Acertificate.pdf'
-
-        template_file = open('{0}{1}'.format\
-                (certificate_path, template), 'r')
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
         if type == 'P':
             content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode)
         elif type == 'A':
             content_tex = content.safe_substitute(name=name.title(), qr_code=qrcode,
-                    paper=paper)
-        create_tex = open('{0}{1}.tex'.format\
-                (certificate_path, file_name), 'w')
+                                                  paper=paper)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
         if return_value == 0:
-            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name), 'r')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
                     filename=%s' % (download_file_name)
@@ -615,6 +696,7 @@ def drupal_feedback(request):
 
     return render_to_response('drupal_feedback.html', context, ci)
 
+
 def drupal_download(request):
     context = {}
     err = ""
@@ -632,7 +714,7 @@ def drupal_download(request):
             if not user:
                 context["notregistered"] = 1
                 return render_to_response('drupal_download.html',
-                        context, context_instance=ci)
+                                          context, context_instance=ci)
             else:
                 user = user[0]
         fname = user.firstname
@@ -649,20 +731,20 @@ def drupal_download(request):
         else:
             context['notregistered'] = 2
             return render_to_response('drupal_download.html', context,
-                    context_instance=ci)
+                                      context_instance=ci)
         year = '15'
-        id =  int(user.id)
-        hexa = hex(id).replace('0x','').zfill(6).upper()
+        id = int(user.id)
+        hexa = hex(id).replace('0x', '').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
-        file_name = '{0}{1}'.format(email,id)
+        file_name = '{0}{1}'.format(email, id)
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'day': day, 'serial_key': old_user.short_key}
             certificate = create_drupal_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                    qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -680,11 +762,14 @@ def drupal_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name, 'day': day, 'serial_key': short_key}
             certificate = create_drupal_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                    qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
-                            serial_no=serial_no, counter=1, workshop=workshop,
-                            paper=paper, serial_key=serial_key, short_key=short_key)
+                                            serial_no=serial_no,
+                                            counter=1, workshop=workshop,
+                                            paper=paper,
+                                            serial_key=serial_key,
+                                            short_key=short_key)
                     certi_obj.save()
                     return certificate[0]
 
@@ -703,21 +788,20 @@ def create_drupal_certificate(certificate_path, name, qrcode, type, paper, works
         template = 'template_DCM2015Pcertificate'
         download_file_name = 'DCM2015Pcertificate.pdf'
 
-        template_file = open('{0}{1}'.format\
-                (certificate_path, template), 'r')
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
-
         content_tex = content.safe_substitute(name=name['name'].title(),
-                day=name['day'], serial_key = name['serial_key'], qr_code=qrcode)
-        create_tex = open('{0}{1}.tex'.format\
-                (certificate_path, file_name), 'w')
+                                              day=name['day'],
+                                              serial_key=name['serial_key'],
+                                              qr_code=qrcode)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path,
-                type, file_name)
+                                                          type, file_name)
         if return_value == 0:
-            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name), 'r')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
                     filename=%s' % (download_file_name)
@@ -729,7 +813,6 @@ def create_drupal_certificate(certificate_path, name, qrcode, type, paper, works
     except Exception, e:
         error = True
     return [None, error]
-
 
 
 def tbc_freeeda_download(request):
@@ -749,27 +832,27 @@ def tbc_freeeda_download(request):
             if not user:
                 context["notregistered"] = 1
                 return render_to_response('tbc_freeeda_download.html',
-                        context, context_instance=ci)
+                                          context, context_instance=ci)
             else:
                 user = user[0]
         name = user.name
         college = user.college
         book = user.book
-        author =user.author
+        author = user.author
         purpose = user.purpose
         year = '15'
-        id =  int(user.id)
-        hexa = hex(id).replace('0x','').zfill(6).upper()
+        id = int(user.id)
+        hexa = hex(id).replace('0x', '').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
-        file_name = '{0}{1}'.format(email,id)
+        file_name = '{0}{1}'.format(email, id)
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'book': book, 'college': college, 'author': author, 'serial_key': old_user.short_key}
             certificate = create_freeeda_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                     qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -787,11 +870,11 @@ def tbc_freeeda_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name, 'book': book, 'college': college, 'author': author, 'serial_key': short_key}
             certificate = create_freeeda_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                     qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
-                            serial_no=serial_no, counter=1, workshop=workshop,
-                            paper=paper, serial_key=serial_key, short_key=short_key)
+                                            serial_no=serial_no, counter=1, workshop=workshop,
+                                            paper=paper, serial_key=serial_key, short_key=short_key)
                     certi_obj.save()
                     return certificate[0]
 
@@ -809,23 +892,20 @@ def create_freeeda_certificate(certificate_path, name, qrcode, type, paper, work
         download_file_name = None
         template = 'template_FET2015Pcertificate'
         download_file_name = 'FET2015Pcertificate.pdf'
-
-        template_file = open('{0}{1}'.format\
-                (certificate_path, template), 'r')
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
 
         content_tex = content.safe_substitute(name=name['name'].title(),
-                book=name['book'], author=name['author'], college=name['college'],
-                serial_key=name['serial_key'], qr_code=qrcode)
-        create_tex = open('{0}{1}.tex'.format\
-                (certificate_path, file_name), 'w')
+                                              book=name['book'], author=name['author'], college=name['college'],
+                                              serial_key=name['serial_key'], qr_code=qrcode)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path,
-                type, file_name)
+                                                          type, file_name)
         if return_value == 0:
-            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name), 'r')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
                     filename=%s' % (download_file_name)
@@ -875,6 +955,7 @@ def dwsim_feedback(request):
 
     return render_to_response('dwsim_feedback.html', context, ci)
 
+
 def dwsim_download(request):
     context = {}
     err = ""
@@ -892,24 +973,24 @@ def dwsim_download(request):
             if not user:
                 context["notregistered"] = 1
                 return render_to_response('dwsim_download.html',
-                        context, context_instance=ci)
+                                          context, context_instance=ci)
             else:
                 user = user[0]
         name = user.name
         purpose = user.purpose
         year = '15'
-        id =  int(user.id)
-        hexa = hex(id).replace('0x','').zfill(6).upper()
+        id = int(user.id)
+        hexa = hex(id).replace('0x', '').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
-        file_name = '{0}{1}'.format(email,id)
+        file_name = '{0}{1}'.format(email, id)
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_dwsim_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                   qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -927,11 +1008,11 @@ def dwsim_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_dwsim_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                   qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
-                            serial_no=serial_no, counter=1, workshop=workshop,
-                            paper=paper, serial_key=serial_key, short_key=short_key)
+                                            serial_no=serial_no, counter=1, workshop=workshop,
+                                            paper=paper, serial_key=serial_key, short_key=short_key)
                     certi_obj.save()
                     return certificate[0]
 
@@ -950,21 +1031,19 @@ def create_dwsim_certificate(certificate_path, name, qrcode, type, paper, worksh
         template = 'template_DWS2015Pcertificate'
         download_file_name = 'DWS2015Pcertificate.pdf'
 
-        template_file = open('{0}{1}'.format\
-                (certificate_path, template), 'r')
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
 
         content_tex = content.safe_substitute(name=name['name'].title(),
-                serial_key = name['serial_key'], qr_code=qrcode)
-        create_tex = open('{0}{1}.tex'.format\
-                (certificate_path, file_name), 'w')
+                                              serial_key=name['serial_key'], qr_code=qrcode)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path,
-                type, file_name)
+                                                          type, file_name)
         if return_value == 0:
-            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name), 'r')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
                     filename=%s' % (download_file_name)
@@ -1018,6 +1097,7 @@ def arduino_feedback(request):
 
     return render_to_response('arduino_feedback.html', context, ci)
 
+
 def arduino_download(request):
     context = {}
     err = ""
@@ -1035,24 +1115,24 @@ def arduino_download(request):
             if not user:
                 context["notregistered"] = 1
                 return render_to_response('arduino_download.html',
-                        context, context_instance=ci)
+                                          context, context_instance=ci)
             else:
                 user = user[0]
         name = user.name
         purpose = user.purpose
         year = '15'
-        id =  int(user.id)
-        hexa = hex(id).replace('0x','').zfill(6).upper()
+        id = int(user.id)
+        hexa = hex(id).replace('0x', '').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
-        file_name = '{0}{1}'.format(email,id)
+        file_name = '{0}{1}'.format(email, id)
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_arduino_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                     qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -1070,11 +1150,11 @@ def arduino_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_arduino_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                     qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
-                            serial_no=serial_no, counter=1, workshop=workshop,
-                            paper=paper, serial_key=serial_key, short_key=short_key)
+                                            serial_no=serial_no, counter=1, workshop=workshop,
+                                            paper=paper, serial_key=serial_key, short_key=short_key)
                     certi_obj.save()
                     return certificate[0]
 
@@ -1093,21 +1173,19 @@ def create_arduino_certificate(certificate_path, name, qrcode, type, paper, work
         template = 'template_SCA2015Pcertificate'
         download_file_name = 'SCA2015Pcertificate.pdf'
 
-        template_file = open('{0}{1}'.format\
-                (certificate_path, template), 'r')
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
 
         content_tex = content.safe_substitute(name=name['name'].title(),
-                serial_key = name['serial_key'], qr_code=qrcode)
-        create_tex = open('{0}{1}.tex'.format\
-                (certificate_path, file_name), 'w')
+                                              serial_key=name['serial_key'], qr_code=qrcode)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path,
-                type, file_name)
+                                                          type, file_name)
         if return_value == 0:
-            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name), 'r')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
                     filename=%s' % (download_file_name)
@@ -1140,17 +1218,17 @@ def osdag_workshop_download(request):
             if not users:
                 context["notregistered"] = 1
                 return render_to_response('osdag_workshop_download.html',
-                        context, context_instance=ci)
+                                          context, context_instance=ci)
             else:
                 user = users[0]
         name = user.name
         purpose = user.purpose
         year = user.start_date.year
-        id =  int(user.id)
-        hexa = hex(id).replace('0x','').zfill(6).upper()
+        id = int(user.id)
+        hexa = hex(id).replace('0x', '').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, str(year)[2:], hexa, type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
-        file_name = '{0}{1}'.format(email,id)
+        file_name = '{0}{1}'.format(email, id)
         file_name = file_name.replace('.', '')
         details = {
             'name': name, 'year': year,
@@ -1163,7 +1241,7 @@ def osdag_workshop_download(request):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details.update({'serial_key': old_user.short_key})
             certificate = create_osdag_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                            qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -1181,11 +1259,11 @@ def osdag_workshop_download(request):
                     num += 1
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             certificate = create_osdag_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                            qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
-                            serial_no=serial_no, counter=1, workshop=workshop,
-                            paper=paper, serial_key=serial_key, short_key=short_key)
+                                            serial_no=serial_no, counter=1, workshop=workshop,
+                                            paper=paper, serial_key=serial_key, short_key=short_key)
                     certi_obj.save()
                     return certificate[0]
 
@@ -1195,6 +1273,7 @@ def osdag_workshop_download(request):
             return render_to_response('osdag_workshop_download.html', context, ci)
     context['message'] = ''
     return render_to_response('osdag_workshop_download.html', context, ci)
+
 
 def osdag_workshop_feedback(request):
     context = {}
@@ -1237,23 +1316,20 @@ def create_osdag_workshop_certificate(certificate_path, details, qrcode, type, p
     error = False
     try:
         template = 'template_OWS2016Pcertificate'
-        download_file_name = 'OWS%sPcertificate.pdf' %(details['year'])
-
-        template_file = open('{0}{1}'.format\
-                (certificate_path, template), 'r')
+        download_file_name = 'OWS%sPcertificate.pdf' % (details['year'])
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
         content_tex = content.safe_substitute(name=details['name'].title(),
-                serial_key = details['serial_key'], qr_code=qrcode, college=details['college'],
-                date='%s to %s %s' % (details['start_date'],details['end_date'], details['year']))
-        create_tex = open('{0}{1}.tex'.format\
-                (certificate_path, file_name), 'w')
+                                              serial_key=details['serial_key'], qr_code=qrcode, college=details['college'],
+                                              date='%s to %s %s' % (details['start_date'], details['end_date'], details['year']))
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path,
-                type, file_name)
+                                                          type, file_name)
         if return_value == 0:
-            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name), 'r')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
                     filename=%s' % (download_file_name)
@@ -1265,6 +1341,7 @@ def create_osdag_workshop_certificate(certificate_path, details, qrcode, type, p
     except Exception, e:
         error = True
     return [None, error]
+
 
 def drupal_workshop_download(request):
     context = {}
@@ -1283,24 +1360,24 @@ def drupal_workshop_download(request):
             if not user:
                 context["notregistered"] = 1
                 return render_to_response('drupal_workshop_download.html',
-                        context, context_instance=ci)
+                                          context, context_instance=ci)
             else:
                 user = user[0]
         name = user.name
         purpose = user.purpose
         year = '16'
-        id =  int(user.id)
-        hexa = hex(id).replace('0x','').zfill(6).upper()
+        id = int(user.id)
+        hexa = hex(id).replace('0x', '').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
-        file_name = '{0}{1}'.format(email,id)
+        file_name = '{0}{1}'.format(email, id)
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_drupal_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                             qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -1318,11 +1395,11 @@ def drupal_workshop_download(request):
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_drupal_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name)
+                                                             qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
-                            serial_no=serial_no, counter=1, workshop=workshop,
-                            paper=paper, serial_key=serial_key, short_key=short_key)
+                                            serial_no=serial_no, counter=1, workshop=workshop,
+                                            paper=paper, serial_key=serial_key, short_key=short_key)
                     certi_obj.save()
                     return certificate[0]
 
@@ -1334,6 +1411,7 @@ def drupal_workshop_download(request):
     context['message'] = ''
     return render_to_response('drupal_workshop_download.html', context, ci)
 
+
 def create_drupal_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
     error = False
     err = None
@@ -1342,19 +1420,17 @@ def create_drupal_workshop_certificate(certificate_path, name, qrcode, type, pap
         template = 'template_DWS2016Pcertificate'
         download_file_name = 'DWS2016Pcertificate.pdf'
 
-        template_file = open('{0}{1}'.format\
-                (certificate_path, template), 'r')
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
 
         content_tex = content.safe_substitute(name=name['name'].title(),
-                serial_key = name['serial_key'], qr_code=qrcode)
-        create_tex = open('{0}{1}.tex'.format\
-                (certificate_path, file_name), 'w')
+                                              serial_key=name['serial_key'], qr_code=qrcode)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path,
-                type, file_name)
+                                                          type, file_name)
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
@@ -2714,7 +2790,8 @@ def scipy_download_2017(request):
                 old_user.counter = old_user.counter + 1
                 old_user.save()
                 #context['error'] = False
-                return certificate[0]#render_to_response( 'scipy_download_2017.html', context)
+                return certificate[0] 
+                #render_to_response( 'scipy_download_2017.html', context)
         except Certificate.DoesNotExist:
             uniqueness = False
             num = 5
@@ -2799,9 +2876,9 @@ This view function is used to submit contact form, It used Google's reCAPTCHA va
             recaptcha_response = request.POST.get('g-recaptcha-response')
             url = 'https://www.google.com/recaptcha/api/siteverify'
             values = {
-            'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
-            'response': recaptcha_response
-            }
+                      'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
+                      'response': recaptcha_response
+                      }
             data = urllib.urlencode(values)
             req =  urllib2.Request(url, data=data)
             response = urllib2.urlopen(req)
