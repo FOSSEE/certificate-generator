@@ -1,18 +1,17 @@
 """
 Django settings for fossee_project project.
-
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
-
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-from local import DBNAME, DBUSER, DBPASS
+#from local import DBNAME, DBUSER, DBPASS
 from os.path import *
 PROJDIR = abspath(dirname(__file__))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+from certificate.google_secret import GOOGLE_RECAPTCHA_SECRET_KEY
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,7 +25,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['localhost'] #['localhost'] when debug is False
+ALLOWED_HOSTS = [] #['localhost'] when debug is False
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -74,6 +73,11 @@ DATABASES = {
         'USER' : DBUSER,
         'PASSWORD': DBPASS,
     }
+    
+    #  'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': 'mydatabase',
+    # }
 }
 
 # Internationalization
@@ -94,3 +98,33 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+# Set this varable to <True> if smtp-server is not allowing to send email.
+EMAIL_USE_TLS = True
+
+EMAIL_HOST = 'smtp-auth.iitb.ac.in'
+
+EMAIL_PORT = 25
+
+EMAIL_HOST_USER = ''
+
+EMAIL_HOST_PASSWORD = ''
+
+# Set EMAIL_BACKEND to 'django.core.mail.backends.smtp.EmailBackend'
+# in production
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'                    
+
+
+# SENDER_EMAIL, REPLY_EMAIL, PRODUCTION_URL, IS_DEVELOPMENT are used in email
+# verification. Set the variables accordingly to avoid errors in production
+
+# This email id will be used as <from address> for sending emails.
+# For example no_reply@<your_organization>.in can be used.
+#SENDER_EMAIL = 'your_email'
+
+# Organisation/Indivudual Name.
+#SENDER_NAME = ''
+
+# This email id will be used by users to send their queries
+# For example queries@<your_organization>.in can be used.
+#REPLY_EMAIL = ''
+
