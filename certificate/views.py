@@ -1322,9 +1322,9 @@ def create_osdag_workshop_certificate(certificate_path, details, qrcode, type, p
         template_file.close()
         content_tex = content.safe_substitute(name=details['name'].title(),
                                               serial_key=details['serial_key'],
-                                              qr_code=qrcode, college=details['college'],
-                                              date='%s to %s %s' % (details['start_date'],
-                                                details['end_date'], details['year']))
+                                              qr_code=qrcode,
+                                              college=details['college'],
+                                              date='%s %s' % (details['start_date'], details['year']))
         create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
