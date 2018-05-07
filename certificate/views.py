@@ -198,12 +198,11 @@ def verification(serial, _type):
                                           ('Year', year)
                                           ])
                 elif purpose == 'Drupal Workshop':
-                    faculty = Drupal_WS.objects.get(email=certificate.email)
+                    drupal_ws = Drupal_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([
                                          ('Name', name),
                                          ('Event', purpose),
-                                         ('Days', '30 July'),
-                                         ('Year', year)
+                                         ('Date', drupal_ws.ws_date),
                                          ])
                 elif purpose == 'OpenModelica Workshop':
                     faculty = OpenModelica_WS.objects.get(email=certificate.email)
@@ -741,7 +740,7 @@ def drupal_download(request):
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            qrcode = 'https://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'day': day, 'serial_key': old_user.short_key}
             certificate = create_drupal_certificate(certificate_path, details,
                                                     qrcode, type, paper, workshop, file_name)
@@ -759,7 +758,7 @@ def drupal_download(request):
                     uniqueness = True
                 else:
                     num += 1
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
+            qrcode = 'https://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name, 'day': day, 'serial_key': short_key}
             certificate = create_drupal_certificate(certificate_path, details,
                                                     qrcode, type, paper, workshop, file_name)
@@ -1366,7 +1365,9 @@ def drupal_workshop_download(request):
                 user = user[0]
         name = user.name
         purpose = user.purpose
-        year = '16'
+        status = 'participated in' if user.status == 'Participated' else 'successfully completed'
+        ws_date = user.ws_date
+        year = ws_date[-2:]
         id = int(user.id)
         hexa = hex(id).replace('0x', '').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
@@ -1375,8 +1376,11 @@ def drupal_workshop_download(request):
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
-            details = {'name': name, 'serial_key': old_user.short_key}
+            qrcode = 'https://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {
+            'name': name, 'serial_key': old_user.short_key,
+            'status': status, 'ws_date': ws_date
+            }
             certificate = create_drupal_workshop_certificate(certificate_path, details,
                                                              qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
@@ -1393,8 +1397,11 @@ def drupal_workshop_download(request):
                     uniqueness = True
                 else:
                     num += 1
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
-            details = {'name': name,  'serial_key': short_key}
+            qrcode = 'https://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {
+            'name': name,  'serial_key': short_key,
+            'status': status, 'ws_date': ws_date
+            }
             certificate = create_drupal_workshop_certificate(certificate_path, details,
                                                              qrcode, type, paper, workshop, file_name)
             if not certificate[1]:
@@ -1413,20 +1420,23 @@ def drupal_workshop_download(request):
     return render_to_response('drupal_workshop_download.html', context, ci)
 
 
-def create_drupal_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
+def create_drupal_workshop_certificate(certificate_path, detail, qrcode, type, paper, workshop, file_name):
     error = False
     err = None
     try:
+        year = detail["ws_date"][-4:]
         download_file_name = None
-        template = 'template_DWS2016Pcertificate'
-        download_file_name = 'DWS2016Pcertificate.pdf'
+        template = 'template_DWS2018Pcertificate'
+        download_file_name = 'DWS%sPcertificate.pdf'% year
 
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
 
-        content_tex = content.safe_substitute(name=name['name'].title(),
-                                              serial_key=name['serial_key'], qr_code=qrcode)
+        content_tex = content.safe_substitute(name=detail['name'].title(),
+                                              serial_key=detail['serial_key'], qr_code=qrcode,
+                                              status=detail['status'], ws_date=detail['ws_date']
+                                              )
         create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
@@ -2714,6 +2724,7 @@ def create_python_workshop_certificate(certificate_path, name, qrcode, type, pap
             else:
                 template = '3day_template_PWS2017Pcertificate'
 
+        # ws_date = '10 March 2018' or 'March 2018'
         download_file_name = 'PWS%sPcertificate.pdf' % ws_date.split()[-1]
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
@@ -2721,7 +2732,7 @@ def create_python_workshop_certificate(certificate_path, name, qrcode, type, pap
         template_file.close()
 
         content_tex = content.safe_substitute(name=name['name'].title(),
-                serial_key = name['serial_key'], qr_code=qrcode, college = college, paper = paper, ws_date= ws_date)
+                serial_key=name['serial_key'], qr_code=qrcode, college=college, paper=paper, ws_date=ws_date)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)

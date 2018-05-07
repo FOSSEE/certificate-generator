@@ -172,6 +172,8 @@ class Drupal_WS(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
     purpose = models.CharField(max_length=10, default='DRP')
+    status = models.CharField(max_length=10, default='Participated')
+    ws_date = models.CharField(max_length=200, default='01 January 2016')
 
 class OpenModelica_WS(models.Model):
     name = models.CharField(max_length=200)
