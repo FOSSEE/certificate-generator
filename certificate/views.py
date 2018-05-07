@@ -202,7 +202,7 @@ def verification(serial, _type):
                     detail = OrderedDict([
                                          ('Name', name),
                                          ('Event', purpose),
-                                         ('Date', drupal_ws.ws_date),
+                                         ('Date', drupal_ws.date),
                                          ])
                 elif purpose == 'OpenModelica Workshop':
                     faculty = OpenModelica_WS.objects.get(email=certificate.email)
@@ -1365,8 +1365,9 @@ def drupal_workshop_download(request):
                 user = user[0]
         name = user.name
         purpose = user.purpose
-        status = 'participated in' if user.status == 'Participated' else 'successfully completed'
-        ws_date = user.ws_date
+        status = 'successfully completed' if user.status else 'participated in'
+        ws_date = user.date
+        ws_date = datetime.strftime(ws_date, '%d %B %Y')
         year = ws_date[-2:]
         id = int(user.id)
         hexa = hex(id).replace('0x', '').zfill(6).upper()
@@ -2632,7 +2633,6 @@ def python_workshop_download(request):
         ws_date[1] = calendar.month_name[int(ws_date[1])]
         ws_date.reverse()
         ws_date = ' '.join(ws_date)
-        print(ws_date)
         paper = None
         workshop = None
         if type == 'P':
@@ -2724,7 +2724,6 @@ def create_python_workshop_certificate(certificate_path, name, qrcode, type, pap
             else:
                 template = '3day_template_PWS2017Pcertificate'
 
-        # ws_date = '10 March 2018' or 'March 2018'
         download_file_name = 'PWS%sPcertificate.pdf' % ws_date.split()[-1]
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
