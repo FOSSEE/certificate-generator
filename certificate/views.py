@@ -32,6 +32,7 @@ Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016,\
 OpenFOAM_Symposium_speaker_2016, Scipy_2017
 
 
+
 # Create your views here.
 
 
@@ -2437,26 +2438,28 @@ def fossee_internship_cerificate_download(request):
     return render_to_response('fossee_internship_cerificate_download.html', context, ci)
 
 
-def create_fossee_internship_cerificate(certificate_path, name, qrcode, type, paper, internship_project_duration, student_edu_detail, student_institute_detail, superviser_name_detail, workshop, file_name):
+def create_fossee_internship_cerificate(certificate_path, name, qrcode, wtype, paper, internship_project_duration, student_edu_detail, student_institute_detail, superviser_name_detail, workshop, file_name):
     error = False
     try:
         download_file_name = None
         year = internship_project_duration[internship_project_duration.find('to')-5:internship_project_duration.find('to')].strip()
-        if type == 'P':
+        if wtype == 'P':
             template = 'template_FIC2016Pcertificate'
             download_file_name = 'FIC2016Pcertificate.pdf'
-        elif type == 'A':
+        elif wtype == 'A':
             template = 'template_FIC2016Acertificate'
+            if year == '2018':
+              template = 'template_FIC2018Acertificate'
             download_file_name = 'FIC{0}Acertificate.pdf'.format(year)
 
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
-        if type == 'P':
+        if wtype == 'P':
             content_tex = content.safe_substitute(name=name['name'].title(),
                     serial_key=name['serial_key'], qr_code=qrcode)
-        elif type == 'A':
+        elif wtype == 'A':
             content_tex = content.safe_substitute(name=name['name'].title(),
                     serial_key=name['serial_key'], qr_code=qrcode, paper=paper, 
                     internship_project_duration=internship_project_duration, 
@@ -2467,7 +2470,7 @@ def create_fossee_internship_cerificate(certificate_path, name, qrcode, type, pa
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
-        return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
+        return_value, err = _make_certificate_certificate(certificate_path, wtype, file_name)
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
@@ -2624,7 +2627,6 @@ def python_workshop_download(request):
     ci = RequestContext(request)
     cur_path = os.path.dirname(os.path.realpath(__file__))
     certificate_path = '{0}/python_workshop_template/'.format(cur_path)
-
     if request.method == 'POST':
         email = request.POST.get('email').strip()
         type = request.POST.get('type', 'P')
@@ -2638,7 +2640,6 @@ def python_workshop_download(request):
         if type == 'P':
             if format=='iscp':
                 user = Python_Workshop.objects.filter(email=email, ws_date=ws_date)
-                print(user)
             elif format=='sel':
                 user = Python_Workshop_BPPy.objects.filter(email=email, purpose=format, ws_date=ws_date)
             else:
@@ -2691,7 +2692,6 @@ def python_workshop_download(request):
             certificate = create_python_workshop_certificate(certificate_path, details,
                     qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
             if not certificate[1]:
-                    print('here')
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, workshop=workshop,
                             paper=paper, serial_key=serial_key, short_key=short_key)
