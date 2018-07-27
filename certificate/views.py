@@ -2438,11 +2438,17 @@ def fossee_internship_cerificate_download(request):
     return render_to_response('fossee_internship_cerificate_download.html', context, ci)
 
 
-def create_fossee_internship_cerificate(certificate_path, name, qrcode, wtype, paper, internship_project_duration, student_edu_detail, student_institute_detail, superviser_name_detail, workshop, file_name):
+def create_fossee_internship_cerificate(
+      certificate_path, name, qrcode,
+      wtype, paper, internship_project_duration, student_edu_detail,
+      student_institute_detail, superviser_name_detail,
+      workshop, file_name):
     error = False
     try:
         download_file_name = None
-        year = internship_project_duration[internship_project_duration.find('to')-5:internship_project_duration.find('to')].strip()
+        year = internship_project_duration[
+            internship_project_duration.find('to')-5:internship_project_duration.find('to')
+            ].strip()
         if wtype == 'P':
             template = 'template_FIC2016Pcertificate'
             download_file_name = 'FIC2016Pcertificate.pdf'
@@ -2470,7 +2476,8 @@ def create_fossee_internship_cerificate(certificate_path, name, qrcode, wtype, p
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
-        return_value, err = _make_certificate_certificate(certificate_path, wtype, file_name)
+        return_value, err = _make_certificate_certificate(certificate_path,
+                                                          wtype, file_name)
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
