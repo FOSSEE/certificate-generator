@@ -2446,9 +2446,7 @@ def create_fossee_internship_cerificate(
     error = False
     try:
         download_file_name = None
-        year = internship_project_duration[
-            internship_project_duration.find('to')-5:internship_project_duration.find('to')
-            ].strip()
+        year = internship_project_duration.split()[2]
         if wtype == 'P':
             template = 'template_FIC2016Pcertificate'
             download_file_name = 'FIC2016Pcertificate.pdf'
@@ -2544,7 +2542,7 @@ def fossee_internship16_cerificate_download(request):
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_fossee_internship_cerificate(certificate_path, details, qrcode, type, paper, internship_project_duration, 
                 student_edu_detail, student_institute_detail, superviser_name_detail, workshop, file_name)
