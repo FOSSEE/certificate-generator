@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block header%}
-    <h1> Osdag Workshop 2016</h1>
+    <h1> Osdag Workshop</h1>
 {% endblock %}
 {% block content %}
           <div class="modal fade" id="invalidModal" tabindex="-1" role="dialog" aria-labelledby="invalidModalLabel" aria-hidden="true">
@@ -25,6 +25,9 @@
             <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
             <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
               <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Download Certificate</button></span>
+            </div><br>
+            <div>
+              Select the workshop date: <input style="width:150;height:25" type="date" name='ws_date' value="2018-01-01" required>
             </div>
           </form>
           <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:certificates@fossee.in">certificates[at]fossee[dot]in</a></h4>

@@ -4,3 +4,5 @@
 *.swo
 *.swp
 local.py
+env/*
+*.sqlite3
