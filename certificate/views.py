@@ -2560,7 +2560,7 @@ def fossee_internship16_cerificate_download(request):
                     uniqueness = True
                 else:
                     num += 1
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_fossee_internship_cerificate(certificate_path, details, qrcode, type, paper,
                           internship_project_duration, student_edu_detail, student_institute_detail, superviser_name_detail, workshop, file_name)
@@ -2674,7 +2674,7 @@ def python_workshop_download(request):
         file_name = file_name.replace('.', '')
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_python_workshop_certificate(certificate_path, details,
                     qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
@@ -2692,7 +2692,7 @@ def python_workshop_download(request):
                     uniqueness = True
                 else:
                     num += 1
-            qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(short_key)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_python_workshop_certificate(certificate_path, details,
                     qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
