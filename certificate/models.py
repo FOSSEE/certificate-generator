@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import datetime
 # Create your models here.
 
 events = (
@@ -16,6 +17,9 @@ events = (
             ('OWS', 'Osdag Workshop'),
             ('EWS', 'eSim Workshop'),
             ('DRP', 'Drupal Workshop'),
+            ('OMW', 'OpenModelica Workshop'),
+            ('PWS', 'Python Workshop'),
+            ('S17', 'Scipy 2017 Conference')
         )
 
 class Profile(models.Model):
@@ -159,12 +163,22 @@ class Esim_faculty(models.Model):
 class Osdag_WS(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
+    college = models.CharField(max_length=200, null=True, blank=True)
+    start_date = models.DateField(default='2016-01-01')
+    end_date = models.DateField(default='2016-01-01')
     purpose = models.CharField(max_length=10, default='OWS')
 
 class Drupal_WS(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
     purpose = models.CharField(max_length=10, default='DRP')
+    status = models.BooleanField(default=False)
+    date = models.DateField(default='2016-01-01')
+
+class OpenModelica_WS(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    purpose = models.CharField(max_length=10, default='OMW')
 
 class eSim_WS(models.Model):
     name = models.CharField(max_length=200)
@@ -218,6 +232,28 @@ class OpenFOAM_Symposium_speaker_2016(models.Model):
     paper = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='OFC')
 
+class Python_Workshop(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300) #grades
+    purpose = models.CharField(max_length=10, default='PWS')
+    college = models.CharField(max_length = 200)
+    ws_date = models.CharField(max_length = 100, null=True, blank=True)
+    is_coordinator = models.BooleanField(default=False)
+
+
+class Python_Workshop_BPPy(models.Model):
+    """
+    3day python workshop user details
+    """
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300) #grades
+    purpose = models.CharField(max_length=10, default='PWS')
+    college = models.CharField(max_length = 200)
+    ws_date = models.CharField(max_length = 100, null=True, blank=True)
+    is_coordinator = models.BooleanField(default=False)
+
 
 class Internship_participant(models.Model):
     name = models.CharField(max_length=200)
@@ -239,3 +275,18 @@ class Internship16_participant(models.Model):
     project_title = models.CharField(max_length=1000)
     internship_project_duration = models.CharField(max_length=500, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='F16')
+
+
+attendee_types = (
+    ('P','Participants'),
+    ('A','Speaker'),
+    ('W','Workshop'),
+    ('T','Organizers')
+    )
+
+class Scipy_2017(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='S17')
+    attendee_type = models.CharField(max_length=25, choices=attendee_types)

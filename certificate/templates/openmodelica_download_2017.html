@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block header%}
-    <h1> FOSSEE Internship Certificate</h1>
+    <h1> OpenModelica Workshop 2017 </h1>
 {% endblock %}
 {% block content %}
           <div class="modal fade" id="invalidModal" tabindex="-1" role="dialog" aria-labelledby="invalidModalLabel" aria-hidden="true">
@@ -8,60 +8,59 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="invalidModalLabel">Invalid Category</h4>
+                    <h4 class="modal-title" id="invalidModalLabel">Invalid User/Email</h4>
                   </div>
                   <div class="modal-body">
-                    The requested certificate is unavailable for your email address. Please select the appropriate category and retry.
+                      {% if notregistered == 1 %}
+                        Please enter a proper email address.
+                      {% else %}
+                        You have not attended the Drupal Camp Mumbai 2015.
+                      {% endif %}
                   </div>
                 </div>
               </div>
           </div>
-          <form class="col-lg-12" action="{% url 'certificate:fossee_internship_cerificate_download' %}" method="post">
+          <form class="col-lg-12" action="{% url 'certificate:openmodelica_download_2017' %}" method="post">
             {% csrf_token %}
             {{ message }}
-            <hr>            
-            &nbsp;&nbsp;<input type="hidden" name="type" id="A" value="A" checked="True">
             <hr>
-            <div id ="paper">
-            {% if user_project %}
-                <span><h3>Papers presented</h3><span>
-                        <div class="radio" style="padding-left:350px;text-align:left">
-                {% for user in user_project %}
-                <input type="hidden" name="paper" value="{{ user.project_title }}">{{ user.project_title }}<br>
-                {% endfor %}
-                </div>
-            {% endif %}
-            <input type="hidden" name="paper" value="{{ user.project_title }}">{{ user.project_title }}<br>
-        </div>
             <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
             <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
               <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Download Certificate</button></span>
             </div>
           </form>
           <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:certificates@fossee.in">certificates[at]fossee[dot]in</a></h4>
+              
+          <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="invalidModalLabel">Problem in downloading</h4>
+                  </div>
+                  <div class="modal-body">
+                        Sorry could not process your certificate. Kindly contact the FOSSEE team.
+                  </div>
+                </div>
+              </div>
+          </div>
 {% endblock %}
 
 {% block javascript %}
 <script>
     $(document).ready(function(){
-        value = "{{ v }}"
-        email = ""
         error = "{{ error }}"
         if(error == "True"){
-            $("#invalidModal").modal();
+            console.log("edfed")
+            $("#errorModal").modal();
         }
-        if(value == "paper"){
-            $('#A').prop('checked', true)
-            email = "{{ user_project.0.email }}";
-        }
-        $('#email').val(email);
         notreg = "{{ notregistered }}";
         if(notreg == "1"){
             $("#invalidModal").modal();
         }
-        $("[name=type]").change(function(){
-            $("#paper").remove();
-        });
+        if(notreg == "2"){
+            $("#invalidModal").modal();
+        }
    });
 </script>
 {% endblock %}
