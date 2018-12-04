@@ -11,7 +11,8 @@ PROJDIR = abspath(dirname(__file__))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-from certificate.google_secret import GOOGLE_RECAPTCHA_SECRET_KEY
+#from certificate.google_secret import GOOGLE_RECAPTCHA_SECRET_KEY
+from local import *
 
 
 # Quick-start development settings - unsuitable for production
@@ -21,7 +22,7 @@ from certificate.google_secret import GOOGLE_RECAPTCHA_SECRET_KEY
 SECRET_KEY = 'j_4@2e^e*byl1c2@^=^)bo75r5h$l01aa8*)ladv7+8druq6f*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True 
 
 TEMPLATE_DEBUG = True
 
@@ -72,6 +73,7 @@ DATABASES = {
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'USER' : DBUSER,
         'PASSWORD': DBPASS,
+        'HOST': '127.0.0.1'
     }
     
     #  'default': {
