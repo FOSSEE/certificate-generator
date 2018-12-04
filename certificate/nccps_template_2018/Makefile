@@ -10,8 +10,8 @@
 .PHONY: help certificate clean
 
 # following line is because on server texlive is not installed system-wide
-export PATH := /usr/local/texlive/2016/bin/x86_64-linux:$(PATH)
-
+#export PATH := /usr/local/texlive/2016/bin/x86_64-linux:$(PATH)
+export PATH := /usr/local/texlive/2015/bin/x86_64-linux:$(PATH)
 # default help
 help:
 	@echo "current make version is: "$(MAKE_VERSION)

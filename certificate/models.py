@@ -11,15 +11,16 @@ events = (
             ('STC', 'Scilab Textbook Companion'),
             ('DCM', 'DrupalCamp Mumbai'),
             ('FET', 'FreeEda Textbook Companion'),
-	        ('OFC', 'OpenFOAM Symposium'),
-	        ('FIC', 'Fossee Internship'),
+	    ('OFC', 'OpenFOAM Symposium'),
+	    ('FIC', 'Fossee Internship'),
             ('F16', 'Fossee Internship 2016'),
             ('OWS', 'Osdag Workshop'),
             ('EWS', 'eSim Workshop'),
             ('DRP', 'Drupal Workshop'),
             ('OMW', 'OpenModelica Workshop'),
             ('PWS', 'Python Workshop'),
-            ('S17', 'Scipy 2017 Conference')
+            ('S17', 'Scipy 2017 Conference'),
+            ('NC8', 'NCCPS 2018 Conference')
         )
 
 class Profile(models.Model):
@@ -290,3 +291,12 @@ class Scipy_2017(models.Model):
     paper = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='S17')
     attendee_type = models.CharField(max_length=25, choices=attendee_types)
+
+
+class NCCPS_2018(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='NC8')
+    attendee_type = models.CharField(max_length=25, choices=attendee_types)
+

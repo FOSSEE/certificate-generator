@@ -43,5 +43,7 @@ urlpatterns = patterns('certificate.views',
     url(r'^scipy_download_2017/$', 'scipy_download_2017', name='scipy_download_2017'),
     url(r'^scipy_feedback_2017/$', 'scipy_feedback_2017', name='scipy_feedback_2017'),
     url(r'^python_workshop_download/contact$', 'contact', name='contact'),
+    url(r'^nccps_feedback_2018/$', 'nccps_feedback_2018', name='nccps_feedback_2018'),
+    url(r'^nccps_download_2018/$', 'nccps_download_2018', name='nccps_download_2018'),
         
 )
