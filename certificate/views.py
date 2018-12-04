@@ -156,7 +156,7 @@ def verification(serial, _type):
                               ('Year', year)
                               ]
 
-            elif purpose == 'NCCPS Conference 2018':
+            elif purpose == 'NCCPS 2018 Conference':
                 detail_list = [
                               ('Name', name), ('Event', purpose),
                               ('Days', '26 November'),
@@ -228,7 +228,7 @@ def verification(serial, _type):
                                           ('Days', faculty.ws_date),
                                           ('Year', year)
                                           ])
-                elif purpose == 'NCCPS Conference 2018':
+                elif purpose == 'NCCPS 2018 Conference':
                     faculty = NCCPS_2018.objects.get(email=certificate.email)
                     detail = OrderedDict([
 					  ('Name', name), ('Event', purpose),
