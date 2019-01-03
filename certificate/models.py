@@ -20,6 +20,7 @@ events = (
             ('OMW', 'OpenModelica Workshop'),
             ('PWS', 'Python Workshop'),
             ('S17', 'Scipy 2017 Conference'),
+            ('S18', 'Scipy 2018 Conference'),
             ('NC8', 'NCCPS 2018 Conference')
         )
 
@@ -290,6 +291,14 @@ class Scipy_2017(models.Model):
     email = models.CharField(max_length=300)
     paper = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='S17')
+    attendee_type = models.CharField(max_length=25, choices=attendee_types)
+
+
+class Scipy_2018(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='S18')
     attendee_type = models.CharField(max_length=25, choices=attendee_types)
 
 
