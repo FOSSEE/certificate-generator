@@ -29,7 +29,8 @@ Scipy_participant, Scipy_speaker, Drupal_camp,\
 Tbc_freeeda, Dwsim_participant, Scilab_arduino,\
 Esim_faculty, Scipy_participant_2015,\
 Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016,\
-OpenFOAM_Symposium_speaker_2016, Scipy_2017, NCCPS_2018
+OpenFOAM_Symposium_speaker_2016, Scipy_2017, NCCPS_2018,
+Scipy_2018
 
 
 
@@ -156,6 +157,12 @@ def verification(serial, _type):
                               ('Year', year)
                               ]
 
+            elif purpose == 'SciPy India 2018':
+                detail_list = [
+                              ('Name', name), ('Event', purpose),
+                              ('Days', '21 - 22 December'),
+                              ('Year', year)
+                              ]
             elif purpose == 'NCCPS 2018 Conference':
                 detail_list = [
                               ('Name', name), ('Event', purpose),
@@ -425,6 +432,8 @@ def _get_detail(serial_no):
         purpose = 'FOSSEE Internship 2016'
     elif serial_no[0:3] == 'S17':
         purpose = 'SciPy India 2017'
+    elif serial_no[0:3] == 'S18':
+        purpose = 'SciPy India 2018'
     elif serial_no[0:3] == 'sel':
         purpose = 'Self Learning'
     elif serial_no[0:3] == 'NC8':
@@ -3011,6 +3020,125 @@ def create_nccps_certificate_2018(certificate_path, name, qrcode, attendee_type,
 
 #NCCPS 2018 Ends Here
 
+
+
+#Scipy India 2018 Starts here
+
+@csrf_exempt
+def scipy_feedback_2018(request):
+   return render_to_response('scipy_feedback_2018.html')
+
+
+@csrf_exempt
+def scipy_download_2018(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/scipy_template_2018/'.format(cur_path)
+
+    if request.method == 'POST':
+        paper = request.POST.get('paper', None)
+        workshop = None
+        email = request.POST.get('email').strip()
+        attendee_type = request.POST.get('type')
+        user = Scipy_2018.objects.filter(email=email, attendee_type=attendee_type)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('scipy_download_2018.html', context, context_instance=ci)
+        elif len(user) > 1:
+            context["duplicate"] = True
+            return render_to_response('scipy_download_2018.html', context, context_instance=ci)
+        else:
+            user = user[0]
+        name = user.name
+        email = user.email
+        purpose = user.purpose
+        paper = user.paper
+        year = '18'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, attendee_type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+
+
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key, 'email' : email}
+            certificate = create_scipy_certificate_2018(certificate_path, details, qrcode, attendee_type, paper, workshop, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0] 
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key, 'email': email}
+            certificate = create_scipy_certificate_2018(certificate_path, details,
+                    qrcode, attendee_type, paper, workshop, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
+                            counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0] 
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('scipy_download_2018.html', context, ci)
+    context['message'] = ''
+    return render_to_response('scipy_download_2018.html', context, ci)
+
+
+@csrf_exempt
+def create_scipy_certificate_2018(certificate_path, name, qrcode, attendee_type, paper, workshop, file_name):
+    error = False
+    try:
+        template = 'template_SPC2018%scertificate' % attendee_type
+        download_file_name = 'SPC2018%scertificate.pdf' % attendee_type
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        if attendee_type == 'P' or attendee_type == 'T':
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                    serial_key=name['serial_key'], qr_code=qrcode)
+        else:
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                        serial_key=name['serial_key'], qr_code=qrcode, paper=paper)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
+    
+
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+#Scipy India 2018 Ends Here
 
 @csrf_exempt
 def contact(request):
