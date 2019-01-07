@@ -20,7 +20,7 @@ events = (
             ('OMW', 'OpenModelica Workshop'),
             ('PWS', 'Python Workshop'),
             ('S17', 'Scipy 2017 Conference'),
-            ('S18', 'Scipy 2018 Conference'),
+            ('S18', 'SciPy India 2018'),
             ('NC8', 'NCCPS 2018 Conference')
         )
 
