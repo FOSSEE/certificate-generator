@@ -29,7 +29,7 @@ Scipy_participant, Scipy_speaker, Drupal_camp,\
 Tbc_freeeda, Dwsim_participant, Scilab_arduino,\
 Esim_faculty, Scipy_participant_2015,\
 Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016,\
-OpenFOAM_Symposium_speaker_2016, Scipy_2017, NCCPS_2018,
+OpenFOAM_Symposium_speaker_2016, Scipy_2017, NCCPS_2018,\
 Scipy_2018
 
 
@@ -240,6 +240,13 @@ def verification(serial, _type):
                     detail = OrderedDict([
 					  ('Name', name), ('Event', purpose),
                                           ('Days', '26 November'),
+                                          ('Year', year)
+                                          ])
+                elif purpose == 'SciPy India 2018':
+                    faculty = Scipy_2018.objects.get(email=certificate.email)
+                    detail = OrderedDict([
+					  ('Name', name), ('Event', purpose),
+                                          ('Days', '21 - 22 December'),
                                           ('Year', year)
                                           ])
                 elif purpose == 'Python 3day Workshop':
@@ -3107,6 +3114,7 @@ def create_scipy_certificate_2018(certificate_path, name, qrcode, attendee_type,
     try:
         template = 'template_SPC2018%scertificate' % attendee_type
         download_file_name = 'SPC2018%scertificate.pdf' % attendee_type
+	print('here')
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
