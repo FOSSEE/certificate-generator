@@ -163,6 +163,14 @@ def verification(serial, _type):
                               ('Days', '21 - 22 December'),
                               ('Year', year)
                               ]
+                if not type == 'P':
+                    detail_list.append(('Paper', paper))
+
+                detail = OrderedDict(detail_list)
+                context['serial_key'] = True
+                context['detail'] = detail
+                return context
+
             elif purpose == 'NCCPS 2018 Conference':
                 detail_list = [
                               ('Name', name), ('Event', purpose),
