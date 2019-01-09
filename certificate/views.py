@@ -2666,6 +2666,10 @@ def create_fossee_internship16_cerificate(certificate_path, name, qrcode, type, 
 
 
 @csrf_exempt
+def python_workshop_feedback(request):
+   return render_to_response('python_workshop_feedback.html')
+
+@csrf_exempt
 def python_workshop_download(request):
     context = {}
     err = ""
