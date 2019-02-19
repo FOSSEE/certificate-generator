@@ -257,6 +257,14 @@ def verification(serial, _type):
                                           ('Days', '21 - 22 December'),
                                           ('Year', year)
                                           ])
+                elif purpose == 'Python 2day Workshop':
+                    faculty = Python_Workshop_adv.objects.get(email=certificate.email, purpose='P2W')
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', faculty.ws_date),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'Python 3day Workshop':
                     faculty = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='P3W')
                     detail = OrderedDict([
@@ -435,6 +443,8 @@ def _get_detail(serial_no):
         purpose = 'OpenModelica Workshop'
     elif serial_no[0:3] == 'PWS':
         purpose = 'Python Workshop'
+    elif serial_no[0:3] == 'P2W':
+        purpose = 'Python 2day Workshop'
     elif serial_no[0:3] == 'P3W':
         purpose = 'Python 3day Workshop'
     elif serial_no[0:3] == 'EWS':
@@ -1565,6 +1575,8 @@ def esim_workshop_download(request):
     context['message'] = ''
     return render_to_response('esim_workshop_download.html', context, ci)
 
+
+
 def esim_workshop_feedback(request):
     context = {}
     ci = RequestContext(request)
@@ -1600,6 +1612,7 @@ def esim_workshop_feedback(request):
     context['questions'] = questions
 
     return render_to_response('esim_workshop_feedback.html', context, ci)
+
 
 
 def create_esim_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
@@ -1639,6 +1652,8 @@ def create_esim_workshop_certificate(certificate_path, name, qrcode, type, paper
 
 def esim_google_feedback(request):
     return render_to_response('esim_google_feedback.html')
+
+
 
 def esim_download(request):
     context = {}
@@ -1905,6 +1920,7 @@ def create_scipy_certificate_2015(certificate_path, name, qrcode, type, paper, w
         error = True
     return [None, error]
 
+
 @csrf_exempt
 def scipy_feedback_2016(request):
    return render_to_response('scipy_feedback_2016.html')
@@ -2112,6 +2128,7 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
 def openmodelica_feedback_2017(request):
    return render_to_response('openmodelica_feedback_2017.html')
 
+
 @csrf_exempt
 def openmodelica_download_2017(request):
     context = {}
@@ -2181,6 +2198,7 @@ def openmodelica_download_2017(request):
     context['message'] = ''
     return render_to_response('openmodelica_download_2017.html', context, ci)
 
+
 def create_openmodelica_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
     error = False
     err = None
@@ -2215,10 +2233,6 @@ def create_openmodelica_workshop_certificate(certificate_path, name, qrcode, typ
     except Exception, e:
         error = True
     return [None, error]
-
-
-
-
 
 
 
@@ -2691,6 +2705,8 @@ def python_workshop_download(request):
                 user = Python_Workshop.objects.filter(email=email, ws_date=ws_date)
             elif format=='sel':
                 user = Python_Workshop_BPPy.objects.filter(email=email, purpose=format, ws_date=ws_date)
+            elif format=='P2W':
+                user = Python_Workshop_adv.objects.filter(email=email, purpose=format, ws_date=ws_date)
             else:
                 user = Python_Workshop_BPPy.objects.filter(email=email, ws_date=ws_date)
             if not user:
@@ -2760,13 +2776,18 @@ def create_python_workshop_certificate(certificate_path, name, qrcode, type, pap
     err = None
     try:
         download_file_name = None
-        if format=='iscp': # use templates based on 3day or 1day workshop
+        if format=='iscp': # use templates based on 3day, 2day or 1day workshop
             if is_coordinator:
                 template = 'coordinator_template_PWS2017Pcertificate'
             else:
                 template = 'template_PWS2017Pcertificate'
         elif format=='sel':
             template = '3day_template_self_certificate'
+        elif format=='P2W':
+            if is_coordinator:
+                template = '2day_coordinator_template_PWS2017Pcertificate'
+            else:
+                template = '2day_template_PWS2017Pcertificate'
         else:
             if is_coordinator:
                 template = '3day_coordinator_template_PWS2017Pcertificate'

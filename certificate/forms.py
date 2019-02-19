@@ -26,6 +26,7 @@ email_subject_choice = [
 ('Others','Others')]
 ws_type_choice = [
 ('iscp','Introduction to Scientific Computing using Python(ISCP)'),
+('2day','Advanced Python'),
 ('3day','Basic Programming using Python'),
 ('sel','Self Learning(Basics of Python)')]
 
