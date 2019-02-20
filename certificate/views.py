@@ -30,7 +30,7 @@ Tbc_freeeda, Dwsim_participant, Scilab_arduino,\
 Esim_faculty, Scipy_participant_2015,\
 Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016,\
 OpenFOAM_Symposium_speaker_2016, Scipy_2017, NCCPS_2018,\
-Scipy_2018
+Scipy_2018,Python_Workshop_adv
 
 
 
@@ -2707,6 +2707,7 @@ def python_workshop_download(request):
                 user = Python_Workshop_BPPy.objects.filter(email=email, purpose=format, ws_date=ws_date)
             elif format=='P2W':
                 user = Python_Workshop_adv.objects.filter(email=email, purpose=format, ws_date=ws_date)
+		print(user)
             else:
                 user = Python_Workshop_BPPy.objects.filter(email=email, ws_date=ws_date)
             if not user:
