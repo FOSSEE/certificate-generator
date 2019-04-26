@@ -21,7 +21,8 @@ events = (
             ('PWS', 'Python Workshop'),
             ('S17', 'Scipy 2017 Conference'),
             ('S18', 'SciPy India 2018'),
-            ('NC8', 'NCCPS 2018 Conference')
+            ('NC8', 'NCCPS 2018 Conference'),
+            ('SCI', 'Scilab Workshop 2019')
         )
 
 class Profile(models.Model):
@@ -322,3 +323,12 @@ class NCCPS_2018(models.Model):
     purpose = models.CharField(max_length=10, default='NC8')
     attendee_type = models.CharField(max_length=25, choices=attendee_types)
 
+
+class Scilab_Workshop_2019(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='SCI')
+    college = models.CharField(max_length = 200)
+    ws_date = models.CharField(max_length = 100, null=True, blank=True)
+    is_coordinator = models.BooleanField(default=False)

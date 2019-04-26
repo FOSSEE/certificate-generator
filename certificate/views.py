@@ -30,7 +30,7 @@ Tbc_freeeda, Dwsim_participant, Scilab_arduino,\
 Esim_faculty, Scipy_participant_2015,\
 Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016,\
 OpenFOAM_Symposium_speaker_2016, Scipy_2017, NCCPS_2018,\
-Scipy_2018,Python_Workshop_adv
+Scipy_2018,Python_Workshop_adv, Scilab_Workshop_2019
 
 
 
@@ -281,6 +281,14 @@ def verification(serial, _type):
                                           ('Days', self_workshop.ws_date),
                                           ('Year', year)
                                           ])
+                elif purpose == 'Scilab Workshop 2019':
+                    self_workshop = Scilab_Workshop_2019.objects.get(email=certificate.email, purpose='SCI')
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', self_workshop.ws_date),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'eSim Workshop':
                     faculty = eSim_WS.objects.get(email=certificate.email)
                     detail = OrderedDict([
@@ -461,6 +469,8 @@ def _get_detail(serial_no):
         purpose = 'SciPy India 2018'
     elif serial_no[0:3] == 'sel':
         purpose = 'Self Learning'
+    elif serial_no[0:3] == 'SCI':
+        purpose = 'Scilab Workshop 2019'
     elif serial_no[0:3] == 'NC8':
         purpose = 'NCCPS 2018 Conference'
 
@@ -3221,3 +3231,139 @@ This view function is used to submit contact form, It used Google's reCAPTCHA va
     else:
         form = ContactForm()
     return render(request,'contact_us.html',{'form':form})
+
+@csrf_exempt
+def st_feedback_2019(request):
+   return render_to_response('scilab_st_feedback_2019.html')
+
+@csrf_exempt
+def st_workshop_download(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/st_workshop_template/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        type = request.POST.get('type', 'P')
+        format = request.POST.get('format', 'scilab')
+        ws_date = request.POST.get('ws_date').split('-')
+        ws_date[1] = calendar.month_name[int(ws_date[1])]
+        ws_date.reverse()
+        ws_date = ' '.join(ws_date)
+        paper = None
+        workshop = None
+        if format=='scilab':
+       	    user = Scilab_Workshop_2019.objects.filter(email=email, ws_date=ws_date)
+        else:
+            user = Python_Workshop_BPPy.objects.filter(email=email, ws_date=ws_date)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('st_workshop_download.html',
+                        context, context_instance=ci)
+        else:
+            user = user[0]
+        if user.paper == 'F':
+            context["failed"] = 1
+            return render_to_response('st_workshop_download.html',
+                        context, context_instance=ci)
+        name = user.name
+        college = user.college
+        purpose = user.purpose
+        ws_date = user.ws_date
+        paper = user.paper
+        is_coordinator = user.is_coordinator
+        year = ws_date.split()[-1][2:]
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_st_workshop_certificate(certificate_path, details,
+                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_st_workshop_certificate(certificate_path, details,
+                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1, workshop=workshop,
+                            paper=paper, serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            print(30*'$', certificate)
+            return render_to_response('st_workshop_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('st_workshop_download.html', context, ci)
+
+
+def create_st_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator=False,format='scilab'):
+    error = False
+    err = None
+    try:
+        download_file_name = None
+        if format=='scilab': # use templates based on workshop
+            if is_coordinator:
+                template = 'template_STT'
+            else:
+                template = 'template_STT'
+        else:
+            if is_coordinator:
+                template = '3day_coordinator_template_PWS2017Pcertificate'
+            else:
+                template = '3day_template_PWS2017Pcertificate'
+
+        download_file_name = 'PWS%sPcertificate.pdf' % ws_date.split()[-1]
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+
+        content_tex = content.safe_substitute(name=name['name'].title(),
+                serial_key=name['serial_key'], qr_code=qrcode, college=college, paper=paper, ws_date=ws_date)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                type, file_name)
+        print(30*'#', return_value)
+        print(30*'#', err)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+        print(e)
+    return [None, error]
