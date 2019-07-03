@@ -330,5 +330,6 @@ class Scilab_Workshop_2019(models.Model):
     paper = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='SCI')
     college = models.CharField(max_length = 200)
+    organiser = models.CharField(max_length=300, default='IIT Bombay')
     ws_date = models.CharField(max_length = 100, null=True, blank=True)
     is_coordinator = models.BooleanField(default=False)

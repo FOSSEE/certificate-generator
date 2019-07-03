@@ -3273,6 +3273,7 @@ def st_workshop_download(request):
         ws_date = user.ws_date
         paper = user.paper
         is_coordinator = user.is_coordinator
+        organiser = user.organiser
         year = ws_date.split()[-1][2:]
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
@@ -3285,7 +3286,8 @@ def st_workshop_download(request):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_st_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
+                    qrcode, type, paper, workshop, file_name, college, ws_date,
+                    organiser, is_coordinator,format)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -3303,7 +3305,8 @@ def st_workshop_download(request):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_st_workshop_certificate(certificate_path, details,
-                    qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator,format)
+                    qrcode, type, paper, workshop, file_name, college, ws_date,
+                    organiser, is_coordinator,format)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, workshop=workshop,
@@ -3315,13 +3318,15 @@ def st_workshop_download(request):
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             context['err'] = certificate[0]
-            print(30*'$', certificate)
             return render_to_response('st_workshop_download.html', context, ci)
     context['message'] = ''
     return render_to_response('st_workshop_download.html', context, ci)
 
 
-def create_st_workshop_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name, college, ws_date, is_coordinator=False,format='scilab'):
+def create_st_workshop_certificate(certificate_path, name, qrcode, type, paper,
+                                   workshop, file_name, college, ws_date,
+                                   organiser='IIT Bombay',
+                                   is_coordinator=False,format='scilab'):
     error = False
     err = None
     try:
@@ -3331,6 +3336,8 @@ def create_st_workshop_certificate(certificate_path, name, qrcode, type, paper, 
                 template = 'template_STT'
             else:
                 template = 'template_STT'
+            if ws_date == '04 May 2019':
+                template = 'template_STT4thmay'
         else:
             if is_coordinator:
                 template = '3day_coordinator_template_PWS2017Pcertificate'
@@ -3343,16 +3350,21 @@ def create_st_workshop_certificate(certificate_path, name, qrcode, type, paper, 
         content = Template(template_file.read())
         template_file.close()
 
-        content_tex = content.safe_substitute(name=name['name'].title(),
-                serial_key=name['serial_key'], qr_code=qrcode, college=college, paper=paper, ws_date=ws_date)
+        if ws_date == '04 May 2019':
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                    organiser=organiser,
+                    serial_key=name['serial_key'], qr_code=qrcode,
+                    college=college, paper=paper, ws_date=ws_date)
+        else:
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                    serial_key=name['serial_key'], qr_code=qrcode,
+                    college=college, paper=paper, ws_date=ws_date)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path,
                 type, file_name)
-        print(30*'#', return_value)
-        print(30*'#', err)
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
@@ -3365,5 +3377,4 @@ def create_st_workshop_certificate(certificate_path, name, qrcode, type, paper, 
             error = True
     except Exception, e:
         error = True
-        print(e)
     return [None, error]
