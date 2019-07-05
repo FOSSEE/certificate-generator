@@ -3269,11 +3269,13 @@ def st_workshop_download(request):
                         context, context_instance=ci)
         name = user.name
         college = user.college
+        college = college.replace('&', 'and')
         purpose = user.purpose
         ws_date = user.ws_date
         paper = user.paper
         is_coordinator = user.is_coordinator
         organiser = user.organiser
+        organiser = organiser.replace('&', 'and')
         year = ws_date.split()[-1][2:]
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
