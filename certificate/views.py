@@ -281,6 +281,14 @@ def verification(serial, _type):
                                           ('Days', self_workshop.ws_date),
                                           ('Year', year)
                                           ])
+                elif purpose == "Python Coordinators' Workshop 2019":
+                    self_workshop = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='PYC')
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Days', self_workshop.ws_date),
+                                          ('Year', year)
+                                          ])
                 elif purpose == 'Scilab Workshop 2019':
                     self_workshop = Scilab_Workshop_2019.objects.get(email=certificate.email, purpose='SCI')
                     detail = OrderedDict([
@@ -473,6 +481,8 @@ def _get_detail(serial_no):
         purpose = 'Scilab Workshop 2019'
     elif serial_no[0:3] == 'NC8':
         purpose = 'NCCPS 2018 Conference'
+    elif serial_no[0:3] == 'PYC':
+        purpose = "Python Coordinators' Workshop 2019"
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -2717,7 +2727,6 @@ def python_workshop_download(request):
                 user = Python_Workshop_BPPy.objects.filter(email=email, purpose=format, ws_date=ws_date)
             elif format=='P2W':
                 user = Python_Workshop_adv.objects.filter(email=email, purpose=format, ws_date=ws_date)
-		print(user)
             else:
                 user = Python_Workshop_BPPy.objects.filter(email=email, ws_date=ws_date)
             if not user:
@@ -2990,7 +2999,6 @@ def nccps_download_2018(request):
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
-	print(user)
 
 
         try:
@@ -3158,7 +3166,6 @@ def create_scipy_certificate_2018(certificate_path, name, qrcode, attendee_type,
     try:
         template = 'template_SPC2018%scertificate' % attendee_type
         download_file_name = 'SPC2018%scertificate.pdf' % attendee_type
-	print('here')
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
@@ -3253,8 +3260,11 @@ def st_workshop_download(request):
         ws_date = ' '.join(ws_date)
         paper = None
         workshop = None
+        organiser = 'IIT Bombay'
         if format=='scilab':
        	    user = Scilab_Workshop_2019.objects.filter(email=email, ws_date=ws_date)
+            organiser = user.organiser
+            organiser = organiser.replace('&', 'and')
         else:
             user = Python_Workshop_BPPy.objects.filter(email=email, ws_date=ws_date)
         if not user:
@@ -3274,8 +3284,6 @@ def st_workshop_download(request):
         ws_date = user.ws_date
         paper = user.paper
         is_coordinator = user.is_coordinator
-        organiser = user.organiser
-        organiser = organiser.replace('&', 'and')
         year = ws_date.split()[-1][2:]
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
@@ -3315,7 +3323,6 @@ def st_workshop_download(request):
                             paper=paper, serial_key=serial_key, short_key=short_key)
                     certi_obj.save()
                     return certificate[0]
-
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
@@ -3343,6 +3350,12 @@ def create_st_workshop_certificate(certificate_path, name, qrcode, type, paper,
         else:
             if is_coordinator:
                 template = '3day_coordinator_template_PWS2017Pcertificate'
+                if ws_date == '25 May 2019':
+                    template = 'template_STTPyCoord'
+                    bg = 'bg25'
+                if ws_date == '08 June 2019':
+                    template = 'template_STTPyCoord'
+                    bg = 'bg8'
             else:
                 template = '3day_template_PWS2017Pcertificate'
 
@@ -3351,12 +3364,15 @@ def create_st_workshop_certificate(certificate_path, name, qrcode, type, paper,
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
-
-        if ws_date == '04 May 2019':
+        if ws_date == '04 May 2019' and format == 'scilab':
             content_tex = content.safe_substitute(name=name['name'].title(),
                     organiser=organiser,
                     serial_key=name['serial_key'], qr_code=qrcode,
                     college=college, paper=paper, ws_date=ws_date)
+        elif (ws_date == '08 June 2019' or ws_date == '25 May 2019') and format == 'py19':
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                    serial_key=name['serial_key'], qr_code=qrcode, bg=bg,
+                    college=college)
         else:
             content_tex = content.safe_substitute(name=name['name'].title(),
                     serial_key=name['serial_key'], qr_code=qrcode,
