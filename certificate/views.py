@@ -3263,8 +3263,9 @@ def st_workshop_download(request):
         organiser = 'IIT Bombay'
         if format=='scilab':
        	    user = Scilab_Workshop_2019.objects.filter(email=email, ws_date=ws_date)
-            organiser = user.organiser
-            organiser = organiser.replace('&', 'and')
+            if user:
+                organiser = user[0].organiser
+                organiser = organiser.replace('&', 'and')
         else:
             user = Python_Workshop_BPPy.objects.filter(email=email, ws_date=ws_date)
         if not user:
