@@ -30,7 +30,7 @@ Tbc_freeeda, Dwsim_participant, Scilab_arduino,\
 Esim_faculty, Scipy_participant_2015,\
 Scipy_speaker_2015, OpenFOAM_Symposium_participant_2016,\
 OpenFOAM_Symposium_speaker_2016, Scipy_2017, NCCPS_2018,\
-Scipy_2018,Python_Workshop_adv, Scilab_Workshop_2019
+Scipy_2018,Python_Workshop_adv, Scilab_Workshop_2019, Fellow2019
 
 
 
@@ -184,7 +184,7 @@ def verification(serial, _type):
                 context['serial_key'] = True
                 context['detail'] = detail
                 return context
-
+            print(purpose)
             if type == 'P':
                 if purpose == 'DWSIM Workshop':
                     dwsim_user = Dwsim_participant.objects.get(email=certificate.email)
@@ -194,6 +194,13 @@ def verification(serial, _type):
                                          ('Days', '29 - 30 May'),
                                          ('Year', year)
                                          ])
+                elif purpose == "FOSSEE SUMMER FELLOWSHIP 2019":
+                    intership_detail = Fellow2019.objects.get(email=certificate.email)
+                    user_project_title = intership_detail.title
+                    duration = '{0} to {1}'.format(intership_detail.start_date, intership_detail.end_date)
+                    context['intern_ship'] = True
+                    detail = OrderedDict([('Name', name), ('Event', purpose), ('Internship Completed', 'Yes'),
+                                          ('Project', user_project_title), ('Internship Duration',duration)])
                 elif purpose == 'Scilab Arduino Workshop':
                     arduino_user = Scilab_arduino.objects.get(email=certificate.email)
                     detail = OrderedDict([
@@ -483,6 +490,8 @@ def _get_detail(serial_no):
         purpose = 'NCCPS 2018 Conference'
     elif serial_no[0:3] == 'PYC':
         purpose = "Python Coordinators' Workshop 2019"
+    elif serial_no[0:3] == 'FEL':
+        purpose = "FOSSEE SUMMER FELLOWSHIP 2019"
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -539,6 +548,7 @@ def _clean_certificate_certificate(path, file_name):
 
 
 def _make_certificate_certificate(path, type, file_name):
+    command = 'participant_cert'
     if type == 'P':
         command = 'participant_cert'
     elif type == 'A':
@@ -3395,5 +3405,118 @@ def create_st_workshop_certificate(certificate_path, name, qrcode, type, paper,
         else:
             error = True
     except Exception, e:
+        error = True
+    return [None, error]
+
+
+def fellowship2019_certificate_download(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/fellowship2019/'.format(cur_path)
+
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = Fellow2019.objects.filter(email=email)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('fellowship2019_certificate_download.html', context, context_instance=ci)
+        else:
+            user = user[0]
+        name = (user.name).title()
+        purpose = user.purpose
+        start_date = user.start_date
+        end_date = user.end_date
+        internship_project_duration = '\hspace{3} {0} \hspace{2} to \hspace{2} {1}'.format(start_date, end_date, '{0.02cm}', '{0.15cm}')
+        student_institute_detail=(user.institute).title()
+        student_institute_detail = student_institute_detail.replace('&', 'and')
+        worked_on = user.title
+        worked_on = worked_on.replace('&', 'and')
+        year = '19'
+        id =  int(user.id)
+        _type = 'P'
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_fellowship2019_certificate(certificate_path,
+                    details, qrcode, internship_project_duration,
+                    student_institute_detail, file_name, worked_on)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_fellowship2019_certificate(certificate_path,
+                    details, qrcode, internship_project_duration,
+                    student_institute_detail, file_name, worked_on)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1, serial_key=serial_key,
+                            short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('fellowship2019_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('fellowship2019_certificate_download.html', context, ci)
+
+
+def create_fellowship2019_certificate(certificate_path, details, qrcode,
+        internship_project_duration, student_institute_detail, file_name, worked_on):
+    error = False
+    try:
+        template = 'template_fellow2019Pcertificate'
+        download_file_name = 'FEL2019Pcertificate.pdf'
+
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key=details['serial_key'], qr_code=qrcode,
+                internship_project_duration=internship_project_duration,
+                student_institute_detail=student_institute_detail,
+                worked_on = worked_on)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        _type = 'P'
+        return_value, err = _make_certificate_certificate(certificate_path, _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+
+        print(30*'#')
+        print(e)
         error = True
     return [None, error]

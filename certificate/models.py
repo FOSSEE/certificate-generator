@@ -293,6 +293,16 @@ class Internship16_participant(models.Model):
     purpose = models.CharField(max_length=10, default='F16')
 
 
+class Fellow2019(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    institute = models.CharField(max_length=2000, null=True, blank=True)
+    title = models.CharField(max_length=1000)
+    start_date = models.CharField(max_length=100, null=True, blank=True)
+    end_date = models.CharField(max_length=100, null=True, blank=True)
+    purpose = models.CharField(max_length=10, default='FEL')
+
+
 attendee_types = (
     ('P','Participants'),
     ('A','Speaker'),
