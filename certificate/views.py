@@ -273,27 +273,27 @@ def verification(serial, _type):
                                           ('Year', year)
                                           ])
                 elif purpose == 'Python 3day Workshop':
-                    faculty = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='P3W')
+                    faculty = Python_Workshop_BPPy.objects.filter(email=certificate.email, purpose='P3W')
                     detail = OrderedDict([
                                           ('Name', name),
                                           ('Event', purpose),
-                                          ('Days', faculty.ws_date),
+                                          ('Days', [f.ws_date for f in faculty]),
                                           ('Year', year)
                                           ])
                 elif purpose == 'Self Learning':
-                    self_workshop = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='sel')
+                    self_workshop = Python_Workshop_BPPy.objects.filter(email=certificate.email, purpose='sel')
                     detail = OrderedDict([
                                           ('Name', name),
                                           ('Event', purpose),
-                                          ('Days', self_workshop.ws_date),
+                                          ('Days', [str(ws.ws_date) for ws in self_workshop]),
                                           ('Year', year)
                                           ])
                 elif purpose == "Python Coordinators' Workshop 2019":
-                    self_workshop = Python_Workshop_BPPy.objects.get(email=certificate.email, purpose='PYC')
+                    self_workshop = Python_Workshop_BPPy.objects.filter(email=certificate.email, purpose='PYC')
                     detail = OrderedDict([
                                           ('Name', name),
                                           ('Event', purpose),
-                                          ('Days', self_workshop.ws_date),
+                                          ('Days', [str(ws.ws_date) for ws in self_workshop]),
                                           ('Year', year)
                                           ])
                 elif purpose == 'Scilab Workshop 2019':
