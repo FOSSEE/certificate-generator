@@ -303,6 +303,11 @@ class Fellow2019(models.Model):
     purpose = models.CharField(max_length=10, default='FEL')
 
 
+class Osdag2019(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    purpose = models.CharField(max_length=10, default='OSD')
+
 attendee_types = (
     ('P','Participants'),
     ('A','Speaker'),
