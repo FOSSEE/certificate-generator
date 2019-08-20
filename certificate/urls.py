@@ -50,6 +50,7 @@ urlpatterns = patterns('certificate.views',
     url(r'^nccps_download_2018/$', 'nccps_download_2018', name='nccps_download_2018'),
     url(r'^st_feedback_2019/$', 'st_feedback_2019', name='st_feedback_2019'),
     url(r'^st_workshop_download/$', 'st_workshop_download', name='st_workshop_download'),
+    url(r'^pymain_workshop_download/$', 'pymain_workshop_download', name='pymain_workshop_download'),
     url(r'^fellowship2019_certificate_download/$', 'fellowship2019_certificate_download', name='fellowship2019_certificate_download'),
     url(r'^osdag2019_certificate_download/$', 'osdag2019_certificate_download', name='osdag2019_certificate_download'),
 )
