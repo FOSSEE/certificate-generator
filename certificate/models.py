@@ -357,3 +357,19 @@ class Pymain(models.Model):
     college = models.CharField(max_length = 200)
     organiser = models.CharField(max_length=300, default='IIT Bombay')
     date = models.CharField(max_length = 100, null=True, blank=True)
+
+
+class Linuxcoord(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='LXC')
+    college = models.CharField(max_length = 200)
+    date = models.CharField(max_length = 100, null=True, blank=True)
+
+
+class Esimcoord(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='ESC')
+    college = models.CharField(max_length = 200)
+    date = models.CharField(max_length = 100, null=True, blank=True)
