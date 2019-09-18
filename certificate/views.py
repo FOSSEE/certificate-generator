@@ -3837,7 +3837,7 @@ def linuxcoord_workshop_download(request):
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             context['err'] = certificate[0]
-            return render_to_response('linuxcoord_workshop_download_workshop_download.html', context, ci)
+            return render_to_response('linuxcoord_workshop_download.html', context, ci)
     context['message'] = ''
     return render_to_response('linuxcoord_workshop_download.html', context, ci)
 
