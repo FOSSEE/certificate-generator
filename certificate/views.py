@@ -3914,7 +3914,7 @@ def esimcoord_workshop_download(request):
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
-            certificate = create_pythonmain_workshop_certificate(certificate_path, details,
+            certificate = create_esimcoord_workshop_certificate(certificate_path, details,
                     qrcode, type, file_name, college, ws_date)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
