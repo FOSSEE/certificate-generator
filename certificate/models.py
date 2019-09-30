@@ -373,3 +373,13 @@ class Esimcoord(models.Model):
     purpose = models.CharField(max_length=10, default='ESC')
     college = models.CharField(max_length = 200)
     date = models.CharField(max_length = 100, null=True, blank=True)
+
+
+class ScilabSupport(models.Model):
+    rcid = models.IntegerField()
+    rcname = models.CharField(max_length=300)
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    role = models.CharField(max_length=50)
+    purpose = models.CharField(max_length=10, default='SSS')
+
