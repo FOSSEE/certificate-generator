@@ -55,5 +55,6 @@ urlpatterns = patterns('certificate.views',
     url(r'^esimcoord_workshop_download/$', 'esimcoord_workshop_download', name='esimcoord_workshop_download'),
     url(r'^scilabsupport_workshop_download/$', 'scilabsupport_workshop_download', name='scilabsupport_workshop_download'),
     url(r'^fellowship2019_certificate_download/$', 'fellowship2019_certificate_download', name='fellowship2019_certificate_download'),
+    url(r'^eqfellowship2019_certificate_download/$', 'eqfellowship2019_certificate_download', name='eqfellowship2019_certificate_download'),
     url(r'^osdag2019_certificate_download/$', 'osdag2019_certificate_download', name='osdag2019_certificate_download'),
 )

@@ -303,6 +303,14 @@ class Fellow2019(models.Model):
     purpose = models.CharField(max_length=10, default='FEL')
 
 
+class EqFellow2019(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    institute = models.CharField(max_length=2000, null=True, blank=True)
+    floss = models.CharField(max_length=1000)
+    purpose = models.CharField(max_length=10, default='FEQ')
+
+
 class Osdag2019(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
