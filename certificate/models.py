@@ -391,3 +391,11 @@ class ScilabSupport(models.Model):
     role = models.CharField(max_length=50)
     purpose = models.CharField(max_length=10, default='SSS')
 
+
+class PythonSupport(models.Model):
+    rcid = models.IntegerField()
+    rcname = models.CharField(max_length=300)
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    role = models.CharField(max_length=50)
+    purpose = models.CharField(max_length=10, default='PSS')
