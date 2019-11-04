@@ -4309,7 +4309,7 @@ def eqfellowship2019_certificate_download(request):
 
 
 def create_eqfellowship2019_certificate(certificate_path, details, qrcode,
-        internship_project_duration, student_institute_detail, file_name, worked_on):
+        student_institute_detail, file_name, worked_on):
     error = False
     try:
         template = 'template_eqfellow2019Pcertificate'
