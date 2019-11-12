@@ -4257,7 +4257,7 @@ def eqfellowship2019_certificate_download(request):
             user = user[0]
         name = (user.name).title()
         purpose = user.purpose
-        student_institute_detail=(user.institute).title()
+        student_institute_detail=user.institute
         student_institute_detail = student_institute_detail.replace('&', 'and')
         worked_on = user.floss
         worked_on = worked_on.replace('&', 'and')
