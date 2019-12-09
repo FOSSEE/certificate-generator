@@ -21,6 +21,7 @@ events = (
             ('PWS', 'Python Workshop'),
             ('S17', 'Scipy 2017 Conference'),
             ('S18', 'SciPy India 2018'),
+            ('S19', 'SciPy India 2019'),
             ('NC8', 'NCCPS 2018 Conference'),
             ('SCI', 'Scilab Workshop 2019')
         )
@@ -336,6 +337,14 @@ class Scipy_2018(models.Model):
     email = models.CharField(max_length=300)
     paper = models.CharField(max_length=300)
     purpose = models.CharField(max_length=10, default='S18')
+    attendee_type = models.CharField(max_length=25, choices=attendee_types)
+
+
+class Scipy_2019(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300)
+    purpose = models.CharField(max_length=10, default='S19')
     attendee_type = models.CharField(max_length=25, choices=attendee_types)
 
 
