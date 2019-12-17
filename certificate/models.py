@@ -436,5 +436,5 @@ class AnimationWorkshop(models.Model):
     venue = models.CharField(max_length=400)
     no_of_days = models.CharField(max_length=20, default="one")
     date = models.CharField(max_length=100)
-    particiapants = models.ManyToManyField(AnimationParticipant)
+    participants = models.ManyToManyField(AnimationParticipant)
     purpose = models.CharField(max_length=10, default='FAC')
