@@ -26,6 +26,11 @@ events = (
             ('SCI', 'Scilab Workshop 2019')
         )
 
+roles = (
+            ('Student', 'Student'),
+            ('Contributor', 'Contributor'),
+        )
+
 class Profile(models.Model):
     user = models.OneToOneField(User)
     # other details
@@ -417,3 +422,19 @@ class LinuxSupport(models.Model):
     email = models.CharField(max_length=300)
     role = models.CharField(max_length=50)
     purpose = models.CharField(max_length=10, default='LSS')
+
+
+class AnimationParticipant(models.Model):
+    name = models.CharField(max_length=250)
+    email = models.EmailField()
+    institute = models.CharField(max_length=400)
+    role = models.CharField(max_length=100, choices=roles)
+
+
+class AnimationWorkshop(models.Model):
+    name = models.CharField(max_length=400)
+    venue = models.CharField(max_length=400)
+    no_of_days = models.CharField(max_length=20, default="one")
+    date = models.CharField(max_length=100)
+    particiapants = models.ManyToManyField(AnimationParticipant)
+    purpose = models.CharField(max_length=10, default='FAC')
