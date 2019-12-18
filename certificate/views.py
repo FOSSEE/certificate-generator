@@ -4645,7 +4645,7 @@ def animation_certificate_download(request):
         purpose = 'FAC'
         student_institute_detail = user.institute
         student_institute_detail = student_institute_detail.replace('&', 'and')
-        workshop = user.animationworkshop_set.first()
+        workshop = user.animationworkshop_set.all()[0]
         workshop_name = (workshop.name).replace('&', 'and')
         workshop_venue = (workshop.venue).replace('&', 'and')
         duration = workshop.no_of_days
