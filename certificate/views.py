@@ -374,10 +374,10 @@ def verification(serial, _type):
                     days = 0
                     date = None
                     if users:
-                        user = users.first()
+                        user = users[0]
                         workshops = user.animationworkshop_set.all()
                     if workshops:
-                        ws = workshops.first()
+                        ws = workshops[0]
                         purpose = "{0}".format(ws.name)
                         days = ws.no_of_days
                         date = ws.date
