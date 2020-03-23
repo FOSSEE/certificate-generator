@@ -458,3 +458,15 @@ class AnimationWorkshop(models.Model):
     date = models.CharField(max_length=100)
     participants = models.ManyToManyField(AnimationParticipant)
     purpose = models.CharField(max_length=10, default='FAC')
+
+
+class FOSSWorkshopTest(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    foss = models.CharField(max_length=50)
+    grade = models.CharField(max_length=5)
+    purpose = models.CharField(max_length=5, default='FWT')
+
+
+    class Meta:
+        unique_together = ['email', 'foss']
