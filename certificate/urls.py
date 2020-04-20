@@ -70,4 +70,6 @@ urlpatterns = patterns('certificate.views',
     url(r'^osdag2019_certificate_download/$', 'osdag2019_certificate_download', name='osdag2019_certificate_download'),
     url(r'^animation_certificate_download/$', 'animation_certificate_download',
         name='animation_certificate_download'),
+    url(r'^winter_internship_certificate_download/$', 'winter_internship_certificate_download',
+        name='winter_internship_certificate_download'),
 )

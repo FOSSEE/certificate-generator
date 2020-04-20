@@ -470,3 +470,13 @@ class FOSSWorkshopTest(models.Model):
 
     class Meta:
         unique_together = ['email', 'foss']
+
+
+class Wintership(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    institute = models.CharField(max_length=2000, null=True, blank=True)
+    topic = models.CharField(max_length=1000)
+    start_date = models.CharField(max_length=100, null=True, blank=True)
+    end_date = models.CharField(max_length=100, null=True, blank=True)
+    purpose = models.CharField(max_length=10, default='WIC')
