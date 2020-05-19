@@ -222,7 +222,8 @@ def verification(serial, _type):
                     user_project_title = intership_detail.topic
                     duration = '{0} to {1}'.format(intership_detail.start_date, intership_detail.end_date)
                     context['intern_ship'] = True
-                    detail = OrderedDict([('Name', name), ('Event', purpose), ('Internship Completed', 'Yes'),
+                    event = 'FOSSEE INTERNSHIP'
+                    detail = OrderedDict([('Name', name), ('Event', event), ('Internship Completed', 'Yes'),
                                           ('Project', user_project_title), ('Internship Duration',duration)])
                 elif purpose == "FOSSEE SUMMER FELLOWSHIP 2019":
                     intership_detail = Fellow2019.objects.get(email=certificate.email)
