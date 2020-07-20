@@ -72,4 +72,6 @@ urlpatterns = patterns('certificate.views',
         name='animation_certificate_download'),
     url(r'^winter_internship_certificate_download/$', 'winter_internship_certificate_download',
         name='winter_internship_certificate_download'),
+    url(r'^fdp_certificate_download/$', 'fdp_certificate_download',
+        name='fdp_certificate_download'),
 )

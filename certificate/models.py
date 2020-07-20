@@ -480,3 +480,10 @@ class Wintership(models.Model):
     start_date = models.CharField(max_length=100, null=True, blank=True)
     end_date = models.CharField(max_length=100, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='WIC')
+
+
+class FDP(models.Model):
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    institute = models.CharField(max_length=2000, null=True, blank=True)
+    purpose = models.CharField(max_length=10, default='FD0')

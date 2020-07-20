@@ -34,7 +34,7 @@ OpenFOAM_Symposium_speaker_2016, Scipy_2017, NCCPS_2018,\
 Scipy_2018,Python_Workshop_adv, Scilab_Workshop_2019, Fellow2019, Osdag2019,\
 Pymain, Esimcoord, Linuxcoord, ScilabSupport, PythonSupport, EqFellow2019,\
 Scipy_2019, LinuxSupport, AnimationParticipant, AnimationWorkshop, EsimSupport,\
-RSupport, FOSSWorkshopTest, Wintership
+RSupport, FOSSWorkshopTest, Wintership, FDP
 
 
 # Create your views here.
@@ -216,7 +216,14 @@ def verification(serial, _type):
                                          ('Event', purpose),
                                          ('Year', year)
                                          ])
-
+                elif purpose == 'FDP 2020, FOSSEE':
+                    fdp_detail = FDP.objects.get(email=certificate.email)
+                    event = "One Day Online Faculty Development Programme on \
+                    Free and Open Source Tools for Education and Research"
+                    organiser = 'BIT Sindri, Dhanbad and FOSSEE, IIT Bombay'
+                    detail = OrderedDict([('Name', name), ('Event', event),
+                                          ('Date', '07 July 2020'),
+                                          ('organiser', organiser)])
                 elif purpose == "FOSSEE WINTER INTERNSHIP 2019":
                     intership_detail = Wintership.objects.get(email=certificate.email)
                     user_project_title = intership_detail.topic
@@ -680,6 +687,8 @@ def _get_detail(serial_no):
         purpose = "FOSSEE Workshop Test Certificate"
     elif serial_no[0:3] == 'WIC':
         purpose = "FOSSEE WINTER INTERNSHIP 2019"
+    elif serial_no[0:3] == 'FD0':
+        purpose = 'FDP 2020, FOSSEE'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -5192,6 +5201,108 @@ def create_wintership_certificate(certificate_path, details, qrcode,
                 serial_key=details['serial_key'], qr_code=qrcode,
                 institute=student_institute_detail,
                 topic=topic, start_date=start_date, end_date=end_date)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        _type = 'P'
+        return_value, err = _make_certificate_certificate(certificate_path, _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+
+        error = True
+    return [None, error]
+
+
+def fdp_certificate_download(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/FDP/'.format(cur_path)
+
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = FDP.objects.filter(email=email)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('fdp_certificate_download.html', context, context_instance=ci)
+        else:
+            user = user[0]
+        name = (user.name).title()
+        purpose = 'FD0'
+        student_institute_detail = user.institute
+        student_institute_detail = student_institute_detail.replace('&', 'and')
+
+        year = '20'
+        _type = 'P'
+        hexa = hex(user.id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email, user.id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_fdp_certificate(certificate_path,
+                    details, qrcode, student_institute_detail, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_fdp_certificate(certificate_path,
+                    details, qrcode, student_institute_detail, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1, serial_key=serial_key,
+                            short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('fdp_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('fdp_certificate_download.html', context, ci)
+
+
+def create_fdp_certificate(certificate_path, details, qrcode,
+        student_institute_detail, file_name):
+    error = False
+    try:
+        template = 'templateFDP'
+        download_file_name = 'FDP2020Pcertificate.pdf'
+
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key=details['serial_key'], qr_code=qrcode,
+                institute=student_institute_detail)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
