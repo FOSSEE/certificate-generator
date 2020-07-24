@@ -30,6 +30,10 @@ roles = (
             ('Student', 'Student'),
             ('Contributor', 'Contributor'),
         )
+internship_type = (
+            ('remote', 'Remote Internship'),
+        )
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User)
@@ -458,6 +462,27 @@ class AnimationWorkshop(models.Model):
     date = models.CharField(max_length=100)
     participants = models.ManyToManyField(AnimationParticipant)
     purpose = models.CharField(max_length=10, default='FAC')
+
+
+class AnimationInternship(models.Model):
+    name = models.CharField(max_length=400)
+    student = models.CharField(max_length=250)
+    email = models.EmailField()
+    institute = models.CharField(max_length=400)
+    duration = models.CharField(max_length=100)
+    method = models.CharField(max_length=100, choices=internship_type)
+    purpose = models.CharField(max_length=10, default='FAI')
+    year = models.IntegerField()
+
+
+class AnimationContribution(models.Model):
+    name = models.CharField(max_length=400)
+    student = models.CharField(max_length=250)
+    email = models.EmailField()
+    institute = models.CharField(max_length=400)
+    date = models.CharField(max_length=100)
+    purpose = models.CharField(max_length=10, default='FAO')
+    year = models.IntegerField()
 
 
 class FOSSWorkshopTest(models.Model):

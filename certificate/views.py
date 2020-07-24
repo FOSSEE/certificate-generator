@@ -34,7 +34,8 @@ OpenFOAM_Symposium_speaker_2016, Scipy_2017, NCCPS_2018,\
 Scipy_2018,Python_Workshop_adv, Scilab_Workshop_2019, Fellow2019, Osdag2019,\
 Pymain, Esimcoord, Linuxcoord, ScilabSupport, PythonSupport, EqFellow2019,\
 Scipy_2019, LinuxSupport, AnimationParticipant, AnimationWorkshop, EsimSupport,\
-RSupport, FOSSWorkshopTest, Wintership, FDP
+RSupport, FOSSWorkshopTest, Wintership, FDP, AnimationInternship, \
+AnimationContribution
 
 
 # Create your views here.
@@ -221,7 +222,9 @@ def verification(serial, _type):
                     event = "One Day Online Faculty Development Programme on \
                     Free and Open Source Tools for Education and Research"
                     organiser = 'BIT Sindri, Dhanbad and FOSSEE, IIT Bombay'
-                    detail = OrderedDict([('Name', name), ('Event', event),
+                    detail = OrderedDict([('Name', name),
+                                          ('institute', fdp_detail.institute),
+                                          ('Event', event),
                                           ('Date', '07 July 2020'),
                                           ('organiser', organiser)])
                 elif purpose == "FOSSEE WINTER INTERNSHIP 2019":
@@ -445,7 +448,28 @@ def verification(serial, _type):
                                           ('Days', days),
                                           ('Date', date)
                                           ])
-
+                elif purpose == "FOSSEE Animation Internship Certificate":
+                    users = AnimationInternship.objects.filter(email=certificate.email)
+                    if users:
+                        user = users[0]
+                    detail = OrderedDict([
+                                          ('Name', user.student),
+                                          ('Institute/University', user.institute),
+                                          ('Internship', user.name),
+                                          ('Duration', user.duration)
+                                          ])
+                elif purpose == "FOSSEE Animation Contribution Certificate":
+                    users = AnimationContribution.objects.filter(email=certificate.email)
+                    if users:
+                        user = users[0]
+                        topics = users.values_list('name', flat=True)
+                        dates = users.values_list('date', flat=True)
+                    detail = OrderedDict([
+                                          ('Name', user.student),
+                                          ('Institute/University', user.institute),
+                                          ('Contribution(s)', ', '.join(topics)),
+                                          ('Date(s)', ', '.join(dates)),
+                                          ])
                 elif purpose == 'Python Workshop 2019, IIT Bombay':
                     self_workshop = Pymain.objects.get(email=certificate.email)
                     detail = OrderedDict([
@@ -683,6 +707,10 @@ def _get_detail(serial_no):
         purpose = "R Workshop 2019, IIT Bombay(Support)"
     elif serial_no[0:3] == 'FAC':
         purpose = "FOSSEE Animation Workshop Certificate"
+    elif serial_no[0:3] == 'FAI':
+        purpose = "FOSSEE Animation Internship Certificate"
+    elif serial_no[0:3] == 'FAO':
+        purpose = "FOSSEE Animation Contribution Certificate"
     elif serial_no[0:3] == 'FWT':
         purpose = "FOSSEE Workshop Test Certificate"
     elif serial_no[0:3] == 'WIC':
@@ -3920,7 +3948,6 @@ def create_pythonmain_workshop_certificate(certificate_path, name, qrcode, type,
         else:
             error = True
     except Exception, e:
-        print(e)
         error = True
     return [None, error]
 
@@ -4895,6 +4922,230 @@ def create_scipy_certificate_2019(certificate_path, name, qrcode, attendee_type,
     return [None, error]
 
 #Scipy India 2019 Ends Here
+def animation_contribution_certificate_download(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/animation/'.format(cur_path)
+
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        topic = request.POST.get('topic', None)
+        user = AnimationContribution.objects.filter(email=email)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('animation_contribution_certificate_download.html', context, context_instance=ci)
+        elif len(user) > 1 and topic is None:
+            context["multicontribution"] = 2
+            context["email"] = email
+            context["contributions"] = user.values_list('name', flat=True)
+            return render_to_response('animation_contribution_certificate_download.html', context, context_instance=ci)
+        else:
+            if topic is None:
+                user = user[0]
+            else:
+                user = user.get(name=topic)
+        name = (user.student).title()
+        purpose = user.purpose
+        student_institute_detail = user.institute
+        student_institute_detail = student_institute_detail.replace('&', 'and')
+        contribution = user.name
+        contribution_name = (contribution).replace('&', 'and')
+        date = user.date
+
+        year = str(user.year)[:2]
+        id =  int(user.id)
+        _type = 'P'
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email, id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_animation_contribution_certificate(certificate_path,
+                    details, qrcode, student_institute_detail, file_name,
+                    contribution_name, date)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_animation_contribution_certificate(certificate_path,
+                    details, qrcode, student_institute_detail, file_name,
+                    contribution_name, date)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1, serial_key=serial_key,
+                            short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('animation_contribution_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('animation_contribution_certificate_download.html', context, ci)
+
+
+def create_animation_contribution_certificate(certificate_path, details, qrcode,
+        student_institute_detail, file_name, contribution_name, date):
+    error = False
+    try:
+        template = 'template_animationCcertificate'
+        download_file_name = 'FAC1920Ccertificate.pdf'
+
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key=details['serial_key'], qr_code=qrcode,
+                student_institute_detail=student_institute_detail,
+                contribution_name=contribution_name, date=date)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        _type = 'P'
+        return_value, err = _make_certificate_certificate(certificate_path, _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
+def animation_internship_certificate_download(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/animation/'.format(cur_path)
+
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = AnimationInternship.objects.filter(email=email)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('animation_internship_certificate_download.html', context, context_instance=ci)
+        else:
+            user = user[0]
+        name = (user.student).title()
+        purpose = user.purpose
+        student_institute_detail = user.institute
+        student_institute_detail = student_institute_detail.replace('&', 'and')
+        internship = user.name
+        internship_name = (internship).replace('&', 'and')
+        duration = user.duration
+
+        year = str(user.year)[:2]
+        id =  int(user.id)
+        _type = 'P'
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email, id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_animation_internship_certificate(certificate_path,
+                    details, qrcode, student_institute_detail, file_name,
+                    internship_name, duration)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_animation_internship_certificate(certificate_path,
+                    details, qrcode, student_institute_detail, file_name,
+                    internship_name, duration)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1, serial_key=serial_key,
+                            short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('animation_internship_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('animation_internship_certificate_download.html', context, ci)
+
+
+def create_animation_internship_certificate(certificate_path, details, qrcode,
+        student_institute_detail, file_name, internship_name, duration):
+    error = False
+    try:
+        template = 'template_animationIcertificate'
+        download_file_name = 'FAC1920Icertificate.pdf'
+
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key=details['serial_key'], qr_code=qrcode,
+                student_institute_detail=student_institute_detail,
+                internship_name=internship_name, duration=duration)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        _type = 'P'
+        return_value, err = _make_certificate_certificate(certificate_path, _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+
+        error = True
+    return [None, error]
 
 
 def animation_certificate_download(request):
