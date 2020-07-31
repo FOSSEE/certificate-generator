@@ -512,3 +512,15 @@ class FDP(models.Model):
     email = models.EmailField()
     institute = models.CharField(max_length=2000, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='FD0')
+
+
+class Fellow2020(models.Model):
+    name = models.CharField(max_length=80)
+    email = models.EmailField()
+    institute = models.CharField(max_length=200, null=True, blank=True)
+    title = models.CharField(max_length=200)
+    start_date = models.CharField(max_length=25, null=True, blank=True)
+    end_date = models.CharField(max_length=25, null=True, blank=True)
+    mode = models.CharField(max_length=15)
+    mode_def = models.CharField(max_length=30)
+    purpose = models.CharField(max_length=5, default='FL2')
