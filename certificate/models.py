@@ -34,6 +34,24 @@ internship_type = (
             ('remote', 'Remote Internship'),
         )
 
+MONTHS = (
+            ('January', 'January'),
+            ('February', 'February'),
+            ('March', 'March'),
+            ('April', 'April'),
+            ('May', 'May'),
+            ('June', 'June'),
+            ('July', 'July'),
+            ('August', 'August'),
+            ('September', 'September'),
+            ('October', 'October'),
+            ('November', 'November'),
+            ('December', 'December'),
+        )
+
+years = ['2020', '2021']
+months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+          'August', 'September', 'October', 'November', 'December']
 
 class Profile(models.Model):
     user = models.OneToOneField(User)
@@ -524,3 +542,13 @@ class Fellow2020(models.Model):
     mode = models.CharField(max_length=15)
     mode_def = models.CharField(max_length=30)
     purpose = models.CharField(max_length=5, default='FL2')
+
+class PythonCertification(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.CharField(max_length=150)
+    grade = models.CharField(max_length=10)
+    month = models.CharField(max_length=10)
+    year = models.IntegerField()
+    percentage = models.FloatField()
+    institute = models.CharField(max_length=150)
+    purpose = models.CharField(max_length=10, default='PCC')

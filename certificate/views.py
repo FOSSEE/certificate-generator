@@ -35,7 +35,7 @@ Scipy_2018,Python_Workshop_adv, Scilab_Workshop_2019, Fellow2019, Osdag2019,\
 Pymain, Esimcoord, Linuxcoord, ScilabSupport, PythonSupport, EqFellow2019,\
 Scipy_2019, LinuxSupport, AnimationParticipant, AnimationWorkshop, EsimSupport,\
 RSupport, FOSSWorkshopTest, Wintership, FDP, AnimationInternship, \
-AnimationContribution, Fellow2020
+AnimationContribution, Fellow2020, PythonCertification, months, years
 
 
 # Create your views here.
@@ -217,6 +217,17 @@ def verification(serial, _type):
                                          ('Event', purpose),
                                          ('Year', year)
                                          ])
+                elif purpose == 'Python Course Certificate':
+                    detail = PythonCertification.objects.get(email=certificate.email)
+                    course = 'Basic Programming using Python'
+                    offered_by = 'FOSSEE project, IIT Bombay'
+                    detail = OrderedDict([('Name', detail.name),
+                                          ('Institute', detail.institute),
+                                          ('Course', course),
+                                          ('Month', detail.month),
+                                          ('Year', detail.year),
+                                          ('Grade', detail.grade),
+                                          ('Offered by', offered_by)])
                 elif purpose == 'FDP 2020, FOSSEE':
                     fdp_detail = FDP.objects.get(email=certificate.email)
                     event = "One Day Online Faculty Development Programme on \
@@ -732,6 +743,8 @@ def _get_detail(serial_no):
         purpose = "FOSSEE WINTER INTERNSHIP 2019"
     elif serial_no[0:3] == 'FD0':
         purpose = 'FDP 2020, FOSSEE'
+    elif serial_no[0:3] == 'PCC':
+        purpose = 'Python Course Certificate'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -5686,6 +5699,114 @@ def create_fellow20_certificate(certificate_path, details, qrcode,
         create_tex.close()
         _type = 'P'
         return_value, err = _make_certificate_certificate(certificate_path, _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
+def python_certification_download(request):
+    context = {'years': years, 'months': months}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/python_workshop_template/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        month = request.POST.get('month')
+        year = int(request.POST.get('year'))
+        user = PythonCertification.objects.filter(email=email, month=month, year=year)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('python_certification_download.html',
+                                       context, context_instance=ci)
+        else:
+            user = user[0]
+            if user.grade == 'F':
+                context["failed"] = 1
+                return render_to_response('python_workshop_download.html',
+                                           context, context_instance=ci)
+        _type = 'P'
+        name = user.name
+        institute = user.institute
+        institute = institute.replace('&', 'and')
+        purpose = user.purpose
+        grade = user.grade
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_python_certificate(certificate_path, details,
+                    qrcode, _type, grade, file_name, institute, month, year)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_python_certificate(certificate_path, details,
+                    qrcode, _type, grade, file_name, institute, month, year)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('python_certification_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('python_certification_download.html', context, ci)
+
+
+def create_python_certificate(certificate_path, name, qrcode, _type, grade,
+        file_name, institute, month, year):
+    error = False
+    err = None
+    try:
+        download_file_name = None
+        template = 'template_certification'
+        download_file_name = 'PCC{0}Pcertificate.pdf'.format(year)
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+
+        content_tex = content.safe_substitute(name=name['name'].title(),
+                serial_key=name['serial_key'], qr_code=qrcode,
+                institute=institute, grade=grade, month=month, year=year)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
