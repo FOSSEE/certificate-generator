@@ -81,4 +81,6 @@ urlpatterns = patterns('certificate.views',
         name='winter_internship_certificate_download'),
     url(r'^fdp_certificate_download/$', 'fdp_certificate_download',
         name='fdp_certificate_download'),
+    url(r'^openfoam/$', 'openfoam_certificate_download',
+        name='openfoam_certificate_download'),
 )

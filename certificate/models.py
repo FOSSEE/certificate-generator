@@ -552,3 +552,13 @@ class PythonCertification(models.Model):
     percentage = models.FloatField()
     institute = models.CharField(max_length=150)
     purpose = models.CharField(max_length=10, default='PCC')
+
+new_pruposes = (
+        ('openfoam2020', 'OFM'),
+        )
+
+class CertificateUser(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.CharField(max_length=150)
+    institute = models.CharField(max_length=150, null=True, blank=True)
+    purpose = models.CharField(max_length=10)
