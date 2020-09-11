@@ -219,15 +219,18 @@ def verification(serial, _type):
                                          ('Year', year)
                                          ])
                 elif purpose == 'Python Course Certificate':
-                    detail = PythonCertification.objects.get(email=certificate.email)
+                    certifications = PythonCertification.objects.filter(email=certificate.email)
+                    certification = certifications.last()
+                    name = certification.name
+                    institute = certification.institute
                     course = 'Basic Programming using Python'
                     offered_by = 'FOSSEE project, IIT Bombay'
-                    detail = OrderedDict([('Name', detail.name),
-                                          ('Institute', detail.institute),
+                    detail = OrderedDict([('Name', name),
+                                          ('Institute', institute),
                                           ('Course', course),
-                                          ('Month', detail.month),
-                                          ('Year', detail.year),
-                                          ('Grade', detail.grade),
+                                          ('Month(s)', str(', '.join(certifications.values_list('month', flat=True)))),
+                                          ('Year(s)', ', '.join(map(str,certifications.values_list('year', flat=True)))),
+                                          ('Grade(s)', str(', '.join(certifications.values_list('grade', flat=True)))),
                                           ('Offered by', offered_by)])
                 elif purpose == 'FDP 2020, FOSSEE':
                     fdp_detail = FDP.objects.get(email=certificate.email)
