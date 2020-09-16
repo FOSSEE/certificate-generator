@@ -553,6 +553,14 @@ class PythonCertification(models.Model):
     institute = models.CharField(max_length=150)
     purpose = models.CharField(max_length=10, default='PCC')
 
+class ScilabHackathon(models.Model):
+    team = models.CharField(max_length=20)
+    interfaced = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    email = models.CharField(max_length=150)
+    ctype = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='SCH')
+
 new_pruposes = (
         ('openfoam2020', 'OFM'),
         )

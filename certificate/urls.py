@@ -83,4 +83,6 @@ urlpatterns = patterns('certificate.views',
         name='fdp_certificate_download'),
     url(r'^openfoam/$', 'openfoam_certificate_download',
         name='openfoam_certificate_download'),
+    url(r'^hackathon/scilab/$', 'hackathon_certificate_download',
+        name='hackathon_certificate_download'),
 )
