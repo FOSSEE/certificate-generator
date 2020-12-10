@@ -23,6 +23,7 @@ events = (
             ('S18', 'SciPy India 2018'),
             ('S19', 'SciPy India 2019'),
             ('NC8', 'NCCPS 2018 Conference'),
+            ('IN2', 'Internship 2020'),
             ('SCI', 'Scilab Workshop 2019')
         )
 
@@ -453,6 +454,15 @@ class EsimSupport(models.Model):
     email = models.CharField(max_length=300)
     role = models.CharField(max_length=50)
     purpose = models.CharField(max_length=10, default='ESS')
+
+
+class CPPSupport(models.Model):
+    rcid = models.IntegerField()
+    rcname = models.CharField(max_length=300)
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    role = models.CharField(max_length=50)
+    purpose = models.CharField(max_length=10, default='CPS')
 
 
 class RSupport(models.Model):
