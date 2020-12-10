@@ -539,8 +539,9 @@ class Fellow2020(models.Model):
     title = models.CharField(max_length=200)
     start_date = models.CharField(max_length=25, null=True, blank=True)
     end_date = models.CharField(max_length=25, null=True, blank=True)
-    mode = models.CharField(max_length=15)
-    mode_def = models.CharField(max_length=30)
+    mode = models.CharField(max_length=15, null=True, blank=True)
+    mode_def = models.CharField(max_length=30, null=True, blank=True)
+    _type = models.CharField(max_length=20, default='fellow')
     purpose = models.CharField(max_length=5, default='FL2')
 
 class PythonCertification(models.Model):

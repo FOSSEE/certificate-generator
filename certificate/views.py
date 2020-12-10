@@ -282,7 +282,7 @@ def verification(serial, _type):
                     detail = OrderedDict([('Name', name), ('Event', purpose), ('Internship Completed', 'Yes'),
                                           ('Project', user_project_title), ('Internship Duration',duration)])
                 elif purpose == "FOSSEE SUMMER FELLOWSHIP 2020":
-                    internship_detail = Fellow2020.objects.get(email=certificate.email)
+                    internship_detail = Fellow2020.objects.get(email=certificate.email, _type='fellow')
                     user_project_title = internship_detail.title
                     institute = internship_detail.institute
                     duration = '{0} to {1}'.format(internship_detail.start_date, internship_detail.end_date)
@@ -294,6 +294,16 @@ def verification(serial, _type):
                                           ('Internship Completed', 'Yes'),
                                           ('Project', user_project_title), ('Internship Duration',duration),
                                           ('Mode', '{0}: {1}'.format(mode, mode_def))])
+                elif purpose == "FOSSEE INTERNSHIP 2020":
+                    internship_detail = Fellow2020.objects.get(email=certificate.email, _type='intern')
+                    user_project_title = internship_detail.title
+                    institute = internship_detail.institute
+                    duration = '{0} to {1}'.format(internship_detail.start_date, internship_detail.end_date)
+                    context['intern_ship'] = True
+                    detail = OrderedDict([('Name', name), ('From', institute),
+                                          ('Event', purpose),
+                                          ('Internship Completed', 'Yes'),
+                                          ('Project', user_project_title), ('Internship Duration',duration)])
                 elif purpose == "FOSSEE SUMMER FELLOWSHIP 2019 Screening Task":
                     intership_detail = EqFellow2019.objects.get(email=certificate.email)
                     user_project_title = intership_detail.floss
@@ -739,6 +749,8 @@ def _get_detail(serial_no):
         purpose = "FOSSEE SUMMER FELLOWSHIP 2019"
     elif serial_no[0:3] == 'FL2':
         purpose = "FOSSEE SUMMER FELLOWSHIP 2020"
+    elif serial_no[0:3] == 'IN2':
+        purpose = "FOSSEE INTERNSHIP 2020"
     elif serial_no[0:3] == 'FEQ':
         purpose = "FOSSEE SUMMER FELLOWSHIP 2019 Screening Task"
     elif serial_no[0:3] == 'OSD':
@@ -5635,9 +5647,16 @@ def create_fdp_certificate(certificate_path, details, qrcode,
         error = True
     return [None, error]
 
+def intern20_certificate_download(request):
+    return fellow20_certificate_download(request, kind='intern')
 
-def fellow20_certificate_download(request):
-    context = {}
+def fellow20_certificate_download(request, kind='fellow'):
+    context = {'kind': kind}
+    if kind == 'intern':
+        context['heading'] = 'INTERNSHIP'
+    else:
+        context['heading'] = 'FELLOWSHIP'
+
     err = ""
     ci = RequestContext(request)
     cur_path = os.path.dirname(os.path.realpath(__file__))
@@ -5645,7 +5664,7 @@ def fellow20_certificate_download(request):
 
     if request.method == 'POST':
         email = request.POST.get('email').strip()
-        user = Fellow2020.objects.filter(email=email)
+        user = Fellow2020.objects.filter(email=email, _type=kind)
         if not user:
             context["notregistered"] = 1
             return render_to_response('fellow20_certificate_download.html', context, context_instance=ci)
@@ -5674,7 +5693,7 @@ def fellow20_certificate_download(request):
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_fellow20_certificate(certificate_path,
                     details, qrcode, student_institute_detail, topic,
-                    start_date, end_date, mode, mode_def, file_name)
+                    start_date, end_date, mode, mode_def, file_name, kind)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -5693,7 +5712,7 @@ def fellow20_certificate_download(request):
             details = {'name': name,  'serial_key': short_key}
             certificate = create_fellow20_certificate(certificate_path,
                     details, qrcode, student_institute_detail, topic,
-                    start_date, end_date, mode, mode_def, file_name)
+                    start_date, end_date, mode, mode_def, file_name, kind)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, serial_key=serial_key,
@@ -5711,12 +5730,15 @@ def fellow20_certificate_download(request):
 
 def create_fellow20_certificate(certificate_path, details, qrcode,
         student_institute_detail, topic, start_date, end_date, mode, mode_def,
-        file_name):
+        file_name, kind):
     error = False
     try:
-        template = 'template20'
-        download_file_name = 'FEL2020Pcertificate.pdf'
-
+        if kind == 'fellow':
+            template = 'template20'
+            download_file_name = 'FEL2020Pcertificate.pdf'
+        elif kind == 'intern':
+            template = 'templateI20'
+            download_file_name = 'INT2020Pcertificate.pdf'
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())

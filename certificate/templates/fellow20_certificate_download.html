@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block header%}
-    <h1> FOSSEE FELLOWSHIP 2020 Certificate</h1>
+<h1> FOSSEE {{ heading }} 2020 Certificate</h1>
 {% endblock %}
 {% block content %}
           <div class="modal fade" id="invalidModal" tabindex="-1" role="dialog" aria-labelledby="invalidModalLabel" aria-hidden="true">
@@ -16,7 +16,7 @@
                 </div>
               </div>
           </div>
-          <form class="col-lg-12" action="{% url 'certificate:fellow20_certificate_download' %}" method="post">
+          <form class="col-lg-12" action="{% if kind == 'fellow' %}{% url 'certificate:fellow20_certificate_download' %} {% else %} {% url 'certificate:intern20_certificate_download' %} {% endif %}" method="post">
             {% csrf_token %}
             {{ message }}
             <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
