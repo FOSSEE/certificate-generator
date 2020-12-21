@@ -564,6 +564,16 @@ class PythonCertification(models.Model):
     institute = models.CharField(max_length=150)
     purpose = models.CharField(max_length=10, default='PCC')
 
+
+class RAppre(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.CharField(max_length=150)
+    foss = models.CharField(max_length=150)
+    institute = models.CharField(max_length=150)
+    date = models.CharField(max_length=150)
+    purpose = models.CharField(max_length=10, default='RAP')
+
+
 class ScilabHackathon(models.Model):
     team = models.CharField(max_length=20)
     interfaced = models.CharField(max_length=100)

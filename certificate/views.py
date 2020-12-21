@@ -36,7 +36,7 @@ Pymain, Esimcoord, Linuxcoord, ScilabSupport, PythonSupport, EqFellow2019,\
 Scipy_2019, LinuxSupport, AnimationParticipant, AnimationWorkshop, EsimSupport,\
 RSupport, FOSSWorkshopTest, Wintership, FDP, AnimationInternship, \
 AnimationContribution, Fellow2020, PythonCertification, months, years, \
-CertificateUser, ScilabHackathon, CPPSupport
+CertificateUser, ScilabHackathon, CPPSupport, RAppre
 
 
 # Create your views here.
@@ -250,6 +250,14 @@ def verification(serial, _type):
                     detail = OrderedDict([('Name', name),
                                           ('Event', event),
                                           ('Date', '26 July 2020')])
+                elif purpose == 'R Workshop 2020':
+                    user = RAppre.objects.get(
+                            email=certificate.email, purpose='RAP')
+                    event = "R Workshop 2020"
+                    detail = OrderedDict([('Name', name),
+                                          ('institute', user.institute),
+                                          ('Event', event),
+                                          ('Date', user.date)])
                 elif purpose == 'Scilab Toolbox Hackathon 2020':
                     user = ScilabHackathon.objects.get(
                             email=certificate.email, purpose='SCH')
@@ -803,6 +811,8 @@ def _get_detail(serial_no):
         purpose = 'Python Course Certificate'
     elif serial_no[0:3] == 'SCH':
         purpose = 'Scilab Toolbox Hackathon 2020'
+    elif serial_no[0:3] == 'RAP':
+        purpose = 'R Workshop 2020'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -6179,6 +6189,106 @@ def create_hackathon_certificate(certificate_path, details, qrcode, _type,
         content_tex = content.safe_substitute(name=details['name'].title(),
                 serial_key=details['serial_key'], qr_code=qrcode, team=team,
                 interfaced=interfaced)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
+def rappre_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/st_workshop_template/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = RAppre.objects.filter(email=email, purpose='RAP')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('rappre_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name
+        institute = user.institute.replace('&', 'and')
+        foss = user.foss
+        date = user.date
+        purpose = user.purpose
+        year = '20'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_rappre_certificate(certificate_path, details,
+                    qrcode, _type, institute, foss, date, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_rappre_certificate(certificate_path, details,
+                    qrcode, _type, institute, foss, date, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('rappre_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('rappre_certificate_download.html', context, ci)
+
+
+def create_rappre_certificate(certificate_path, details, qrcode, _type,
+                              institute, foss, date, file_name):
+    error = False
+    err = None
+    try:
+        template = 'template_r_appre'
+        download_file_name = 'RAPP2020certificate.pdf'
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+
+        content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key=details['serial_key'], qr_code=qrcode,
+                institute=institute, foss=foss, date=date)
         create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
