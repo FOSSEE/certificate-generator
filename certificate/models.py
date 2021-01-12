@@ -375,6 +375,16 @@ class Scipy_2019(models.Model):
     purpose = models.CharField(max_length=10, default='S19')
     attendee_type = models.CharField(max_length=25, choices=attendee_types)
 
+class SciPyAll(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300, null=True)
+    date = models.CharField(max_length=300)
+    year = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='S20')
+    attendee_type = models.CharField(max_length=25, default='P',
+                                     choices=attendee_types)
+
 
 class NCCPS_2018(models.Model):
     name = models.CharField(max_length=300)

@@ -36,7 +36,7 @@ Pymain, Esimcoord, Linuxcoord, ScilabSupport, PythonSupport, EqFellow2019,\
 Scipy_2019, LinuxSupport, AnimationParticipant, AnimationWorkshop, EsimSupport,\
 RSupport, FOSSWorkshopTest, Wintership, FDP, AnimationInternship, \
 AnimationContribution, Fellow2020, PythonCertification, months, years, \
-CertificateUser, ScilabHackathon, CPPSupport, RAppre
+CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll
 
 
 # Create your views here.
@@ -180,6 +180,20 @@ def verification(serial, _type):
                               ('Name', name), ('Event', purpose),
                               ('Days', '29 - 30 November'),
                               ('Year', year)
+                              ]
+                if not type == 'P':
+                    detail_list.append(('Paper', paper))
+
+                detail = OrderedDict(detail_list)
+                context['serial_key'] = True
+                context['detail'] = detail
+                return context
+            elif purpose == 'SciPy India 2020':
+                detail_list = [
+                              ('Name', name), ('Event', purpose),
+                              ('Days', '19 and 20 December'),
+                              ('Year', year),
+                              ('Organiser', 'FOSSEE')
                               ]
                 if not type == 'P':
                     detail_list.append(('Paper', paper))
@@ -757,6 +771,8 @@ def _get_detail(serial_no):
         purpose = 'SciPy India 2018'
     elif serial_no[0:3] == 'S19':
         purpose = 'SciPy India 2019'
+    elif serial_no[0:3] == 'S20':
+        purpose = 'SciPy India 2020'
     elif serial_no[0:3] == 'sel':
         purpose = 'Self Learning'
     elif serial_no[0:3] == 'SCI':
@@ -2438,13 +2454,11 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, type, file_name)
-    
 
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             path = os.path.join(certificate_path, str(file_name)+ ".pdf")
-            
-            try : 
+            try :
                 sender_name = "scipy"
                 sender_email = "scipy@fossee.in"
                 subject = "SciPy India 2016 - Certificate"
@@ -2458,7 +2472,7 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
                     headers={"Content-type":"text/html;charset=iso-8859-1"}
                 )
                 email.attach_alternative(message_html, "text/html")
-                email.attach_file(path) 
+                email.attach_file(path)
                 email.send(fail_silently=True)
 
             except Exception as e:
@@ -2468,7 +2482,7 @@ def create_scipy_certificate_2016(certificate_path, name, qrcode, type, paper, w
         else:
             error = True
 
-    except Exception, e:  
+    except Exception, e:
         error = True
     return [None, error]
 
@@ -2810,7 +2824,7 @@ def fossee_internship_cerificate_download(request):
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'Verify at: http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
-            certificate = create_fossee_internship_cerificate(certificate_path, details, qrcode, type, paper, internship_project_duration, 
+            certificate = create_fossee_internship_cerificate(certificate_path, details, qrcode, type, paper, internship_project_duration,
                 student_edu_detail, student_institute_detail, superviser_name_detail, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
@@ -2870,10 +2884,10 @@ def create_fossee_internship_cerificate(
                     serial_key=name['serial_key'], qr_code=qrcode)
         elif wtype == 'A':
             content_tex = content.safe_substitute(name=name['name'].title(),
-                    serial_key=name['serial_key'], qr_code=qrcode, paper=paper, 
-                    internship_project_duration=internship_project_duration, 
-                    student_edu_detail=student_edu_detail, 
-                    student_institute_detail=student_institute_detail, 
+                    serial_key=name['serial_key'], qr_code=qrcode, paper=paper,
+                    internship_project_duration=internship_project_duration,
+                    student_edu_detail=student_edu_detail,
+                    student_institute_detail=student_institute_detail,
                     superviser_name_detail=superviser_name_detail)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
@@ -2949,7 +2963,7 @@ def fossee_internship16_cerificate_download(request):
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
-            certificate = create_fossee_internship_cerificate(certificate_path, details, qrcode, type, paper, internship_project_duration, 
+            certificate = create_fossee_internship_cerificate(certificate_path, details, qrcode, type, paper, internship_project_duration,
                 student_edu_detail, student_institute_detail, superviser_name_detail, workshop, file_name)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
@@ -3002,10 +3016,10 @@ def create_fossee_internship16_cerificate(certificate_path, name, qrcode, type, 
                     serial_key=name['serial_key'], qr_code=qrcode)
         elif type == 'A':
             content_tex = content.safe_substitute(name=name['name'].title(),
-                    serial_key=name['serial_key'], qr_code=qrcode, paper=paper, 
-                    internship_project_duration=internship_project_duration, 
-                    student_edu_detail=student_edu_detail, 
-                    student_institute_detail=student_institute_detail, 
+                    serial_key=name['serial_key'], qr_code=qrcode, paper=paper,
+                    internship_project_duration=internship_project_duration,
+                    student_edu_detail=student_edu_detail,
+                    student_institute_detail=student_institute_detail,
                     superviser_name_detail=superviser_name_detail)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
@@ -3222,7 +3236,7 @@ def scipy_download_2017(request):
                 old_user.counter = old_user.counter + 1
                 old_user.save()
                 #context['error'] = False
-                return certificate[0] 
+                return certificate[0]
                 #render_to_response( 'scipy_download_2017.html', context)
         except Certificate.DoesNotExist:
             uniqueness = False
@@ -3273,7 +3287,6 @@ def create_scipy_certificate_2017(certificate_path, name, qrcode, attendee_type,
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
-    
 
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
@@ -3341,7 +3354,7 @@ def nccps_download_2018(request):
                 old_user.counter = old_user.counter + 1
                 old_user.save()
                 #context['error'] = False
-                return certificate[0] 
+                return certificate[0]
                 #render_to_response( 'scipy_download_2017.html', context)
         except Certificate.DoesNotExist:
             uniqueness = False
@@ -3392,7 +3405,6 @@ def create_nccps_certificate_2018(certificate_path, name, qrcode, attendee_type,
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
-    
 
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
@@ -3462,7 +3474,7 @@ def scipy_download_2018(request):
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
-                return certificate[0] 
+                return certificate[0]
         except Certificate.DoesNotExist:
             uniqueness = False
             num = 5
@@ -3481,7 +3493,7 @@ def scipy_download_2018(request):
                     certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
                             counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
                     certi_obj.save()
-                    return certificate[0] 
+                    return certificate[0]
 
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
@@ -3512,7 +3524,6 @@ def create_scipy_certificate_2018(certificate_path, name, qrcode, attendee_type,
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
-    
 
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
@@ -3563,7 +3574,7 @@ This view function is used to submit contact form, It used Google's reCAPTCHA va
                 else:
                     return HttpResponse('Email your query/issue to  certificates[at]fossee[dot]in')
             else:
-                return render(request,'contact_us.html',{'form':form})        
+                return render(request,'contact_us.html',{'form':form})
         else:
             return render(request,'contact_us.html',{'form':form})
     else:
@@ -5058,7 +5069,7 @@ def scipy_download_2019(request):
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
-                return certificate[0] 
+                return certificate[0]
         except Certificate.DoesNotExist:
             uniqueness = False
             num = 5
@@ -5077,7 +5088,7 @@ def scipy_download_2019(request):
                     certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
                             counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
                     certi_obj.save()
-                    return certificate[0] 
+                    return certificate[0]
 
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
@@ -5108,7 +5119,6 @@ def create_scipy_certificate_2019(certificate_path, name, qrcode, attendee_type,
         create_tex.write(content_tex)
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
-    
 
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
@@ -6294,6 +6304,114 @@ def create_rappre_certificate(certificate_path, details, qrcode, _type,
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path,
                 _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
+def scipy_all_download(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/scipy_template_2019/'.format(cur_path)
+
+    if request.method == 'POST':
+        #paper = request.POST.get('paper', None)
+        workshop = None
+        email = request.POST.get('email').strip()
+        #attendee_type = request.POST.get('type')
+        attendee_type = 'P'
+        user = SciPyAll.objects.filter(email=email,
+                attendee_type=attendee_type, year='2020')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('scipy_all_download.html', context, context_instance=ci)
+        elif len(user) > 1:
+            context["duplicate"] = True
+            return render_to_response('scipy_all_download.html', context, context_instance=ci)
+        else:
+            user = user[0]
+        name = user.name
+        email = user.email
+        purpose = user.purpose
+        paper = user.paper
+        year = '20'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, attendee_type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key, 'email' : email}
+            certificate = create_scipy_all_certificate(certificate_path, details, qrcode, attendee_type, paper, workshop, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key, 'email': email}
+            certificate = create_scipy_all_certificate(certificate_path, details,
+                    qrcode, attendee_type, paper, workshop, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
+                            counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('scipy_all_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('scipy_all_download.html', context, ci)
+
+
+@csrf_exempt
+def create_scipy_all_certificate(certificate_path, name, qrcode, attendee_type, paper, workshop, file_name):
+    error = False
+    try:
+        template = 'template_SPC2020%scertificate' % attendee_type
+        download_file_name = 'SPC2020%scertificate.pdf' % attendee_type
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        if attendee_type == 'P' or attendee_type == 'T':
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                    serial_key=name['serial_key'], qr_code=qrcode)
+        else:
+            content_tex = content.safe_substitute(name=name['name'].title(),
+                        serial_key=name['serial_key'], qr_code=qrcode, paper=paper)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
+
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
