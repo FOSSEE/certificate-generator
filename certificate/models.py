@@ -475,6 +475,17 @@ class CPPSupport(models.Model):
     purpose = models.CharField(max_length=10, default='CPS')
 
 
+class SupportAll(models.Model):
+    rcid = models.IntegerField()
+    rcname = models.CharField(max_length=300)
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    role = models.CharField(max_length=50)
+    foss = models.CharField(max_length=50)
+    year = models.CharField(max_length=50)
+    purpose = models.CharField(max_length=10, default='FSA')
+
+
 class RSupport(models.Model):
     rcid = models.IntegerField()
     rcname = models.CharField(max_length=300)

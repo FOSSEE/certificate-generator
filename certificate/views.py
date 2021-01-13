@@ -36,7 +36,7 @@ Pymain, Esimcoord, Linuxcoord, ScilabSupport, PythonSupport, EqFellow2019,\
 Scipy_2019, LinuxSupport, AnimationParticipant, AnimationWorkshop, EsimSupport,\
 RSupport, FOSSWorkshopTest, Wintership, FDP, AnimationInternship, \
 AnimationContribution, Fellow2020, PythonCertification, months, years, \
-CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll
+CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll
 
 
 # Create your views here.
@@ -483,6 +483,22 @@ def verification(serial, _type):
                                           ('Days', '29 February'),
                                           ('Year', year)
                                           ])
+                elif purpose == "FOSS Workshop, IIT Bombay(Support)":
+                    self_workshop = SupportAll.objects.filter(email=certificate.email, purpose='FSA')
+                    if self_workshop:
+                        roles = ', '.join([str(ws.role) for ws in self_workshop])
+                        foss = ', '.join([str(ws.foss) for ws in self_workshop])
+                        date = ', '.join([str(ws.year) for ws in self_workshop])
+                        date = '08 February 2020'
+                    else:
+                        name = "Not Verified"
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', purpose),
+                                          ('Roles', roles),
+                                          ('FOSS', foss),
+                                          ('Date', date)
+                                          ])
                 elif purpose == 'eSim Workshop 2019, IIT Bombay(Support)':
                     self_workshop = EsimSupport.objects.filter(email=certificate.email, purpose='ESS')
                     if self_workshop:
@@ -807,6 +823,8 @@ def _get_detail(serial_no):
         purpose = "eSim Workshop 2019, IIT Bombay(Support)"
     elif serial_no[0:3] == 'CPS':
         purpose = "C-C++ Workshop 2020, IIT Bombay(Support)"
+    elif serial_no[0:3] == 'FSA':
+        purpose = "FOSS Workshop, IIT Bombay(Support)"
     elif serial_no[0:3] == 'RSS':
         purpose = "R Workshop 2019, IIT Bombay(Support)"
     elif serial_no[0:3] == 'FAC':
@@ -6412,6 +6430,122 @@ def create_scipy_all_certificate(certificate_path, name, qrcode, attendee_type, 
         create_tex.close()
         return_value, err = _make_certificate_certificate(certificate_path, attendee_type, file_name)
 
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
+def ardsupport_workshop_download(request):
+    foss = 'Arduino'
+    template = 'template_ardstaff'
+    html_template = 'ardsupport_workshop_download.html'
+    year = '2021'
+    return support_workshop_all_download(request, foss, template,
+                                         html_template, year)
+
+def support_workshop_all_download(request, foss, template, html_template, year):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        _type = request.POST.get('type', 'P')
+        user = SupportAll.objects.filter(email=email, foss=foss, year=year)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response(html_template, context, context_instance=ci)
+        else:
+            user = user[0]
+        cur_path = os.path.dirname(os.path.realpath(__file__))
+        certificate_path = '{0}/st_workshop_template/'.format(cur_path)
+        paper = None
+        workshop = None
+        name = user.name
+        rcname = user.rcname
+        rcid = user.rcid
+        role = user.role
+        foss = user.foss
+        college = rcname.replace('&', 'and')
+        purpose = user.purpose
+        year = '21'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_support_all_workshop_certificate(certificate_path,
+                    details, qrcode, _type, file_name, college, rcid, role, foss,
+                    template)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_support_all_workshop_certificate(certificate_path,
+                    details, qrcode, _type, file_name, college, rcid, role, foss,
+                    template)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1, workshop=workshop,
+                            paper=paper, serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response(html_template, context, ci)
+    context['message'] = ''
+    return render_to_response(html_template, context, ci)
+
+def create_support_all_workshop_certificate(certificate_path, name, qrcode,
+        _type, file_name, college, rcid, role, foss, template):
+    error = False
+    err = None
+    try:
+        download_file_name = None
+        template = template
+
+        download_file_name = 'WSS2020Pcertificate.pdf'
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=name['name'].title(),
+                serial_key=name['serial_key'], foss=foss,
+                qr_code=qrcode, rcname=college, rcid=rcid, role=role)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
             response = HttpResponse(content_type='application/pdf')
