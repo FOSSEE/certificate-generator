@@ -196,7 +196,12 @@ def verification(serial, _type):
                               ('Organiser', 'FOSSEE')
                               ]
                 if not type == 'P':
-                    detail_list.append(('Paper', paper))
+                    if type == 'W':
+                        detail_list.append(('Role', 'Conducted Workshop'))
+                        detail_list.append(('Workshop', paper))
+                    if type == 'A':
+                        detail_list.append(('Role', 'Speaker'))
+                        detail_list.append(('Paper', paper))
 
                 detail = OrderedDict(detail_list)
                 context['serial_key'] = True
@@ -6345,17 +6350,24 @@ def scipy_all_download(request):
     certificate_path = '{0}/scipy_template_2019/'.format(cur_path)
 
     if request.method == 'POST':
-        #paper = request.POST.get('paper', None)
+        paper = request.POST.get('paper', None)
         workshop = None
         email = request.POST.get('email').strip()
-        #attendee_type = request.POST.get('type')
-        attendee_type = 'P'
-        user = SciPyAll.objects.filter(email=email,
-                attendee_type=attendee_type, year='2020')
+        attendee_type = request.POST.get('type')
+        if paper:
+            user = SciPyAll.objects.filter(email=email,
+                    attendee_type=attendee_type, year='2020', paper=paper)
+        else:
+            user = SciPyAll.objects.filter(email=email,
+                    attendee_type=attendee_type, year='2020')
         if not user:
             context["notregistered"] = 1
             return render_to_response('scipy_all_download.html', context, context_instance=ci)
         elif len(user) > 1:
+            if attendee_type == 'W' or attendee_type == 'A':
+                context['user_papers'] = user
+                context['v'] = 'paper'
+                return render_to_response('scipy_all_download.html', context, context_instance=ci)
             context["duplicate"] = True
             return render_to_response('scipy_all_download.html', context, context_instance=ci)
         else:

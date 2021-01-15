@@ -48,12 +48,10 @@
             {% csrf_token %}
             {{ message }}
             <hr>
-            <!--
             <p>Please choose the appropriate category</p>
-            <input type="radio" name="type" id="P" value="P" checked="True">Participant
-            &nbsp;&nbsp;<input type="radio" name="type" id="A" value="A">Speaker
-            &nbsp;&nbsp;<input type="radio" name="type" id="W" value="W">Workshop
-             &nbsp;&nbsp;<input type="radio" name="type" id="T" value="T">TA
+            <input type="radio" name="type" id="P" value="P" checked="True">&nbsp;&nbsp;I was an Attendee
+            &nbsp;&nbsp;<input type="radio" name="type" id="A" value="A">&nbsp;&nbsp;I was a Speaker
+            &nbsp;&nbsp;<input type="radio" name="type" id="W" value="W">&nbsp;&nbsp;I conducted a Workshop
             <hr>
             <div id ="paper">
             {% if user_papers %}
@@ -65,10 +63,9 @@
                 </div>
             {% endif %}
         </div>
-            -->
-            <div class="input-group" style="width:60%;text-align:center;margin:0 auto;">
+            <div class="input-group" style="width:80%;text-align:center;margin:0 auto;">
             <input style="width:100%;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
-              <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit" id = 'myBtn' data-toggle = "modal">Download Certificate</button></span>
+              <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit" id = 'myBtn' data-toggle = "modal">Download</button></span>
            </div>
            <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:certificates@fossee.in">certificates[at]fossee[dot]in</a></h4>
               <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
