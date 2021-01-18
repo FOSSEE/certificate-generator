@@ -36,7 +36,8 @@ Pymain, Esimcoord, Linuxcoord, ScilabSupport, PythonSupport, EqFellow2019,\
 Scipy_2019, LinuxSupport, AnimationParticipant, AnimationWorkshop, EsimSupport,\
 RSupport, FOSSWorkshopTest, Wintership, FDP, AnimationInternship, \
 AnimationContribution, Fellow2020, PythonCertification, months, years, \
-CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll
+CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll, \
+ComplexFluids
 
 
 # Create your views here.
@@ -202,6 +203,25 @@ def verification(serial, _type):
                     if type == 'A':
                         detail_list.append(('Role', 'Speaker'))
                         detail_list.append(('Paper', paper))
+
+                detail = OrderedDict(detail_list)
+                context['serial_key'] = True
+                context['detail'] = detail
+                return context
+            elif purpose == 'Complex Fluids Symposium':
+                detail_list = [
+                              ('Name', name), ('Event', purpose),
+                              ('Days', '10 and 12 December'),
+                              ('Year', year),
+                              ('Organiser', 'IIT Bombay and the Indian Society of Rheology')
+                              ]
+                if not type == 'P':
+                    if type == 'O':
+                        detail_list.append(('Role', 'Presented a Poster'))
+                        detail_list.append(('Title', paper))
+                    if type == 'A':
+                        detail_list.append(('Role', 'Presented a Talk'))
+                        detail_list.append(('Title', paper))
 
                 detail = OrderedDict(detail_list)
                 context['serial_key'] = True
@@ -794,6 +814,8 @@ def _get_detail(serial_no):
         purpose = 'SciPy India 2019'
     elif serial_no[0:3] == 'S20':
         purpose = 'SciPy India 2020'
+    elif serial_no[0:3] == 'CFC':
+        purpose = 'Complex Fluids Symposium'
     elif serial_no[0:3] == 'sel':
         purpose = 'Self Learning'
     elif serial_no[0:3] == 'SCI':
@@ -6383,11 +6405,16 @@ def scipy_all_download(request):
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
+        template = 'template_SPC2020%scertificate' % attendee_type
+        download_file_name = 'SPC2020%scertificate.pdf' % attendee_type
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key, 'email' : email}
-            certificate = create_scipy_all_certificate(certificate_path, details, qrcode, attendee_type, paper, workshop, file_name)
+            certificate = create_scipy_all_certificate(
+                certificate_path, details, qrcode, attendee_type, paper,
+                workshop, file_name, template, download_file_name
+            )
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -6405,7 +6432,8 @@ def scipy_all_download(request):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key, 'email': email}
             certificate = create_scipy_all_certificate(certificate_path, details,
-                    qrcode, attendee_type, paper, workshop, file_name)
+                    qrcode, attendee_type, paper, workshop, file_name,
+                    template, download_file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
                             counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
@@ -6421,11 +6449,10 @@ def scipy_all_download(request):
 
 
 @csrf_exempt
-def create_scipy_all_certificate(certificate_path, name, qrcode, attendee_type, paper, workshop, file_name):
+def create_scipy_all_certificate(certificate_path, name, qrcode, attendee_type, paper, workshop, file_name,
+                                 template, download_file_name):
     error = False
     try:
-        template = 'template_SPC2020%scertificate' % attendee_type
-        download_file_name = 'SPC2020%scertificate.pdf' % attendee_type
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
         content = Template(template_file.read())
@@ -6571,3 +6598,89 @@ def create_support_all_workshop_certificate(certificate_path, name, qrcode,
     except Exception, e:
         error = True
     return [None, error]
+
+
+def complex_fluids_download(request):
+    context = {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/scipy_template_2019/'.format(cur_path)
+
+    if request.method == 'POST':
+        paper = request.POST.get('paper', None)
+        workshop = None
+        email = request.POST.get('email').strip()
+        email = email.lower()
+        attendee_type = request.POST.get('type')
+        if paper:
+            user = ComplexFluids.objects.filter(email__iexact=email,
+                    attendee_type=attendee_type, year='2020', paper=paper)
+        else:
+            user = ComplexFluids.objects.filter(email__iexact=email,
+                    attendee_type=attendee_type, year='2020')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('complex_fluids_download.html', context, context_instance=ci)
+        elif len(user) > 1:
+            if attendee_type == 'W' or attendee_type == 'A':
+                context['user_papers'] = user
+                context['v'] = 'paper'
+                return render_to_response('complex_fluids_download.html', context, context_instance=ci)
+            context["duplicate"] = True
+            return render_to_response('complex_fluids_download.html', context, context_instance=ci)
+        else:
+            user = user[0]
+        name = user.name
+        email = user.email
+        email = email.lower()
+        purpose = user.purpose
+        paper = user.paper
+        year = '20'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, attendee_type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        template = 'template_CFC2020%scertificate' % attendee_type
+        download_file_name = 'CFC2020%scertificate.pdf' % attendee_type
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key, 'email' : email}
+            certificate = create_scipy_all_certificate(
+                certificate_path, details, qrcode, attendee_type, paper,
+                workshop, file_name, template, download_file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key, 'email': email}
+            certificate = create_scipy_all_certificate(certificate_path, details,
+                    qrcode, attendee_type, paper, workshop, file_name,
+                    template, download_file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email, serial_no=serial_no,
+                            counter=1, workshop=workshop, paper=paper, serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('complex_fluids_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('complex_fluids_download.html', context, ci)
+

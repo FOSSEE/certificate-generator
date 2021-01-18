@@ -349,7 +349,8 @@ attendee_types = (
     ('P','Participants'),
     ('A','Speaker'),
     ('W','Workshop'),
-    ('T','Organizers')
+    ('T','Organizers'),
+    ('O', 'Poster'),
     )
 
 class Scipy_2017(models.Model):
@@ -382,6 +383,16 @@ class SciPyAll(models.Model):
     date = models.CharField(max_length=300)
     year = models.CharField(max_length=10)
     purpose = models.CharField(max_length=10, default='S20')
+    attendee_type = models.CharField(max_length=25, default='P',
+                                     choices=attendee_types)
+
+class ComplexFluids(models.Model):
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
+    paper = models.CharField(max_length=300, null=True)
+    date = models.CharField(max_length=300)
+    year = models.CharField(max_length=10, default=2020)
+    purpose = models.CharField(max_length=10, default='CFC')
     attendee_type = models.CharField(max_length=25, default='P',
                                      choices=attendee_types)
 
