@@ -101,8 +101,12 @@
         if(duplicate == "True"){
             $("#duplicateModal").modal();
         }
-        if(value == "paper"){
+        if(value == "paperA"){
             $('#A').prop('checked', true)
+            email = "{{ user_papers.0.email }}";
+        }
+        if(value == "paperO"){
+            $('#O').prop('checked', true)
             email = "{{ user_papers.0.email }}";
         }
         $('#email').val(email);

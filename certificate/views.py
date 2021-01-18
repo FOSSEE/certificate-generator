@@ -6623,9 +6623,9 @@ def complex_fluids_download(request):
             context["notregistered"] = 1
             return render_to_response('complex_fluids_download.html', context, context_instance=ci)
         elif len(user) > 1:
-            if attendee_type == 'W' or attendee_type == 'A':
+            if attendee_type == 'O' or attendee_type == 'A':
                 context['user_papers'] = user
-                context['v'] = 'paper'
+                context['v'] = 'paper'+attendee_type
                 return render_to_response('complex_fluids_download.html', context, context_instance=ci)
             context["duplicate"] = True
             return render_to_response('complex_fluids_download.html', context, context_instance=ci)
