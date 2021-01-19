@@ -67,12 +67,12 @@ class Event(models.Model):
     # other details
 
 class Certificate(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.CharField(max_length=50, null=True, blank=True)
+    name = models.CharField(max_length=300)
+    email = models.CharField(max_length=300, null=True, blank=True)
     serial_no = models.CharField(max_length=50) #purpose+uin+1stletter
     counter = models.IntegerField()
-    workshop = models.CharField(max_length=100, null=True, blank=True)
-    paper = models.CharField(max_length=100, null=True, blank=True)
+    workshop = models.CharField(max_length=1000, null=True, blank=True)
+    paper = models.CharField(max_length=1000, null=True, blank=True)
     verified = models.IntegerField(default=0)
     serial_key = models.CharField(max_length=200, null=True)
     short_key = models.CharField(max_length=50, null=True)
@@ -389,7 +389,7 @@ class SciPyAll(models.Model):
 class ComplexFluids(models.Model):
     name = models.CharField(max_length=300)
     email = models.CharField(max_length=300)
-    paper = models.CharField(max_length=300, null=True)
+    paper = models.CharField(max_length=1000, null=True)
     date = models.CharField(max_length=300)
     year = models.CharField(max_length=10, default=2020)
     purpose = models.CharField(max_length=10, default='CFC')

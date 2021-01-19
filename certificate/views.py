@@ -6636,6 +6636,7 @@ def complex_fluids_download(request):
         email = email.lower()
         purpose = user.purpose
         paper = user.paper
+        paper = paper.replace('&', 'and')
         year = '20'
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
