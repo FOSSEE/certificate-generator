@@ -12,7 +12,7 @@ PROJDIR = abspath(dirname(__file__))
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 #from certificate.google_secret import GOOGLE_RECAPTCHA_SECRET_KEY
-from local import *
+#from local import *
 
 
 # Quick-start development settings - unsuitable for production
@@ -28,12 +28,21 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = [] #['localhost'] when debug is False
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    join(PROJDIR, '../certificate/templates'),
-) 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': ['certificate/templates'],
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
+            ],
+            'debug': True,  # make this False in production
+        }
+    },
+]
 
 # Application definition
 
@@ -49,7 +58,7 @@ INSTALLED_APPS = (
     #'csvimport.app.CSVImportConf',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -67,19 +76,10 @@ WSGI_APPLICATION = 'fossee_project.wsgi.application'
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME' : DBNAME,
-        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'USER' : DBUSER,
-        'PASSWORD': DBPASS,
-        'HOST': '127.0.0.1'
-    }
-    
-    #  'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': 'mydatabase',
-    # }
+      'default': {
+         'ENGINE': 'django.db.backends.sqlite3',
+         'NAME': 'dbcep.sqlite3',
+     }
 }
 
 # Internationalization

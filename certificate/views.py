@@ -5,7 +5,7 @@ from string import Template
 import hashlib
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render, redirect
 from django.template import RequestContext
 from certificate.forms import FeedBackForm, ContactForm
 from collections import OrderedDict
@@ -15,16 +15,14 @@ import calendar
 from datetime import datetime
 from django.http import HttpResponseRedirect
 import json
-import urllib
-import urllib2
 from django.conf import settings
-import sending_emails
+from . import sending_emails
 from certificate.models import CEP, Certificate, Event, Question, Answer, FeedBack
 # Create your views here.
 
 
 def index(request):
-    return render_to_response('index.html')
+    return render('index.html')
 
 
 def download(request):
@@ -43,7 +41,7 @@ def download(request):
             user = Scilab_participant.objects.filter(email=email)
             if not user:
                 context["notregistered"] = 1
-                return render_to_response('download.html', context,
+                return render('download.html', context,
                                           context_instance=ci)
             else:
                 user = user[0]
@@ -56,12 +54,12 @@ def download(request):
                 user = Scilab_speaker.objects.filter(email=email)
             if not user:
                 context["notregistered"] = 1
-                return render_to_response('download.html', context,
+                return render('download.html', context,
                                           context_instance=ci)
             if len(user) > 1:
                 context['user_papers'] = user
                 context['v'] = 'paper'
-                return render_to_response('download.html', context,
+                return render('download.html', context,
                                           context_instance=ci)
             else:
                 user = user[0]
@@ -76,12 +74,12 @@ def download(request):
                 user = Scilab_workshop.objects.filter(email=email)
             if not user:
                 context["notregistered"] = 1
-                return render_to_response('download.html', context,
+                return render('download.html', context,
                                           context_instance=ci)
             if len(user) > 1:
                 context['workshops'] = user
                 context['v'] = 'workshop'
-                return render_to_response('download.html', context,
+                return render('download.html', context,
                                           context_instance=ci)
             else:
                 user = user[0]
@@ -119,13 +117,14 @@ def download(request):
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
-            return render_to_response('download.html', context, ci)
+            return render('download.html', context, ci)
     context['message'] = ''
-    return render_to_response('download.html', context, ci)
+    return render('download.html', context, ci)
 
 
 def verification(serial, _type):
     context = {}
+    detail = {}
     if _type == 'key':
         try:
             certificate = Certificate.objects.get(short_key=serial)
@@ -135,17 +134,20 @@ def verification(serial, _type):
             serial_no = certificate.serial_no
             certificate.verified += 1
             certificate.save()
+            print(str(serial_no))
             purpose, year, type = _get_detail(serial_no)
+            print(purpose, year, type)
             if type == 'P':
+                print('in')
                 if purpose == 'CEP Course':
+                    print('in2')
                     cep_detail = CEP.objects.get(email=certificate.email)
                     detail = OrderedDict([('Name', name),
-                                          ('course', fdp_detail.course),
-                                          ('incharge', fdp_detail.incharge),
-                                          ('coordinator', fdp_detail.coordinator),
-                                          ('Event', event),
+                                          ('course', cep_detail.course_name),
+                                          ('incharge', cep_detail.incharge),
+                                          ('coordinator', cep_detail.coordinator),
                                           ('Date', 'April-October 2021'),
-                                          ('organiser', CEP, IITB)])
+                                          ('organiser', 'CEP, IITB')])
                 else:
                     detail = '{0} had attended {1} {2}'.format(name, purpose, year)
             elif type == 'A' or type == 'T':
@@ -216,18 +218,17 @@ def verification(serial, _type):
 
 def verify(request, serial_key=None):
     context = {}
-    ci = RequestContext(request)
     detail = None
     if serial_key is not None:
         context = verification(serial_key, 'key')
-        return render_to_response('verify.html', context, ci)
+        return render(request, 'verify.html', context)
     if request.method == 'POST':
         serial_no = request.POST.get('serial_no').strip()
         context = verification(serial_no, 'number')
         if 'invalidserial' in context:
             context = verification(serial_no, 'key')
-        return render_to_response('verify.html', context, ci)
-    return render_to_response('verify.html', {}, ci)
+        return render(request, 'verify.html', context)
+    return render(request, 'verify.html', {})
 
 
 def _get_detail(serial_no):
@@ -282,7 +283,7 @@ def create_certificate(certificate_path, name, qrcode, type, paper, workshop, fi
             return [response, False]
         else:
             error = True
-    except Exception, e:
+    except Exception as e:
         error = True
     return [None, error]
 
@@ -321,7 +322,7 @@ def feedback(request):
             try:
                 FeedBack.objects.get(email=data['email'].strip(), purpose='SLC')
                 context['message'] = 'You have already submitted the feedback. You can download your certificate.'
-                return render_to_response('download.html', context, ci)
+                return render('download.html', context, ci)
             except FeedBack.DoesNotExist:
                 feedback = FeedBack()
                 feedback.name = data['name'].strip()
@@ -337,12 +338,12 @@ def feedback(request):
                     feedback.answer.add(answer)
                     feedback.save()
                 context['message'] = 'Thank you for the feedback. You can download your certificate.'
-                return render_to_response('download.html', context, ci)
+                return render('download.html', context, ci)
 
     context['form'] = form
     context['questions'] = questions
 
-    return render_to_response('feedback.html', context, ci)
+    return render('feedback.html', context, ci)
 
 
 def scipy_feedback(request):
@@ -357,7 +358,7 @@ def scipy_feedback(request):
             try:
                 FeedBack.objects.get(email=data['email'].strip(), purpose='SPC')
                 context['message'] = 'You have already submitted the feedback. You can download your certificate.'
-                return render_to_response('scipy_download.html', context, ci)
+                return render('scipy_download.html', context, ci)
             except FeedBack.DoesNotExist:
                 feedback = FeedBack()
                 feedback.name = data['name'].strip()
@@ -374,12 +375,12 @@ def scipy_feedback(request):
                     feedback.answer.add(answer)
                     feedback.save()
                 context['message'] = 'Thank you for the feedback. You can download your certificate.'
-                return render_to_response('scipy_download.html', context, ci)
+                return render('scipy_download.html', context, ci)
 
     context['form'] = form
     context['questions'] = questions
 
-    return render_to_response('scipy_feedback.html', context, ci)
+    return render('scipy_feedback.html', context, ci)
 
 
 def scipy_download(request):
@@ -398,7 +399,7 @@ def scipy_download(request):
             user = Scipy_participant.objects.filter(email=email)
             if not user:
                 context["notregistered"] = 1
-                return render_to_response('scipy_download.html', context, context_instance=ci)
+                return render('scipy_download.html', context, context_instance=ci)
             else:
                 user = user[0]
         elif type == 'A':
@@ -410,11 +411,11 @@ def scipy_download(request):
                 user = Scipy_speaker.objects.filter(email=email)
             if not user:
                 context["notregistered"] = 1
-                return render_to_response('scipy_download.html', context, context_instance=ci)
+                return render('scipy_download.html', context, context_instance=ci)
             if len(user) > 1:
                 context['user_papers'] = user
                 context['v'] = 'paper'
-                return render_to_response('scipy_download.html', context, context_instance=ci)
+                return render('scipy_download.html', context, context_instance=ci)
             else:
                 user = user[0]
                 paper = user.paper
@@ -444,9 +445,9 @@ def scipy_download(request):
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
-            return render_to_response('scipy_download.html', context, ci)
+            return render('scipy_download.html', context, ci)
     context['message'] = 'You can download the certificate'
-    return render_to_response('scipy_download.html', context, ci)
+    return render('scipy_download.html', context, ci)
 
 
 def create_scipy_certificate(certificate_path, name, qrcode, type, paper, workshop, file_name):
@@ -481,7 +482,7 @@ def create_scipy_certificate(certificate_path, name, qrcode, type, paper, worksh
             return [response, False]
         else:
             error = True
-    except Exception, e:
+    except Exception as e:
         error = True
     return [None, error]
 
@@ -489,7 +490,6 @@ def create_scipy_certificate(certificate_path, name, qrcode, type, paper, worksh
 def cep_certificate_download(request):
     context = {}
     err = ""
-    ci = RequestContext(request)
     cur_path = os.path.dirname(os.path.realpath(__file__))
     certificate_path = '{0}/CEP/'.format(cur_path)
 
@@ -498,7 +498,7 @@ def cep_certificate_download(request):
         user = CEP.objects.filter(email=email)
         if not user:
             context["notregistered"] = 1
-            return render_to_response('cep_certificate_download.html', context, context_instance=ci)
+            return render(request, 'cep_certificate_download.html', context)
         else:
             user = user[0]
         name = (user.student_name).title()
@@ -512,11 +512,13 @@ def cep_certificate_download(request):
         _type = 'P'
         hexa = hex(user.id).replace('0x','').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_no_save = serial_no
+        serial_no = serial_no.encode()
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
         file_name = '{0}{1}'.format(email, user.id)
         file_name = file_name.replace('.', '')
         try:
-            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no_save)
             qrcode = 'http://www.cep.iitb.ac.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_cep_certificate(certificate_path,
@@ -541,7 +543,7 @@ def cep_certificate_download(request):
                     details, qrcode, course, incharge, coordinator, file_name)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
-                            serial_no=serial_no, counter=1, serial_key=serial_key,
+                            serial_no=serial_no_save, counter=1, serial_key=serial_key,
                             short_key=short_key)
                     certi_obj.save()
                     return certificate[0]
@@ -549,9 +551,9 @@ def cep_certificate_download(request):
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
-            return render_to_response('cep_certificate_download.html', context, ci)
+            return render(request, 'cep_certificate_download.html', context)
     context['message'] = ''
-    return render_to_response('cep_certificate_download.html', context, ci)
+    return render(request, 'cep_certificate_download.html', context)
 
 
 def create_cep_certificate(certificate_path, details, qrcode,
@@ -569,13 +571,13 @@ def create_cep_certificate(certificate_path, details, qrcode,
                 serial_key=details['serial_key'], qr_code=qrcode,
                 course=course, incharge=incharge, coordinator=coordinator)
         create_tex = open('{0}{1}.tex'.format\
-                (certificate_path, file_name), 'w')
+                (certificate_path, file_name), 'tw')
         create_tex.write(content_tex)
         create_tex.close()
         _type = 'P'
         return_value, err = _make_certificate_certificate(certificate_path, _type, file_name)
         if return_value == 0:
-            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'br')
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; \
                     filename=%s' % (download_file_name)
@@ -584,7 +586,7 @@ def create_cep_certificate(certificate_path, details, qrcode,
             return [response, False]
         else:
             error = True
-    except Exception, e:
+    except Exception as e:
         print(e)
 
         error = True

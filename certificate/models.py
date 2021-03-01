@@ -4,7 +4,7 @@ from datetime import datetime
 # Create your models here.
 events = ()
 class Profile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     # other details
     uin = models.CharField(max_length=50)  #2 intialletters + 6 hexadigits
     attendance = models.NullBooleanField()
@@ -48,7 +48,7 @@ class Question(models.Model):
     purpose = models.CharField(max_length=10, default='SLC')
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.CharField(max_length=1000)
 
 
