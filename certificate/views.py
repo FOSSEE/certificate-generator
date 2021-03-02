@@ -314,8 +314,9 @@ def verification(serial, _type):
                                           ('Type', '{0} Certificate'.format(ctype)),
                                           ('Time', 'June-July 2020')])
                 elif purpose == 'Synfig Animation Hackathon 2020':
-                    user = SynfigHackathon.objects.get(
+                    user = SynfigHackathon.objects.filter(
                             email=certificate.email, purpose='SYH')
+                    user = user[0]
                     if user.ctype == 'champ':
                         ctype = 'Champion'
                     if user.ctype == 'conso':
