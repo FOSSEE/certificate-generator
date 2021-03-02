@@ -614,6 +614,17 @@ class ScilabHackathon(models.Model):
     ctype = models.CharField(max_length=10)
     purpose = models.CharField(max_length=10, default='SCH')
 
+
+class SynfigHackathon(models.Model):
+    team = models.CharField(max_length=20)
+    position = models.CharField(max_length=10, null=True)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.CharField(max_length=150)
+    ctype = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='SYH')
+
+
 new_pruposes = (
         ('openfoam2020', 'OFM'),
         )
