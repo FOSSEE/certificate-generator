@@ -625,6 +625,14 @@ class SynfigHackathon(models.Model):
     purpose = models.CharField(max_length=10, default='SYH')
 
 
+class Mapathon(models.Model):
+    team = models.CharField(max_length=20)
+    name = models.CharField(max_length=200)
+    email = models.CharField(max_length=150)
+    ctype = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='MAP')
+
+
 new_pruposes = (
         ('openfoam2020', 'OFM'),
         )
