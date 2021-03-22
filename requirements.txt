@@ -5,7 +5,7 @@ chardet==2.1.1
 django-appconf==0.6
 django-csvimport==2.4
 json-table-schema==0.1
-lxml==3.4.1
+lxml==4.6.3
 messytables==0.14.1
 python-dateutil==1.5
 python-magic==0.4.6
