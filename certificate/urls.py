@@ -97,6 +97,8 @@ urlpatterns = patterns('certificate.views',
         name='mapathon_certificate_download'),
     url(r'^hackathon/scilab/$', 'hackathon_certificate_download',
         name='hackathon_certificate_download'),
+    url(r'^vlab/$', 'vlabappre_certificate_download',
+        name='vlabappre_certificate_download'),
     url(r'^r/$', 'rappre_certificate_download',
         name='rappre_certificate_download'),
 )

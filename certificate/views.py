@@ -6518,6 +6518,14 @@ def create_hackathon_certificate(certificate_path, details, qrcode, _type,
     return [None, error]
 
 
+def vlabappre_certificate_download(request):
+    if request.method == 'POST':
+        return rappre_certificate_download(request)
+    context= {}
+    ci = RequestContext(request)
+    return render_to_response('vlab_certificate_download.html', context, ci)
+
+
 def rappre_certificate_download(request):
     context= {}
     err = ""
@@ -6526,10 +6534,15 @@ def rappre_certificate_download(request):
     certificate_path = '{0}/st_workshop_template/'.format(cur_path)
     if request.method == 'POST':
         email = request.POST.get('email').strip()
-        user = RAppre.objects.filter(email=email, purpose='RAP')
+        foss = request.POST.get('foss').strip()
+        user = RAppre.objects.filter(email=email, foss=foss, purpose='RAP')
+        if foss == 'R':
+            template = 'rappre_certificate_download.html'
+        else:
+            template = 'vlab_certificate_download.html'
         if not user:
             context["notregistered"] = 1
-            return render_to_response('rappre_certificate_download.html',
+            return render_to_response(template,
                                        context, context_instance=ci)
         user = user[0]
         _type = 'P'
@@ -6579,7 +6592,7 @@ def rappre_certificate_download(request):
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             context['err'] = certificate[0]
-            return render_to_response('rappre_certificate_download.html', context, ci)
+            return render_to_response(template, context, ci)
     context['message'] = ''
     return render_to_response('rappre_certificate_download.html', context, ci)
 
@@ -6589,8 +6602,11 @@ def create_rappre_certificate(certificate_path, details, qrcode, _type,
     error = False
     err = None
     try:
-        template = 'template_r_appre'
-        download_file_name = 'RAPP2020certificate.pdf'
+        if foss == 'R':
+            template = 'template_r_appre'
+        else:
+            template = 'template_vlab'
+        download_file_name = 'RAPP2021certificate.pdf'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
