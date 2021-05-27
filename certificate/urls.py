@@ -101,4 +101,8 @@ urlpatterns = patterns('certificate.views',
         name='vlabappre_certificate_download'),
     url(r'^r/$', 'rappre_certificate_download',
         name='rappre_certificate_download'),
+    url(r'^python/$', 'python_certified_students',
+        name='python_certified_students'),
+    url(r'^python_csv/$', 'certified_csv',
+        name='certified_csv'),
 )

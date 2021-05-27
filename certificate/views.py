@@ -38,7 +38,7 @@ RSupport, FOSSWorkshopTest, Wintership, FDP, AnimationInternship, \
 AnimationContribution, Fellow2020, PythonCertification, months, years, \
 CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll, \
 ComplexFluids, SynfigHackathon, Mapathon
-
+import csv
 
 # Create your views here.
 
@@ -6955,3 +6955,19 @@ def complex_fluids_download(request):
     context['message'] = ''
     return render_to_response('complex_fluids_download.html', context, ci)
 
+
+def python_certified_students(request):
+    students = PythonCertification.objects.all().order_by('-id')
+    return render(request,'certified.html', {'students': students})
+
+def certified_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="certified.csv"'
+
+    writer = csv.writer(response)
+    students = PythonCertification.objects.all().order_by('-id')
+    writer.writerow(['name', 'email', 'grade', 'month', 'year'])
+    for student in students:
+        writer.writerow([student.name, student.email, student.grade,
+            student.month, student.year])
+    return response

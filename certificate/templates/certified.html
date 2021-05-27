@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block header%}
+    <h1> Python FOSSEE Certified Students </h1>
+{% endblock %}
+{% block content %}
+<div>
+    <a href="{% url 'certificate:certified_csv' %}" class="btn btn-lg btn-primary">CSV Download </a>
+    <br>
+    <br>
+    <table class="table table-bordered" align="center" style="width:50%">
+        <th>Name</th>
+        <th>Email</th>
+        <th>Grade</th>
+        <th>Month</th>
+        <th>Year</th>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.name.title }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.grade }}</td>
+                <td>{{ student.month }}</td>
+                <td>{{ student.year }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
