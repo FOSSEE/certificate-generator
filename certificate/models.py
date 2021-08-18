@@ -633,6 +633,15 @@ class Mapathon(models.Model):
     purpose = models.CharField(max_length=10, default='MAP')
 
 
+class EsimMarathon(models.Model):
+    circuit = models.CharField(max_length=1000)
+    name = models.CharField(max_length=400)
+    college = models.CharField(max_length=1000)
+    email = models.CharField(max_length=350)
+    ctype = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='EMC')
+
+
 new_pruposes = (
         ('openfoam2020', 'OFM'),
         )
