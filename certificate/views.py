@@ -7074,6 +7074,8 @@ def create_esim_marathon_certificate(certificate_path, details, qrcode, _type,
             template = 'template_e'
         elif ctype == 'V':
             template = 'template_v'
+        elif ctype == 'M':
+            template = 'template_m'
         else:
             template = 'template_g'
         download_file_name = 'ESMP2021certificate.pdf'
