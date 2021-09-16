@@ -345,6 +345,8 @@ def verification(serial, _type):
                         ctype = 'Good'
                     if user.ctype == 'E':
                         ctype = 'Excellent'
+                    if user.ctype == 'M':
+                        ctype = 'Mentoring'
                     event = 'Ciruit Design and Simulation using eSim'
                     detail = OrderedDict([('Name', name),
                                           ('College', user.college),
