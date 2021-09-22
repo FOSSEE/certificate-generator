@@ -586,6 +586,16 @@ class Fellow2020(models.Model):
     _type = models.CharField(max_length=20, default='fellow')
     purpose = models.CharField(max_length=5, default='FL2')
 
+class Intern2021(models.Model):
+    name = models.CharField(max_length=80)
+    email = models.EmailField()
+    institute = models.CharField(max_length=2000, null=True, blank=True)
+    title = models.CharField(max_length=2000)
+    mode = models.CharField(max_length=15, null=True, blank=True)
+    mode_def = models.CharField(max_length=30, null=True, blank=True)
+    foss = models.CharField(max_length=20)
+    purpose = models.CharField(max_length=5, default='IT2')
+
 class PythonCertification(models.Model):
     name = models.CharField(max_length=100)
     email = models.CharField(max_length=150)
