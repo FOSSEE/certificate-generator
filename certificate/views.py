@@ -364,6 +364,8 @@ def verification(serial, _type):
                         ctype = 'Participation'
                     if user.ctype == 'recog':
                         ctype = 'Recognition'
+                    if user.ctype == 'ment':
+                        ctype = 'Mentor'
                     event = 'IITB-ISRO-AICTE Mapathon 2020'
                     detail = OrderedDict([('Name', name),
                                           ('Event', event),
@@ -6434,6 +6436,8 @@ def create_mapathon_certificate(certificate_path, details, qrcode, _type,
             template = 'template_ch'
         elif ctype == 'recog':
             template = 'template_reco'
+        elif ctype == 'ment':
+            template = 'template_ment'
         else:
             template = 'template_pa'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
