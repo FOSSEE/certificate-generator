@@ -7321,7 +7321,7 @@ def create_fellow21_certificate(certificate_path, details, qrcode,
     error = False
     try:
         template = 'template20'
-        download_file_name = 'FEL2020Pcertificate.pdf'
+        download_file_name = 'FEL2021Pcertificate.pdf'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
