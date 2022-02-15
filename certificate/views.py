@@ -263,7 +263,7 @@ def verification(serial, _type):
                                          ])
                 elif purpose == 'Python Course Certificate':
                     certifications = PythonCertification.objects.filter(email=certificate.email)
-                    certification = certifications.last()
+                    certification = certifications.reverse()[0]
                     name = certification.name
                     institute = certification.institute
                     course = 'Basic Programming using Python'
