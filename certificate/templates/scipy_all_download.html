@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 {% block header%}
-    <h1> SciPy India Conference 2020 Certificates </h1>
+<h1> SciPy India Conference {{ year }} Certificates </h1>
 {% endblock %}
 {% block content %}
           <div class="modal fade" id="invalidModal" tabindex="-1" role="dialog" aria-labelledby="invalidModalLabel" aria-hidden="true">
@@ -68,6 +68,7 @@
               <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit" id = 'myBtn' data-toggle = "modal">Download</button></span>
            </div>
            <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:certificates@fossee.in">certificates[at]fossee[dot]in</a></h4>
+              <input type='text' id="year" name="year" value="{{ year }}" hidden="true">
               <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
               <div class="modal-dialog">
               <div class="modal-content">

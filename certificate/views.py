@@ -189,10 +189,14 @@ def verification(serial, _type):
                 context['serial_key'] = True
                 context['detail'] = detail
                 return context
-            elif purpose == 'SciPy India 2020':
+            elif purpose == 'SciPy India':
+                if year == '2021':
+                    date = '21 and 22 January'
+                elif year == '2020':
+                    date = '19 and 20 December'
                 detail_list = [
                               ('Name', name), ('Event', purpose),
-                              ('Days', '19 and 20 December'),
+                              ('Days', date),
                               ('Year', year),
                               ('Organiser', 'FOSSEE')
                               ]
@@ -894,7 +898,7 @@ def _get_detail(serial_no):
     elif serial_no[0:3] == 'S19':
         purpose = 'SciPy India 2019'
     elif serial_no[0:3] == 'S20':
-        purpose = 'SciPy India 2020'
+        purpose = 'SciPy India'
     elif serial_no[0:3] == 'CFC':
         purpose = 'Complex Fluids Symposium'
     elif serial_no[0:3] == 'sel':
@@ -6687,7 +6691,7 @@ def create_rappre_certificate(certificate_path, details, qrcode, _type,
     return [None, error]
 
 
-def scipy_all_download(request):
+def scipy_all_download(request, year="2020"):
     context = {}
     err = ""
     ci = RequestContext(request)
@@ -6696,15 +6700,17 @@ def scipy_all_download(request):
 
     if request.method == 'POST':
         paper = request.POST.get('paper', None)
+        year = request.POST.get('year', None)
+        context['year'] = year
         workshop = None
         email = request.POST.get('email').strip()
         attendee_type = request.POST.get('type')
         if paper:
             user = SciPyAll.objects.filter(email=email,
-                    attendee_type=attendee_type, year='2020', paper=paper)
+                    attendee_type=attendee_type, year=year, paper=paper)
         else:
             user = SciPyAll.objects.filter(email=email,
-                    attendee_type=attendee_type, year='2020')
+                    attendee_type=attendee_type, year=year)
         if not user:
             context["notregistered"] = 1
             return render_to_response('scipy_all_download.html', context, context_instance=ci)
@@ -6721,15 +6727,15 @@ def scipy_all_download(request):
         email = user.email
         purpose = user.purpose
         paper = user.paper
-        year = '20'
+        yr = year[2:]
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
-        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, attendee_type)
+        serial_no = '{0}{1}{2}{3}'.format(purpose, yr, hexa, attendee_type)
         serial_key = (hashlib.sha1(serial_no)).hexdigest()
         file_name = '{0}{1}'.format(email,id)
         file_name = file_name.replace('.', '')
-        template = 'template_SPC2020%scertificate' % attendee_type
-        download_file_name = 'SPC2020%scertificate.pdf' % attendee_type
+        template = 'template_SPC%s%scertificate' % (year, attendee_type)
+        download_file_name = 'SPC%s%scertificate.pdf' % (year, attendee_type)
         try:
             old_user = Certificate.objects.get(email=email, serial_no=serial_no)
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
@@ -6768,6 +6774,7 @@ def scipy_all_download(request):
             context['error'] = True
             return render_to_response('scipy_all_download.html', context, ci)
     context['message'] = ''
+    context['year'] = year
     return render_to_response('scipy_all_download.html', context, ci)
 
 
