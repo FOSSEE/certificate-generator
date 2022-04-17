@@ -37,7 +37,8 @@ Scipy_2019, LinuxSupport, AnimationParticipant, AnimationWorkshop, EsimSupport,\
 RSupport, FOSSWorkshopTest, Wintership, FDP, AnimationInternship, \
 AnimationContribution, Fellow2020, PythonCertification, months, years, \
 CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll, \
-ComplexFluids, SynfigHackathon, Mapathon, EsimMarathon, Intern2021, Fellow2021
+ComplexFluids, SynfigHackathon, Mapathon, EsimMarathon, EsimMarathon2022, \
+Intern2021, Fellow2021
 import csv
 
 # Create your views here.
@@ -337,6 +338,27 @@ def verification(serial, _type):
                                           ('Time', '25 Nov and 15 Dec 2020')])
                     if user.ctype == 'champ':
                         detail.update([('Winner', '{0} prize'.format(user.position))])
+                elif purpose == 'eSim Marathon 2022':
+                    user = EsimMarathon2022.objects.filter(
+                            email=certificate.email, purpose='EM2')
+                    user = user[0]
+                    if user.ctype == 'O':
+                        ctype = 'Outstanding'
+                    if user.ctype == 'V':
+                        ctype = 'Very Good'
+                    if user.ctype == 'G':
+                        ctype = 'Good'
+                    if user.ctype == 'E':
+                        ctype = 'Excellent'
+                    if user.ctype == 'M':
+                        ctype = 'Mentoring'
+                    event = 'Ciruit Design and Simulation using eSim'
+                    detail = OrderedDict([('Name', name),
+                                          ('College', user.college),
+                                          ('Event', event),
+                                          ('Ciruit', user.circuit),
+                                          ('Performance', '{0}'.format(ctype)),
+                                          ('Duration', 'For 3 weeks in the month of February-March 2022')])
                 elif purpose == 'eSim Marathon 2021':
                     user = EsimMarathon.objects.filter(
                             email=certificate.email, purpose='EMC')
@@ -969,6 +991,8 @@ def _get_detail(serial_no):
         purpose = 'Mapathon 2020'
     elif serial_no[0:3] == 'EMC':
         purpose = 'eSim Marathon 2021'
+    elif serial_no[0:3] == 'EM2':
+        purpose = 'eSim Marathon 2022'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -7101,6 +7125,74 @@ def esim_marathon_certificate_download(request):
     return render_to_response('esim_marathon_certificate_download.html', context, ci)
 
 
+def esim_marathon_2022_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/esim22/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = EsimMarathon2022.objects.filter(email=email, purpose='EM2')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('esim_marathon_2022_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name
+        circuit = user.circuit
+        circuit = circuit.replace('&', 'and')
+        college = user.college
+        college = college.replace('&', 'and')
+        ctype = user.ctype
+        purpose = user.purpose
+        year = '22'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_esim_marathon_certificate(certificate_path, details,
+                    qrcode, _type, circuit, ctype, college, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_esim_marathon_certificate(certificate_path, details,
+                    qrcode, _type, circuit, ctype, college, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('esim_marathon_2022_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('esim_marathon_2022_certificate_download.html', context, ci)
+
+
 def create_esim_marathon_certificate(certificate_path, details, qrcode, _type,
                                      circuit, ctype, college, file_name):
     error = False
@@ -7117,7 +7209,7 @@ def create_esim_marathon_certificate(certificate_path, details, qrcode, _type,
             template = 'template_m'
         else:
             template = 'template_g'
-        download_file_name = 'ESMP2021certificate.pdf'
+        download_file_name = 'ESMPcertificate.pdf'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
