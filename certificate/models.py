@@ -604,6 +604,7 @@ class Intern2021(models.Model):
     mode_def = models.CharField(max_length=30, null=True, blank=True)
     foss = models.CharField(max_length=20)
     purpose = models.CharField(max_length=5, default='IT2')
+    year = models.CharField(max_length=6, default=2021)
 
 class PythonCertification(models.Model):
     name = models.CharField(max_length=100)
