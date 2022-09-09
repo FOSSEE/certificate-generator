@@ -581,7 +581,8 @@ class Fellow2021(models.Model):
     start_date = models.CharField(max_length=25, null=True, blank=True)
     end_date = models.CharField(max_length=25, null=True, blank=True)
     purpose = models.CharField(max_length=5, default='F21')
-
+    foss = models.CharField(max_length=25, default='foss')
+    year = models.CharField(max_length=6, default='2021')
 
 class Fellow2020(models.Model):
     name = models.CharField(max_length=80)
