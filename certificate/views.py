@@ -7747,6 +7747,8 @@ def create_fellow22_certificate(certificate_path, details, qrcode,
             bg = 'openfoam.png'
         elif foss.strip() == 'FOCAL':
             bg = 'focal.png'
+        elif foss.strip() == 'Python':
+            bg = 'python.png'
         template = 'template'
         download_file_name = 'FEL2022Pcertificate.pdf'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
