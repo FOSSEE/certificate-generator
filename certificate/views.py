@@ -7493,7 +7493,10 @@ def create_intern22_certificate(certificate_path, details, qrcode,
     error = False
     try:
         bg = 'bg{}.png'.format(foss.strip())
-        template = 'template'
+        if foss == 'eim':
+            template = 'template'
+        else:
+            template = 'template-intern'
         download_file_name = 'INT2022Pcertificate.pdf'
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
@@ -7502,8 +7505,7 @@ def create_intern22_certificate(certificate_path, details, qrcode,
         content_tex = content.safe_substitute(name=details['name'].title(),
                 serial_key=details['serial_key'], qr_code=qrcode,
                 institute=student_institute_detail, title=topic, ar=ar,
-                position=position,
-                bg=bg, mode_def=mode_def)
+                position=position, bg=bg, mode_def=mode_def, mode=mode)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
