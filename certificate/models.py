@@ -646,6 +646,13 @@ class SynfigHackathon(models.Model):
     purpose = models.CharField(max_length=10, default='SYH')
 
 
+class PythonHackathon(models.Model):
+    name = models.CharField(max_length=500)
+    email = models.CharField(max_length=300)
+    ctype = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='PYH')
+
+
 class Mapathon(models.Model):
     team = models.CharField(max_length=20)
     name = models.CharField(max_length=200)

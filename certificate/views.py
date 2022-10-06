@@ -38,7 +38,7 @@ RSupport, FOSSWorkshopTest, Wintership, FDP, AnimationInternship, \
 AnimationContribution, Fellow2020, PythonCertification, months, years, \
 CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll, \
 ComplexFluids, SynfigHackathon, Mapathon, EsimMarathon, EsimMarathon2022, \
-Intern2021, Fellow2021
+Intern2021, Fellow2021, PythonHackathon
 import csv
 
 # Create your views here.
@@ -338,6 +338,19 @@ def verification(serial, _type):
                                           ('Time', '25 Nov and 15 Dec 2020')])
                     if user.ctype == 'champ':
                         detail.update([('Winner', '{0} prize'.format(user.position))])
+                elif purpose == 'Python Hackathon 2022':
+                    user = PythonHackathon.objects.filter(
+                            email=certificate.email, purpose='PYH')
+                    user = user[0]
+                    if user.ctype == 'champ':
+                        ctype = 'Champion(Winner)'
+                    if user.ctype == 'parti':
+                        ctype = 'Participation'
+                    event = purpose
+                    detail = OrderedDict([('Name', name),
+                                          ('Event', event),
+                                          ('Type', '{0} Certificate'.format(ctype)),
+                                          ('Duration', 'May-June 2022 (3 weeks)')])
                 elif purpose == 'eSim Marathon 2022':
                     user = EsimMarathon2022.objects.filter(
                             email=certificate.email, purpose='EM2')
@@ -1019,6 +1032,8 @@ def _get_detail(serial_no):
         purpose = 'R Workshop 2020'
     elif serial_no[0:3] == 'SYH':
         purpose = 'Synfig Animation Hackathon 2020'
+    elif serial_no[0:3] == 'PYH':
+        purpose = 'Python Hackathon 2022'
     elif serial_no[0:3] == 'MAP':
         purpose = 'Mapathon 2020'
     elif serial_no[0:3] == 'MP2':
@@ -7781,3 +7796,103 @@ def create_fellow22_certificate(certificate_path, details, qrcode,
         error = True
     return [None, error]
 
+
+def python_hackathon_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/py-hackathon/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = PythonHackathon.objects.filter(email=email, purpose='PYH')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('python_hackathon_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name 
+        ctype = user.ctype
+        if ctype == 'champ':
+            text = 'is recognised as a CHAMPION'
+        elif ctype == 'parti':
+            text = 'has successfully participated'
+
+        purpose = user.purpose
+        year = '22'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_python_hackathon_certificate(certificate_path, details,
+                    qrcode, _type, text, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_python_hackathon_certificate(certificate_path, details,
+                    qrcode, _type, text, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('python_hackathon_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('python_hackathon_certificate_download.html', context, ci)
+
+
+def create_python_hackathon_certificate(certificate_path, details, qrcode, _type,
+                                        text, file_name):
+    error = False
+    err = None
+    try:
+        download_file_name = 'PYH2022certificate.pdf'
+        template = 'template'
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+            serial_key=details['serial_key'], qr_code=qrcode, text=text)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
