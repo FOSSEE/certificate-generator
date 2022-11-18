@@ -581,7 +581,8 @@ class Fellow2021(models.Model):
     start_date = models.CharField(max_length=25, null=True, blank=True)
     end_date = models.CharField(max_length=25, null=True, blank=True)
     purpose = models.CharField(max_length=5, default='F21')
-
+    foss = models.CharField(max_length=25, default='foss')
+    year = models.CharField(max_length=6, default='2021')
 
 class Fellow2020(models.Model):
     name = models.CharField(max_length=80)
@@ -604,6 +605,7 @@ class Intern2021(models.Model):
     mode_def = models.CharField(max_length=30, null=True, blank=True)
     foss = models.CharField(max_length=20)
     purpose = models.CharField(max_length=5, default='IT2')
+    year = models.CharField(max_length=6, default=2021)
 
 class PythonCertification(models.Model):
     name = models.CharField(max_length=100)
@@ -642,6 +644,13 @@ class SynfigHackathon(models.Model):
     email = models.CharField(max_length=150)
     ctype = models.CharField(max_length=10)
     purpose = models.CharField(max_length=10, default='SYH')
+
+
+class PythonHackathon(models.Model):
+    name = models.CharField(max_length=500)
+    email = models.CharField(max_length=300)
+    ctype = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='PYH')
 
 
 class Mapathon(models.Model):
