@@ -670,6 +670,15 @@ class EsimMarathon2022(models.Model):
     purpose = models.CharField(max_length=10, default='EM2')
 
 
+class MixedSignal(models.Model):
+    name = models.CharField(max_length=400)
+    email = models.CharField(max_length=350)
+    college = models.CharField(max_length=1000)
+    circuit = models.CharField(max_length=1000)
+    ctype = models.CharField(max_length=10)
+    year = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='MSM')
+
 new_pruposes = (
         ('openfoam2020', 'OFM'),
         )
