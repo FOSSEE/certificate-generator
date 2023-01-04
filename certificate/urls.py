@@ -124,4 +124,6 @@ urlpatterns = patterns('certificate.views',
         name='certified_csv'),
     url(r'^marathon/mixedsignal/2022/$', 'mixed_signal_marathon_2022_certificate_download',
         name='mixed_signal_marathon_2022_certificate_download'),
+    url(r'^workshop/open_source/$', 'open_source_workshop_certificate_download',
+        name='open_source_workshop_certificate_download'),
 )

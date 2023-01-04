@@ -688,6 +688,12 @@ class MixedSignal(models.Model):
     year = models.CharField(max_length=10)
     purpose = models.CharField(max_length=10, default='MSM')
 
+class OpenSourceWorkshop(models.Model):
+    name = models.CharField(max_length=700)
+    email = models.CharField(max_length=700)
+    institute = models.CharField(max_length=1000)
+    purpose = models.CharField(max_length=10, default='OSW')
+
 new_pruposes = (
         ('openfoam2020', 'OFM'),
         )
