@@ -703,3 +703,18 @@ class CertificateUser(models.Model):
     email = models.CharField(max_length=150)
     institute = models.CharField(max_length=150, null=True, blank=True)
     purpose = models.CharField(max_length=10)
+
+
+class Mapathon2023(models.Model):
+    team = models.CharField(max_length=20)
+    name = models.CharField(max_length=200)
+    email = models.CharField(max_length=150)
+    ctype = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='MP3')
+
+class AllIndiaAnimation(models.Model):
+    team = models.CharField(max_length=20)
+    name = models.CharField(max_length=200)
+    email = models.CharField(max_length=150)
+    ctype = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=10, default='AIA')
