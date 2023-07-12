@@ -394,6 +394,23 @@ def verification(serial, _type):
                                           ('Event', event),
                                           ('Performance', '{0}'.format(ctype)),
                                           ('Duration', 'February 22 to May 06, 2023')])
+                elif purpose == 'All India 2D Animation Hackathon 2023':
+                    user = AllIndiaAnimation.objects.filter(email=certificate.email, purpose='AIA')
+                    user = user[0]
+                    if user.ctype == 'W1':
+                        ctype = '1st Prize'
+                    if user.ctype == 'W2':
+                        ctype = '2nd Prize'
+                    if user.ctype == 'W3':
+                        ctype = '3rd Prize'
+                    if user.ctype == 'P':
+                        ctype = 'Praticipant'
+                    event = purpose
+                    detail = OrderedDict([('Name', name),
+                                          ('Team', user.team),
+                                          ('Event', event),
+                                          ('Performance', '{0}'.format(ctype)),
+                                          ('Duration', 'February 5 to February 25, 2023')])
                 elif purpose == 'Mixed Signal Marathon 2022':
                     event = "Mixed Signal SoC design Marathon using eSim & SKY130"
                     user = MixedSignal.objects.filter(
@@ -1090,6 +1107,8 @@ def _get_detail(serial_no):
         purpose = 'OSW'
     elif serial_no[0:3] == 'MP3':
         purpose = 'IIT Bombay Mapathon 2023'
+    elif serial_no[0:3] == 'AIA':
+        purpose = 'All India 2D Animation Hackathon 2023'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -8274,13 +8293,15 @@ def all_india_animation_certificate_download(request):
     ci = RequestContext(request)
     cur_path = os.path.dirname(os.path.realpath(__file__))
     certificate_path = '{0}/all-india-animation/'.format(cur_path)
+    print("1")
     if request.method == 'POST':
         email = request.POST.get('email').strip()
-        user = AllIndiaAnimation.objects.filter(email=email, purpose='MP3')
+        user = AllIndiaAnimation.objects.filter(email=email, purpose='AIA')
         if not user:
             context["notregistered"] = 1
             return render_to_response('all_india_animation_certificate_download.html',
                                        context, context_instance=ci)
+        print("2")
         user = user[0]
         _type = 'P'
         name = user.name
@@ -8338,24 +8359,26 @@ def create_all_india_animation_certificate(certificate_path, details, qrcode, _t
     error = False
     err = None
     template = None
+    position = None
     try:
-        if ctype == 'C':
-            template = 'template_c'
-        elif ctype == 'W':
+        if ctype == 'W1' or ctype == 'W2' or ctype == 'W3':
             template = 'template_w'
         elif ctype == 'P':
             template = 'template_p'
-        elif ctype == 'M':
-            template = 'template_m'
-        elif ctype == 'S' :
-            template = 'template_s'
+        if ctype == 'W1':
+            position = '1st'
+        if ctype == 'W2':
+            position = '2nd'
+        if ctype == 'W3':
+            position = '3rd'
         download_file_name = 'AIA{0}certificate.pdf'.format(ctype)
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
 
         content_tex = content.safe_substitute(name=details['name'].title(),
-                serial_key=details['serial_key'], qr_code=qrcode, team=team)
+                serial_key=details['serial_key'], qr_code=qrcode, team=team,
+                position=position)
         create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
@@ -8373,4 +8396,5 @@ def create_all_india_animation_certificate(certificate_path, details, qrcode, _t
             error = True
     except Exception, e:
         error = True
+        print(e)
     return [None, error]
