@@ -7576,6 +7576,8 @@ def create_intern23_certificate(certificate_path, details, qrcode,
     try:
         bg = 'bg{}.png'.format(foss.strip())
         template = 'template'
+        if foss.strip() == 'sli':
+            template = 'templateSum'
         download_file_name = 'INT2023Pcertificate.pdf'
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
@@ -7864,6 +7866,10 @@ def create_fellow21_certificate(certificate_path, details, qrcode,
     except Exception, e:
         error = True
     return [None, error]
+
+
+def fellow23_certificate_download(request, year='2023'):
+    return fellow22_certificate_download(request, '2023')
 
 def fellow22_certificate_download(request, year='2022'):
     context = {}
