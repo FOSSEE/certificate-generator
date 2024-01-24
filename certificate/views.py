@@ -39,7 +39,7 @@ AnimationContribution, Fellow2020, PythonCertification, months, years, \
 CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll, \
 ComplexFluids, SynfigHackathon, Mapathon, EsimMarathon, EsimMarathon2022, \
 Intern2021, Fellow2021, MixedSignal, PythonHackathon, OpenSourceWorkshop, \
-Mapathon2023, AllIndiaAnimation
+Mapathon2023, AllIndiaAnimation, OpenfoamHackathon
 
 
 import csv
@@ -339,6 +339,26 @@ def verification(serial, _type):
                                           ('Team Id', user.team),
                                           ('Type', '{0} Certificate'.format(ctype)),
                                           ('Time', '25 Nov and 15 Dec 2020')])
+                    if user.ctype == 'champ':
+                        detail.update([('Winner', '{0} prize'.format(user.position))])
+                elif purpose == 'OpenFOAM Hackathon 2023':
+                    user = OpenfoamHackathon.objects.filter(
+                            email=certificate.email, purpose='OFH')
+                    user = user[0]
+                    if user.ctype == 'champ':
+                        ctype = 'Champion'
+                    if user.ctype == 'conso':
+                        ctype = 'Consolation'
+                    if user.ctype == 'parti':
+                        ctype = 'Participation'
+                    if user.ctype == 'recog':
+                        ctype = 'Recognition'
+                    event = purpose
+                    detail = OrderedDict([('Name', name),
+                                          ('Event', event),
+                                          ('Institute', user.institute.title()),
+                                          ('Type', '{0} Certificate'.format(ctype)),
+                                          ('Time', '12 Nov and 27 Nov 2023')])
                     if user.ctype == 'champ':
                         detail.update([('Winner', '{0} prize'.format(user.position))])
                 elif purpose == 'Python Hackathon 2022':
@@ -1091,6 +1111,8 @@ def _get_detail(serial_no):
         purpose = 'R Workshop 2020'
     elif serial_no[0:3] == 'SYH':
         purpose = 'Synfig Animation Hackathon 2020'
+    elif serial_no[0:3] == 'OFH':
+        purpose = 'OpenFOAM Hackathon 2023'
     elif serial_no[0:3] == 'PYH':
         purpose = 'Python Hackathon 2022'
     elif serial_no[0:3] == 'MAP':
@@ -8529,3 +8551,116 @@ def create_all_india_animation_certificate(certificate_path, details, qrcode, _t
         error = True
         print(e)
     return [None, error]
+
+
+def openfoam_hackathon_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/openfoam-hackathon/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = OpenfoamHackathon.objects.filter(email=email, purpose='OFH')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('openfoam_hackathon_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name
+        ctype = user.ctype
+        position = user.position
+        purpose = user.purpose
+        institute = user.institute
+        year = '23'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_openfoam_hackathon_certificate(certificate_path, details,
+                    qrcode, _type, ctype, institute, position, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_openfoam_hackathon_certificate(certificate_path, details,
+                    qrcode, _type, ctype, institute, position, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('openfoam_hackathon_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('openfoam_hackathon_certificate_download.html', context, ci)
+
+
+def create_openfoam_hackathon_certificate(certificate_path, details, qrcode, _type,
+                                          ctype, institute, position, file_name):
+    error = False
+    err = None
+    try:
+        download_file_name = 'OFH2023certificate.pdf'
+        if ctype == 'champ':
+            template = 'template_ch'
+        elif ctype == 'conso':
+            template = 'template_co'
+        elif ctype == 'recog':
+            template = 'template_reco'
+        else:
+            template = 'template_pa'
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        if ctype == 'champ':
+            content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key=details['serial_key'], qr_code=qrcode,
+                institute=institute.title(), position=position)
+        else:
+            content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key=details['serial_key'], qr_code=qrcode,
+                institute=institute.title())
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+        print(e)
+    return [None, error]
+

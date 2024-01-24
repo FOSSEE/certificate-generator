@@ -646,6 +646,15 @@ class SynfigHackathon(models.Model):
     purpose = models.CharField(max_length=10, default='SYH')
 
 
+class OpenfoamHackathon(models.Model):
+    name = models.CharField(max_length=150)
+    institute = models.CharField(max_length=150)
+    email = models.CharField(max_length=150)
+    ctype = models.CharField(max_length=10)
+    position = models.CharField(max_length=10, null=True)
+    purpose = models.CharField(max_length=10, default='OFH')
+
+
 class PythonHackathon(models.Model):
     name = models.CharField(max_length=500)
     email = models.CharField(max_length=300)
