@@ -358,7 +358,9 @@ def verification(serial, _type):
                                           ('Event', event),
                                           ('Institute', user.institute.title()),
                                           ('Type', '{0} Certificate'.format(ctype)),
-                                          ('Time', '12 Nov and 27 Nov 2023')])
+                                          ('Time', '12 Nov and 27 Nov 2023'),
+                                          ('Mentor', user.mentor),
+                                          ('Work available at'), 'https://cfd.fossee.in/cfd-hackathon/completed-case-studies'])
                     if user.ctype == 'champ':
                         detail.update([('Winner', '{0} prize'.format(user.position))])
                 elif purpose == 'Python Hackathon 2022':
