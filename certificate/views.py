@@ -360,7 +360,9 @@ def verification(serial, _type):
                                           ('Type', '{0} Certificate'.format(ctype)),
                                           ('Time', '12 Nov and 27 Nov 2023'),
                                           ('Mentor', user.mentor),
-                                          ('Work available at'), 'https://cfd.fossee.in/cfd-hackathon/completed-case-studies'])
+                                          ('Work available at',
+                                           '<a href="https://cfd.fossee.in/cfd-hackathon/completed-case-studies" '\
+                                           'target="_blank" rel="noopener noreferrer" >https://cfd.fossee.in/cfd-hackathon/completed-case-studies</a>')])
                     if user.ctype == 'champ':
                         detail.update([('Winner', '{0} prize'.format(user.position))])
                 elif purpose == 'Python Hackathon 2022':
