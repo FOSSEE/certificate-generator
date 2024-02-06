@@ -653,7 +653,7 @@ class OpenfoamHackathon(models.Model):
     ctype = models.CharField(max_length=10)
     position = models.CharField(max_length=10, null=True)
     purpose = models.CharField(max_length=10, default='OFH')
-    mentor = models.CharField(max_length=500)
+    mentor = models.CharField(max_length=500, default='mentor')
 
 
 class PythonHackathon(models.Model):
