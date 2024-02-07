@@ -16,7 +16,7 @@
             {% for key, value in detail.items %}
             <tr>
                 <td>{{ key }}</td>
-                <td>{{ value }}</td>
+                <td>{{ value | safe }}</td>
             </tr>
             {% endfor %}
         </tbody>
