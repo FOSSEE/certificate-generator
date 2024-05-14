@@ -1,17 +1,25 @@
 {% extends 'base.html' %}
 {% block header%}
-    <h1> Arduino Certificates</h1>
+<center> <h1> Arduino Certificates</h1></center>
 {% endblock %}
 {% block content %}
+             <p> 
+             <ol>
+               <li>Kindly enter surname_schoolcode (all lowercase)</li> 
+               <li>If surname does not work then enter your firstname_schoolcode</li>
+               <li> For reference, schoolcodes are listed below</li>
+               <li> For example, name is "Roy" and schoolcode is "farooq" then enter <b>roy_farooq</b></li>
+             </ol>
+             </p>
           <div class="modal fade" id="invalidModal" tabindex="-1" role="dialog" aria-labelledby="invalidModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="invalidModalLabel">Invalid Email</h4>
+                    <h4 class="modal-title" id="invalidModalLabel">Invalid</h4>
                   </div>
                   <div class="modal-body">
-                    The requested certificate is unavailable for your email address. Please enter proper email and retry.
+                    The requested certificate is unavailable. Please enter proper name_code
                   </div>
                 </div>
               </div>
@@ -19,12 +27,26 @@
           <form class="col-lg-12" action="{% url 'certificate:arduino_certificate_download' %}" method="post">
             {% csrf_token %}
             {{ message }}
+            
             <div class="input-group" style="width:340px;text-align:center;margin:0 auto;">
-            <input style="width:450;" class="form-control input-lg" placeholder="Enter the email address you used for registration" type="text" id="email" name=email>
+            <input style="width:450;" class="form-control input-lg" placeholder="Enter surname_schoolcode (all lowercase)" type="text" id="email" name=email>
               <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Download Certificate</button></span>
             </div>
           </form>
           <center><h4>Problem in downloading the certificate? Write to us at <a href="mailto:certificates@fossee.in">certificates[at]fossee[dot]in</a></h4>
+             <br />
+             <table class="table">
+                 <thead>
+                     <td> School/Institute</td>
+                     <td> Code </td>
+                     </thead>
+                     {% for school in schools %}
+                     <tr>
+                         <td>{{ school.0 }}</td>
+                         <td> {{ school.1}}</td>
+                     </tr>
+                     {% endfor %}
+             </table>
 {% endblock %}
 
 {% block javascript %}

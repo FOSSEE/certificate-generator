@@ -8688,6 +8688,8 @@ def arduino_certificate_download(request):
     ci = RequestContext(request)
     cur_path = os.path.dirname(os.path.realpath(__file__))
     certificate_path = '{0}/arduino/'.format(cur_path)
+    schools = Arduino.objects.values_list('institute', 'sname').distinct()
+    context['schools'] = schools
     if request.method == 'POST':
         email = request.POST.get('email').strip()
         user = Arduino.objects.filter(email=email, purpose='ADC')
