@@ -662,6 +662,11 @@ class Arduino(models.Model):
     purpose = models.CharField(max_length=10, default='ADC')
     sname = models.CharField(max_length=50)
 
+class Vit(models.Model):
+    name = models.CharField(max_length=150)
+    email = models.CharField(max_length=150)
+    purpose = models.CharField(max_length=10, default='VIT')
+
 class PythonHackathon(models.Model):
     name = models.CharField(max_length=500)
     email = models.CharField(max_length=300)
