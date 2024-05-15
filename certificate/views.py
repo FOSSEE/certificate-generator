@@ -570,7 +570,11 @@ def verification(serial, _type):
                     mode = internship_detail.mode
                     mode_def = internship_detail.mode_def
                     context['intern_ship'] = True
-                    event = "FOSSEE INTERNSHIP {0}".format(internship_detail.year)
+                    if internship_detail.foss == 'sti':
+                        project = Spoken Tutorial
+                    else:
+                        project = FOSSEE
+                    event = "{0} INTERNSHIP {1}".format(project, internship_detail.year)
                     detail = OrderedDict([('Name', name), ('From', institute),
                                           ('Event', event),
                                           ('Internship Completed', 'Yes'),
@@ -7627,6 +7631,8 @@ def create_intern23_certificate(certificate_path, details, qrcode,
         template = 'template'
         if foss.strip() == 'sli':
             template = 'templateSum'
+        if foss.strip() == 'sti':
+            template = 'templateSti'
         download_file_name = 'INT2023Pcertificate.pdf'
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
