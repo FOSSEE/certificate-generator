@@ -574,7 +574,7 @@ def verification(serial, _type):
                         project = "Spoken Tutorial"
                     else:
                         project = "FOSSEE"
-                    event = "{0} INTERNSHIP {1}".format(project, internship_detail.year)
+                    event = "{0} Internship {1}".format(project, internship_detail.year)
                     detail = OrderedDict([('Name', name), ('From', institute),
                                           ('Event', event),
                                           ('Internship Completed', 'Yes'),

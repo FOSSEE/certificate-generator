@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header%}
-    <h1> Certificate Verification </h1>
+<center><h1> Certificate Verification </h1></center>
 {% endblock %}
 {% block content %}
 {% if serial_key %}
@@ -37,7 +37,7 @@
                 </div>
               </div>
           </div>
-          <p><b> Enter the alphanumeric characters below the QR code<br> OR <br>Enter the serial number you received while scanning the QR code on certificate</p>
+          <center><p><b> Enter the alphanumeric characters below the QR code<br> OR <br>Enter the serial number you received while scanning the QR code on certificate</p></center>
     <hr>
     <form action="{% url 'certificate:verify'  %}" method="post">
         {{ detail }}
