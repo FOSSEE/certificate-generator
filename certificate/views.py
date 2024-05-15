@@ -571,9 +571,9 @@ def verification(serial, _type):
                     mode_def = internship_detail.mode_def
                     context['intern_ship'] = True
                     if internship_detail.foss == 'sti':
-                        project = Spoken Tutorial
+                        project = "Spoken Tutorial"
                     else:
-                        project = FOSSEE
+                        project = "FOSSEE"
                     event = "{0} INTERNSHIP {1}".format(project, internship_detail.year)
                     detail = OrderedDict([('Name', name), ('From', institute),
                                           ('Event', event),
