@@ -676,6 +676,14 @@ class Nfdp(models.Model):
     email = models.CharField(max_length=150)
     purpose = models.CharField(max_length=10, default='NFP')
 
+class Ffdp(models.Model):
+    email = models.CharField(max_length=150)
+    name = models.CharField(max_length=150)
+    institute = models.CharField(max_length=150)
+    district = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    purpose = models.CharField(max_length=10, default='FFP')
+
 class PythonHackathon(models.Model):
     name = models.CharField(max_length=500)
     email = models.CharField(max_length=300)
