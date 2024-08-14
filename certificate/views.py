@@ -561,7 +561,7 @@ def verification(serial, _type):
                     duration = '{0} to {1}'.format(internship_detail.start_date, internship_detail.end_date)
                     context['intern_ship'] = True
                     detail = OrderedDict([('Name', name), ('From', institute),
-                                          ('Event', purpose),
+                                          ('Event', 'FOSSEE FELLOWSHIP {0}'.format(internship_detail.year)),
                                           ('Internship Completed', 'Yes'),
                                           ('Project', user_project_title), ('Internship Duration',duration)])
                 elif purpose == "FOSSEE SUMMER INTERNSHIP 2021":
@@ -7497,6 +7497,128 @@ def create_esim_marathon_certificate(certificate_path, details, qrcode, _type,
     return [None, error]
 
 
+def intern24_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/intern24/'.format(cur_path)
+
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = Intern2021.objects.filter(email=email, year='2024')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('intern24_certificate_download.html', context, context_instance=ci)
+        else:
+            user = user[0]
+        name = (user.name).title()
+        purpose = user.purpose
+        ar = ''
+        position = ''
+        foss = user.foss
+        student_institute_detail = user.institute
+        student_institute_detail = student_institute_detail.replace('&', 'and')
+        mode = user.mode
+        mode_def = user.mode_def
+        topic = (user.title).replace('&', 'and')
+        if foss == 'esim':
+            if mode == 'I':
+                ar = 'an'
+                position = 'Intern'
+            elif mode == 'T':
+                ar = 'a'
+                position = 'Teaching Assistant'
+
+        year = '24'
+        _type = 'P'
+        hexa = hex(user.id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email, user.id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_intern24_certificate(certificate_path,
+                    details, qrcode, student_institute_detail, topic,
+                    mode, mode_def, foss, ar, position, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_intern24_certificate(certificate_path,
+                    details, qrcode, student_institute_detail, topic,
+                    mode, mode_def, foss, ar, position, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1, serial_key=serial_key,
+                            short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            return render_to_response('intern24_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('intern24_certificate_download.html', context, ci)
+
+
+def create_intern24_certificate(certificate_path, details, qrcode,
+        student_institute_detail, topic, mode, mode_def, foss, ar, position,
+        file_name):
+    error = False
+    try:
+        bg = 'bg{}.png'.format(foss.strip())
+        template = 'template'
+        if foss.strip() == 'sli':
+            template = 'templateSum'
+        if foss.strip() == 'sti':
+            template = 'templateSti'
+        download_file_name = 'INT2024Pcertificate.pdf'
+        template_file = open('{0}{1}'.format\
+                (certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key=details['serial_key'], qr_code=qrcode,
+                institute=student_institute_detail, title=topic, ar=ar,
+                position=position, bg=bg, mode_def=mode_def, mode=mode)
+        create_tex = open('{0}{1}.tex'.format\
+                (certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        _type = 'P'
+        return_value, err = _make_certificate_certificate(certificate_path, _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
 def intern21_certificate_download(request):
     context= {}
     err = ""
@@ -7949,6 +8071,8 @@ def create_fellow21_certificate(certificate_path, details, qrcode,
         error = True
     return [None, error]
 
+def fellow24_certificate_download(request, year='2024'):
+    return fellow22_certificate_download(request, '2024')
 
 def fellow23_certificate_download(request, year='2023'):
     return fellow22_certificate_download(request, '2023')
@@ -7961,6 +8085,9 @@ def fellow22_certificate_download(request, year='2022'):
     if year == '2023':
         certificate_path = '{0}/fellow23/'.format(cur_path)
         template = 'fellow23_certificate_download.html'
+    elif year == '2024':
+        certificate_path = '{0}/fellow24/'.format(cur_path)
+        template = 'fellow24_certificate_download.html'
     else:
         certificate_path = '{0}/fellow22/'.format(cur_path)
         template = 'fellow22_certificate_download.html'
@@ -8048,6 +8175,8 @@ def create_fellow22_certificate(certificate_path, details, qrcode,
             bg = 'python.png'
 	elif foss.strip() == 'foss':
 	    bg = 'foss.png'
+        if year == '2024':
+            bg = 'foss24png'
         template = 'template'
         download_file_name = 'FELPcertificate.pdf'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
