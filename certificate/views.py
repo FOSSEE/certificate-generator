@@ -8108,6 +8108,8 @@ def fellow22_certificate_download(request, year='2022'):
         start_date = user.start_date
         end_date = user.end_date
         foss = user.foss
+        how = user.how
+        mode = user.mode
 
         syear = year[2:4]
         _type = 'P'
@@ -8122,7 +8124,7 @@ def fellow22_certificate_download(request, year='2022'):
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_fellow22_certificate(certificate_path,
                     details, qrcode, student_institute_detail, topic,
-                    start_date, end_date, file_name, foss, year)
+                    start_date, end_date, file_name, foss, year, how, mode)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -8141,7 +8143,7 @@ def fellow22_certificate_download(request, year='2022'):
             details = {'name': name,  'serial_key': short_key}
             certificate = create_fellow22_certificate(certificate_path,
                     details, qrcode, student_institute_detail, topic,
-                    start_date, end_date, file_name, foss, year)
+                    start_date, end_date, file_name, foss, year, how, mode)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, serial_key=serial_key,
@@ -8158,7 +8160,8 @@ def fellow22_certificate_download(request, year='2022'):
 
 
 def create_fellow22_certificate(certificate_path, details, qrcode,
-        student_institute_detail, topic, start_date, end_date, file_name, foss, year):
+        student_institute_detail, topic, start_date, end_date, file_name, foss,
+        year, how, mode):
     error = False
     try:
         if foss.strip() == 'Osdag':
@@ -8185,7 +8188,8 @@ def create_fellow22_certificate(certificate_path, details, qrcode,
         content_tex = content.safe_substitute(name=details['name'].title(),
                 serial_key=details['serial_key'], qr_code=qrcode,
                 institute=student_institute_detail, topic=topic,
-                start_date=start_date, end_date=end_date, bg=bg)
+                start_date=start_date, end_date=end_date, bg=bg, how=how,
+                mode=mode)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
