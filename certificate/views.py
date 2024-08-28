@@ -39,8 +39,8 @@ AnimationContribution, Fellow2020, PythonCertification, months, years, \
 CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll, \
 ComplexFluids, SynfigHackathon, Mapathon, EsimMarathon, EsimMarathon2022, \
 Intern2021, Fellow2021, MixedSignal, PythonHackathon, OpenSourceWorkshop, \
-Mapathon2023, AllIndiaAnimation, OpenfoamHackathon, Arduino, Vit, Nfdp, Ffdp
-
+Mapathon2023, AllIndiaAnimation, OpenfoamHackathon, Arduino, Vit, Nfdp, Ffdp, \
+Gisfellow
 
 
 import csv
@@ -564,6 +564,27 @@ def verification(serial, _type):
                                           ('Event', 'FOSSEE FELLOWSHIP {0}'.format(internship_detail.year)),
                                           ('Internship Completed', 'Yes'),
                                           ('Project', user_project_title), ('Internship Duration',duration)])
+                elif purpose == "GIS":
+                    internship_detail = Gisfellow.objects.get(email=certificate.email)
+                    user_project_title = internship_detail.title
+                    institute = internship_detail.institute
+                    start_date = internship_detail.start_date
+                    end_date = internship_detail.end_date
+                    salutation = internship_detail.salutation
+                    context['intern_ship'] = True
+                    if internship_detail.kind == 'intern':
+                        event = "National Geospatial Intership, 2023-2024"
+                        at = 'IIT Bombay FOSSEE GIS'
+                    else:
+                        event = "Summer Fellowship 2023"
+                        at = 'IIT Bombay FOSSEE Geospatial'
+                    detail = OrderedDict([('Name', name), ('From', institute),
+                                          ('Event', event),
+                                          ('At', at),
+                                          ('Project', user_project_title),
+                                          ('start_date', start_date),
+                                          ('end_date', end_date),
+                                          ])
                 elif purpose == "FOSSEE SUMMER INTERNSHIP 2021":
                     internship_detail = Intern2021.objects.get(email=certificate.email)
                     user_project_title = internship_detail.title
@@ -1189,6 +1210,8 @@ def _get_detail(serial_no):
         purpose = 'National Level Faculty Development Program'
     elif serial_no[0:3] == 'FFP':
         purpose = 'Faculty Development Program'
+    elif serial_no[0:3] == 'GIS':
+        purpose = 'GIS'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -9221,3 +9244,123 @@ def ffdp_certificate_download(request):
             return render_to_response('ffdp_certificate_download.html', context, ci)
     context['message'] = ''
     return render_to_response('ffdp_certificate_download.html', context, ci)
+
+
+def gis_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/gis/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = Gisfellow.objects.filter(email=email, purpose='GIS')
+        print(user)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('gis_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        salutation = user.salutation
+        name = user.name
+        roll_no = user.roll_no
+        title = user.title
+        purpose = encoder(user.purpose)
+        institute = user.institute
+        state = user.state
+        start_date = user.start_date
+        end_date = user.end_date
+        kind = user.kind
+        months = user.months
+        year = '24'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(roll_no,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_gis_certificate(certificate_path, details, salutation,
+                                                 institute, state, 
+                                                 title, start_date, end_date,
+                                                 kind, months, roll_no, qrcode, _type, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_gis_certificate(certificate_path, details, salutation,
+                                                 institute, state,
+                                                 title, start_date, end_date,
+                                                 kind, months, roll_no, qrcode, _type, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('gis_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('gis_certificate_download.html', context, ci)
+
+def encoder(s):
+    s = s.encode('ascii', 'ignore')
+    return s
+
+def create_gis_certificate(certificate_path, details, salutation, institute,
+                           state, title, start_date, end_date, kind, months, roll_no,
+                           qrcode, _type, file_name):
+    error = False
+    err = None
+    try:
+        download_file_name = 'GIS2024certificate.pdf'
+        if kind == 'fellow':
+            template = 'ftemplate'
+        else:
+            template = 'itemplate'
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(salutation=encoder(salutation),
+                name=encoder(details['name'].title()), institute=encoder(institute),
+                state=encoder(state), title=encoder(title), start_date=encoder(start_date),
+                end_date=encoder(end_date), months=encoder(months), roll_no=encoder(roll_no),
+                serial_key=encoder(details['serial_key']), qr_code=qrcode)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+        print(e)
+    return [None, error]

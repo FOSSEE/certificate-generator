@@ -609,6 +609,22 @@ class Intern2021(models.Model):
     purpose = models.CharField(max_length=5, default='IT2')
     year = models.CharField(max_length=6, default=2021)
 
+
+class Gisfellow(models.Model):
+    email = models.EmailField()
+    salutation = models.CharField(max_length=10, default='Mr')
+    name = models.CharField(max_length=80)                                      
+    roll_no = models.CharField(max_length=25)
+    institute = models.CharField(max_length=2000, null=True, blank=True)        
+    state = models.CharField(max_length=35)                                     
+    title = models.CharField(max_length=2000)                                   
+    start_date = models.CharField(max_length=25, null=True, blank=True)         
+    end_date = models.CharField(max_length=25, null=True, blank=True)           
+    months = models.CharField(max_length=25, default=0, null=True, blank=True)             
+    purpose = models.CharField(max_length=5, default='GIS')                     
+    year = models.CharField(max_length=6, default=2023)                         
+    kind = models.CharField(max_length=20, default='intern')
+
 class PythonCertification(models.Model):
     name = models.CharField(max_length=100)
     email = models.CharField(max_length=150)
