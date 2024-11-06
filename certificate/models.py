@@ -691,6 +691,16 @@ class Arduino(models.Model):
     purpose = models.CharField(max_length=10, default='ADC')
     sname = models.CharField(max_length=50)
 
+
+class ArduinoWorkshop(models.Model):
+    name = models.CharField(max_length=150)
+    institute = models.CharField(max_length=150)
+    email = models.CharField(max_length=150)
+    workshop = models.CharField(max_length=500)
+    date = models.CharField(max_length=50)
+    purpose = models.CharField(max_length=10, default='ADW')
+
+
 class Vit(models.Model):
     name = models.CharField(max_length=150)
     email = models.CharField(max_length=150)

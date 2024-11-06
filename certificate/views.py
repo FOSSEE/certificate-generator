@@ -40,7 +40,7 @@ CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll, \
 ComplexFluids, SynfigHackathon, Mapathon, EsimMarathon, EsimMarathon2022, \
 Intern2021, Fellow2021, MixedSignal, PythonHackathon, OpenSourceWorkshop, \
 Mapathon2023, AllIndiaAnimation, OpenfoamHackathon, Arduino, Vit, Nfdp, Ffdp, \
-Gisfellow, Animate
+Gisfellow, Animate, ArduinoWorkshop
 
 
 import csv
@@ -636,6 +636,15 @@ def verification(serial, _type):
                                           ('Event', purpose),
                                           ('Days', 'From 21 to 23 March 2024'),
                                          ])
+                elif purpose == 'ADW':
+                    arduino_users = ArduinoWorkshop.objects.filter(email=certificate.email)
+                    arduino_user = arduino_users[0]
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Event', arduino_user.workshop+' Workshop'),
+                                          ('Institute', arduino_user.institute),
+                                          ('Date', arduino_user.date),
+                                         ])
                 elif purpose == 'National Level Faculty Development Program':
                     users = Nfdp.objects.filter(email=certificate.email)
                     user = users[0]
@@ -1220,6 +1229,8 @@ def _get_detail(serial_no):
         purpose = 'All India 2D Animation Hackathon 2023'
     elif serial_no[0:3] == 'ADC':
         purpose = 'FOSSEE Arduino Day 2024 Celebrations'
+    elif serial_no[0:3] == 'ADW':
+        purpose = 'ADW'
     elif serial_no[0:3] == 'VIT':
         purpose = 'VIT Faculty Appreciation'
     elif serial_no[0:3] == 'NFP':
@@ -9469,6 +9480,105 @@ def create_animate_certificate(certificate_path, details, qrcode, _type,
         content_tex = content.safe_substitute(name=details['name'].title(),
             serial_key=details['serial_key'], qr_code=qrcode,
             title=title, position=position, theme=theme)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
+def arduino_workshop_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/arduino_workshop/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = ArduinoWorkshop.objects.filter(email=email, purpose='ADW')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('arduino_workshop_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name
+        purpose = user.purpose
+        institute = user.institute
+        date = user.date
+        workshop = user.workshop
+        year = '24'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_arduino_workshops_certificate(certificate_path, details,
+                    qrcode, _type, institute, date, workshop, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_arduino_workshops_certificate(certificate_path, details,
+                    qrcode, _type, institute, date, workshop, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('arduino_workshop_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('arduino_workshop_certificate_download.html', context, ci)
+
+
+def create_arduino_workshops_certificate(certificate_path, details, qrcode, _type,
+                               institute, date, workshop, file_name):
+    error = False
+    err = None
+    try:
+        download_file_name = 'ADW2024certificate.pdf'
+        template = 'template'
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+            serial_key=details['serial_key'], qr_code=qrcode, workshop=workshop,
+            institute=institute, date=date)
         create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
