@@ -1,0 +1,59 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+\usepackage{hyperref}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.2cm,bmargin=.2cm,
+  lmargin=2cm, rmargin=2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+\TileWallPaper{28cm}{21.5cm}{bg.png}
+ 
+\scalebox{0.9}{
+ \begin{tabular}{c c } 
+\vspace{5.9cm}
+     \hspace{22.5cm} & {}\\
+    \small{} & \small{\begin{pspicture}(6.0cm,2.0cm) \psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}\end{pspicture}}\\ 
+    \small{} & \large{\color{black}\texttt{$serial_key}}\\ 
+  \end{tabular}
+
+}
+
+\scalebox{2.9}{
+\begin{minipage}{.33\textwidth}
+\begin{center}
+\scriptsize{{\textcolor{black}{~{ \underline{\hspace{0.5cm}\textbf{$name }\hspace{0.5cm}}}~}}}\\
+\vspace{0.2cm}
+    \tiny{\textcolor{black}{from \underline{\textcolor{black}{\textbf{$institute}}} , roll number  \underline{\textcolor{black}{\textbf{$roll_no}}}\\\vspace{0.05cm} has participated in the \textbf{"National Level Open Hardware IoT Geospatial Hackathon 2024",} \\organized jointly by the FOSSEE OSHW and FOSSEE GIS project, IIT Bombay under the aegis of the National Mission on Education through ICT (NMEICT), Ministry of Education, Government of India, IIT Tirupati Navavishkar I-Hub Foundation, and International Centre for Free and Open Source Software (ICFOSS) Government of Kerala.}}\\
+\vspace{0.2cm}
+\vspace{0.155cm}
+\end{center}
+\end{minipage}
+}
+
+\end{document}

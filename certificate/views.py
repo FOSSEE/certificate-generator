@@ -40,7 +40,7 @@ CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll, \
 ComplexFluids, SynfigHackathon, Mapathon, EsimMarathon, EsimMarathon2022, \
 Intern2021, Fellow2021, MixedSignal, PythonHackathon, OpenSourceWorkshop, \
 Mapathon2023, AllIndiaAnimation, OpenfoamHackathon, Arduino, Vit, Nfdp, Ffdp, \
-Gisfellow, Animate, ArduinoWorkshop
+Gisfellow, Animate, ArduinoWorkshop, Iot
 
 
 import csv
@@ -456,6 +456,21 @@ def verification(serial, _type):
                                           ('College', user.institute),
                                           ('Event', event),
                                           ('Date', '20 December 2022')])
+                elif purpose == 'IOT':
+                    user = Iot.objects.filter(
+                            roll_no=certificate.email, purpose='IOT')
+                    user = user[0]
+                    if user.status == 'C':
+                        status = 'Champion'
+                    if user.status == 'W':
+                        status = 'Winner'
+                    else:
+                        status = 'Participant'
+                    event = 'National Level Open Hardware IoT Geospatial Hackathon 2024'
+                    detail = OrderedDict([('Name', name),
+                                          ('College', user.institute),
+                                          ('Event', event),
+                                          ('Performance', status)])
                 elif purpose == 'eSim Marathon 2021':
                     user = EsimMarathon.objects.filter(
                             email=certificate.email, purpose='EMC')
@@ -1241,6 +1256,8 @@ def _get_detail(serial_no):
         purpose = 'GIS'
     elif serial_no[0:3] == 'ANI':
         purpose = 'Animate 2024'
+    elif serial_no[0:3] == 'IOT':
+        purpose = 'IOT'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -9597,3 +9614,109 @@ def create_arduino_workshops_certificate(certificate_path, details, qrcode, _typ
     except Exception, e:
         error = True
     return [None, error]
+
+
+def create_iot_hackathon_certificate(certificate_path, details, institute,
+                             status, roll_no, qrcode, _type, file_name):
+    error = False
+    err = None
+    try:
+        download_file_name = 'OHI2024certificate.pdf'
+        if status == 'C':
+            template = 'template_h'
+        elif status == 'W':
+            template = 'template_w'
+        else:
+            template = 'template_p'
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+            institute=institute, roll_no=roll_no,
+            serial_key=details['serial_key'], qr_code=qrcode)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
+    return [None, error]
+
+
+def iot_hackathon_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/iot/'.format(cur_path)
+    if request.method == 'POST':
+        roll_no = request.POST.get('roll_no').strip()
+        user = Iot.objects.filter(roll_no=roll_no, purpose='IOT')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('iot_hackathon_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name
+        purpose = user.purpose
+        institute = user.institute
+        roll_no = user.roll_no
+        status = user.status
+        year = '24'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format('iot_certificate', id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=roll_no, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_iot_hackathon_certificate(certificate_path, details,
+                                                 institute, status, roll_no,
+                                                 qrcode, _type, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_iot_hackathon_certificate(certificate_path, details,
+                                                 institute, status, roll_no,
+                                                 qrcode, _type, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=roll_no,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('iot_hackathon_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('iot_hackathon_certificate_download.html', context, ci)

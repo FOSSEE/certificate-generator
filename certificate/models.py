@@ -715,6 +715,13 @@ class Nfdp(models.Model):
     email = models.CharField(max_length=150)
     purpose = models.CharField(max_length=10, default='NFP')
 
+class Iot(models.Model):
+    name = models.CharField(max_length=150)
+    institute = models.CharField(max_length=150)
+    roll_no = models.CharField(max_length=100)
+    status = models.CharField(max_length=100)
+    purpose = models.CharField(max_length=10, default='IOT')
+
 class Ffdp(models.Model):
     email = models.CharField(max_length=150)
     name = models.CharField(max_length=150)
