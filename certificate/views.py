@@ -462,7 +462,7 @@ def verification(serial, _type):
                     user = user[0]
                     if user.status == 'C':
                         status = 'Champion'
-                    if user.status == 'W':
+                    elif user.status == 'W':
                         status = 'Winner'
                     else:
                         status = 'Participant'
