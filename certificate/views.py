@@ -651,8 +651,8 @@ def verification(serial, _type):
                                           ('Event', purpose),
                                           ('Days', 'From 21 to 23 March 2024'),
                                          ])
-                elif purpose == 'ADW':
-                    arduino_users = ArduinoWorkshop.objects.filter(email=certificate.email)
+                elif purpose == 'ADW' or purpose == 'ADS':
+                    arduino_users = ArduinoWorkshop.objects.filter(email=certificate.email, purpose=purpose)
                     arduino_user = arduino_users[0]
                     detail = OrderedDict([
                                           ('Name', name),
@@ -1246,6 +1246,8 @@ def _get_detail(serial_no):
         purpose = 'FOSSEE Arduino Day 2024 Celebrations'
     elif serial_no[0:3] == 'ADW':
         purpose = 'ADW'
+    elif serial_no[0:3] == 'ADS':
+        purpose = 'ADS'
     elif serial_no[0:3] == 'VIT':
         purpose = 'VIT Faculty Appreciation'
     elif serial_no[0:3] == 'NFP':
@@ -9517,19 +9519,28 @@ def create_animate_certificate(certificate_path, details, qrcode, _type,
     return [None, error]
 
 
+def arduino_workshop_st_certificate_download(request):
+    if request.method == 'POST':
+        return arduino_workshop_certificate_download(request)
+    ci = RequestContext(request)
+    return render_to_response('arduino_workshop_st_certificate_download.html', {}, ci)
+
 def arduino_workshop_certificate_download(request):
     context= {}
     err = ""
     ci = RequestContext(request)
     cur_path = os.path.dirname(os.path.realpath(__file__))
     certificate_path = '{0}/arduino_workshop/'.format(cur_path)
+    html_template = 'arduino_workshop_certificate_download.html'
     if request.method == 'POST':
         email = request.POST.get('email').strip()
-        user = ArduinoWorkshop.objects.filter(email=email, purpose='ADW')
+        purpose = request.POST.get('purpose', 'ADW').strip()
+        user = ArduinoWorkshop.objects.filter(email=email, purpose=purpose)
+        if purpose == 'ADS':
+            html_template = 'arduino_workshop_st_certificate_download.html'
         if not user:
             context["notregistered"] = 1
-            return render_to_response('arduino_workshop_certificate_download.html',
-                                       context, context_instance=ci)
+            return render_to_response(html_template, context, context_instance=ci)
         user = user[0]
         _type = 'P'
         name = user.name
@@ -9549,7 +9560,7 @@ def arduino_workshop_certificate_download(request):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_arduino_workshops_certificate(certificate_path, details,
-                    qrcode, _type, institute, date, workshop, file_name)
+                    qrcode, _type, institute, date, workshop, file_name, purpose)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -9567,7 +9578,7 @@ def arduino_workshop_certificate_download(request):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_arduino_workshops_certificate(certificate_path, details,
-                    qrcode, _type, institute, date, workshop, file_name)
+                    qrcode, _type, institute, date, workshop, file_name, purpose)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1,
@@ -9578,18 +9589,21 @@ def arduino_workshop_certificate_download(request):
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             context['err'] = certificate[0]
-            return render_to_response('arduino_workshop_certificate_download.html', context, ci)
+            return render_to_response(html_template, context, ci)
     context['message'] = ''
-    return render_to_response('arduino_workshop_certificate_download.html', context, ci)
+    return render_to_response(html_template, context, ci)
 
 
 def create_arduino_workshops_certificate(certificate_path, details, qrcode, _type,
-                               institute, date, workshop, file_name):
+                               institute, date, workshop, file_name, purpose):
     error = False
     err = None
     try:
         download_file_name = 'ADW2024certificate.pdf'
-        template = 'template'
+        if purpose == 'ADS':
+            template = 'template_st'
+        else:
+            template = 'template'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
