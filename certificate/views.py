@@ -7670,6 +7670,8 @@ def create_intern24_certificate(certificate_path, details, qrcode,
             template = 'templateSum'
         if foss.strip() == 'sti':
             template = 'templateSti'
+        if foss.strip() == 'icfoss':
+            template = 'templateic'
         download_file_name = 'INT2024Pcertificate.pdf'
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
