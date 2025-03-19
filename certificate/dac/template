@@ -1,0 +1,76 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+
+\definecolor{mycolor}{RGB}{140, 92, 151}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=1.8cm,bmargin=.2cm,
+  lmargin=2cm, rmargin=2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+\vspace{2.9cm}
+\TileWallPaper{28cm}{21.5cm}{bg.png}
+
+\scalebox{0.8}{
+ \begin{tabular}{c c c c c} 
+     \hspace{26cm} &\tiny{\begin{pspicture}(4.0cm,1.5cm) \psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}\end{pspicture}}\\
+    \small{} & \large{\color{black}\texttt{$serial_key}}\\ \\
+     \hspace{16cm}
+  \end{tabular}
+
+}
+
+\scalebox{3.3}{
+\begin{minipage}{.28\textwidth}
+    \vspace{0.3cm}
+	\begin{center}
+    \tiny{\textcolor{black}{  \sffamily{This is to certify that}} \\
+
+    \vspace{0.3cm}
+\sffamily{Mr./Ms \underline{\hspace{0.5cm} \textbf{{$name}} \hspace{0.5cm} }}\\
+    \vspace{0.1cm}
+\sffamily{of \textbf{$institute} has been
+    \vspace{0.1cm}
+ \\recognised as a \textbf{WINNER} \\
+    \vspace{0.1cm}
+in the 'Desktop Application Development Competition' organised by the FOSSEE \\
+(Free/Libre Open Source Software for Education) Project of IIT Bombay.
+\\
+    \vspace{0.1cm}
+This Competition was held from October 21, 2024 to January 3, 2025.}
+
+}
+
+
+    \end{center}
+    
+\end{minipage}
+}
+
+\end{document}

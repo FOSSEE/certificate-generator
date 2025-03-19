@@ -632,6 +632,16 @@ def verification(serial, _type):
                                           ('Organised by', 'Spoken Tutorial, IIT Bombay'),
                                           ('Date', date),
                                           ])
+                elif purpose == "DAC":
+                    participant = CertificateUser.objects.get(email=certificate.email, purpose='DAC')
+                    event = "Desktop Applicaton Development Competition"
+                    date = "From October 21, 2024 to January 3, 2025"
+                    detail = OrderedDict([('Name', name),
+                                           ('institute', participant.institute),  
+                                          ('Event', event),
+                                          ('Organised by', 'FOSSEE, IIT Bombay'),
+                                          ('Date', date),
+                                          ])
                 elif purpose == "FOSSEE SUMMER INTERNSHIP 2021":
                     internship_detail = Intern2021.objects.get(email=certificate.email)
                     user_project_title = internship_detail.title
@@ -1298,6 +1308,8 @@ def _get_detail(serial_no):
         purpose = 'INS'
     elif serial_no[0:3] == 'WMD':
         purpose = 'WMD'
+    elif serial_no[0:3] == 'DAC':
+        purpose = 'DAC'
 
     year = '20%s' % serial_no[3:5]
     return purpose, year, serial_no[-1]
@@ -9979,4 +9991,102 @@ def create_women_day_certificate(certificate_path, details,
     except Exception, e:
         error = True
         print(e)
+    return [None, error]
+
+
+def desktop_competition_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/dac/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = CertificateUser.objects.filter(email=email, purpose='DAC')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('desktop_competition_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name
+        purpose = user.purpose
+        email = user.email
+        institute = user.institute
+        year = '25'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_desktop_competition_certificate(certificate_path, details,
+                                                       qrcode, institute, _type, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_desktop_competition_certificate(certificate_path, details,
+                                                       qrcode, institute, _type, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('desktop_competition_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('desktop_competition_certificate_download.html', context, ci)
+
+
+def create_desktop_competition_certificate(certificate_path, details,
+                                qrcode, institute, _type, file_name):
+    error = False
+    err = None
+    try:
+        download_file_name = 'DAC2025certificate.pdf'
+        template = 'template'
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(), 
+                serial_key=encoder(details['serial_key']), qr_code=qrcode,
+                institute=institute)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        error = True
     return [None, error]
