@@ -689,7 +689,9 @@ class Arduino(models.Model):
     institute = models.CharField(max_length=150)
     email = models.CharField(max_length=150)
     purpose = models.CharField(max_length=10, default='ADC')
-    sname = models.CharField(max_length=50)
+    sname = models.CharField(max_length=50, null=True, default=None)
+    date = models.CharField(max_length=100, null=True,default=None)
+    year = models.IntegerField(null=True, default=2024)
 
 
 class ArduinoWorkshop(models.Model):
