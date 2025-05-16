@@ -2,6 +2,8 @@
 \documentclass[landscape]{article}
 
 \usepackage[dvipsnames]{xcolor}
+\definecolor{mycolor}{RGB}{248, 195, 77}
+
 \usepackage{wallpaper}
 \usepackage{xcolor}
 \usepackage{ulem}
@@ -11,7 +13,6 @@
 \usepackage[T1]{fontenc}
 \usepackage{wrapfig}
 \usepackage{times}
-\usepackage{hyperref}
 \usepackage{calligra}
 \usepackage{array}
 
@@ -22,7 +23,9 @@
 %% generate QR code
 \usepackage{pst-barcode}
 \usepackage{auto-pst-pdf}
-\definecolor{mycolor}{RGB}{248, 195, 77}
+
+\usepackage[colorlinks=True, linkcolor=mycolor, urlcolor=mycolor, citecolor=green]{hyperref}
+\hypersetup{linkcolor=mycolor, urlcolor=mycolor, citecolor=green}
 
 \usepackage[scaled]{helvet} % Load Helvetica font
 \renewcommand{\rmdefault}{phv} % Set sans-serif font to Helvetica
@@ -60,11 +63,13 @@
 
 \tiny{\textcolor{white}{This is to certify that}}\\
 \vspace{0.1cm}
-\small{{\textcolor{mycolor}{~{\underline{\calligra{Mr./Ms. $name }}}}~}}\\
+\small{{\textcolor{mycolor}{~{\underline{\calligra{$name }}}}~}}\\
 \vspace{0.1cm}
  \tiny{\textcolor{white}{ has been awarded a consolation prize \\
  \vspace{0.1cm} in the Scilab Case Study Hackathon, an initiative of\\the FOSSEE (Free/Libre and Open Source Software in Education) project, IIT Bombay.\\ 		 
-    The Hackathon was held between December 2024 - February 2025.}}\\
+    The Hackathon was held between December 2024 - February 2025.\\
+    This work is available at \href{https://scilab.in/case-study-project/completed-case-studies}{https://scilab.in/case-study-project/completed-case-studies}
+    }}\\
 \end{center}
 \end{minipage}
 }
