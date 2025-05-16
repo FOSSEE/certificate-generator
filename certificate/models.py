@@ -663,6 +663,12 @@ class SynfigHackathon(models.Model):
     ctype = models.CharField(max_length=10)
     purpose = models.CharField(max_length=10, default='SYH')
 
+class Scsh(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.CharField(max_length=150)
+    ctype = models.CharField(max_length=20)
+    place = models.CharField(max_length=10, null=True)
+    purpose = models.CharField(max_length=10, default='SCS')
 
 class Animate(models.Model):
     name = models.CharField(max_length=100)

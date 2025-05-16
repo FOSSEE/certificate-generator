@@ -1,0 +1,72 @@
+%% Certificate template
+\documentclass[landscape]{article}
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage{calligra}
+\usepackage{array}
+
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+\definecolor{mycolor}{RGB}{248, 195, 77}
+
+\usepackage[scaled]{helvet} % Load Helvetica font
+\renewcommand{\rmdefault}{phv} % Set sans-serif font to Helvetica
+
+\geometry{tmargin=.2cm,bmargin=.2cm,
+  lmargin=2cm, rmargin=2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+\TileWallPaper{28cm}{21.6cm}{bgConsolation.png}
+
+\scalebox{1}{
+\vspace{2.1cm}
+
+ \begin{tabular}{c c } 
+ \vspace{2.1cm}
+
+     \hspace{20cm} & {}\\
+    \small{} & \small{\begin{pspicture}(6.0cm,2.0cm) \psframe*[linecolor=white](6.0cm, 6.0cm) \psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}\end{pspicture}}\\ 
+    \small{} & \large{\color{white}\texttt{$serial_key}}\\ \\
+  \end{tabular}
+
+}
+\scalebox{3.4}{
+\begin{minipage}{.29\textwidth}
+\begin{center}
+\vspace{0.5cm}
+
+\tiny{\textcolor{white}{This is to certify that}}\\
+\vspace{0.1cm}
+\small{{\textcolor{mycolor}{~{\underline{\calligra{Mr./Ms. $name }}}}~}}\\
+\vspace{0.1cm}
+ \tiny{\textcolor{white}{ has been awarded a consolation prize \\
+ \vspace{0.1cm} in the Scilab Case Study Hackathon, an initiative of\\the FOSSEE (Free/Libre and Open Source Software in Education) project, IIT Bombay.\\ 		 
+    The Hackathon was held between December 2024 - February 2025.}}\\
+\end{center}
+\end{minipage}
+}
+
+\end{document}
