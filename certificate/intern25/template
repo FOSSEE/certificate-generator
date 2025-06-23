@@ -1,0 +1,74 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\definecolor{mycolor}{RGB}{169, 169, 169}
+
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage{calligra}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%% package to execute bash commands
+%% \usepackage{bashful}
+\usepackage[colorlinks=True, linkcolor=mycolor, urlcolor=mycolor, citecolor=green]{hyperref}
+\hypersetup{linkcolor=mycolor, urlcolor=mycolor, citecolor=green}
+
+%\usepackage[scaled]{helvet} % Load Helvetica font
+%\renewcommand{\rmdefault}{phv} % Set sans-serif font to Helvetica
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.1cm,bmargin=.1cm,
+  lmargin=1.8cm, rmargin=2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+\TileWallPaper{28cm}{21.5cm}{$bg}
+
+
+\scalebox{3}{
+\hspace{1.7cm}\begin{minipage}[t]{.23\textwidth}
+\vspace{2cm}
+\tiny{\textcolor{black}{This is to certify that}}\\
+\vspace{0.06cm}
+\large{{\calligra{{\textbf{$name}}}}}\\
+\vspace{0.06cm}
+\tiny{\textcolor{black}{from \textbf{$institute} }}\\
+\tiny{\textcolor{black}{has successfully completed the}}
+\tiny{\textcolor{black}{\textbf{FOSSEE Semester Long Internship 2025}}}
+\tiny{\textcolor{black}{in $mode mode ($mode_def),}}
+\vspace{0.08cm}
+\tiny{\textcolor{black}{for the \textbf{Summer Sememster of 2025}.}}\\ 
+\tiny{\textcolor{black}{During this tenure, he/she has worked on}}\\
+\vspace{0.06cm}
+\tiny{\textcolor{black}{\textbf{"$title"}}}\\
+\vspace{1.09cm}
+\tiny{\textcolor{black}{This work is available at} \href{https://fossee.in/semester-internship/2025}{https://fossee.in/semester-internship/2025}}\\
+\end{minipage}
+}
+
+{\color{black!40!black}
+\scalebox{0.8}{
+ \begin{tabular}{c c c c c} 
+ \hspace{0.15cm} &\small{\begin{pspicture}(6.0cm,2.0cm) \psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}\end{pspicture}}\\
+    \small{} & \large{\color{black}\texttt{$serial_key}}
+  \end{tabular}
+
+}}
+
+\end{document}
