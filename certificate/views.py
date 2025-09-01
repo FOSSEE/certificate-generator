@@ -8209,6 +8209,9 @@ def create_fellow21_certificate(certificate_path, details, qrcode,
         error = True
     return [None, error]
 
+def fellow25_certificate_download(request, year='2025'):
+    return fellow22_certificate_download(request, '2025')
+
 def fellow24_certificate_download(request, year='2024'):
     return fellow22_certificate_download(request, '2024')
 
@@ -8226,6 +8229,9 @@ def fellow22_certificate_download(request, year='2022'):
     elif year == '2024':
         certificate_path = '{0}/fellow24/'.format(cur_path)
         template = 'fellow24_certificate_download.html'
+    elif year == '2025':
+        certificate_path = '{0}/fellow25/'.format(cur_path)
+        template = 'fellow25_certificate_download.html'
     else:
         certificate_path = '{0}/fellow22/'.format(cur_path)
         template = 'fellow22_certificate_download.html'
@@ -8318,6 +8324,8 @@ def create_fellow22_certificate(certificate_path, details, qrcode,
 	    bg = 'foss.png'
         if year == '2024':
             bg = 'foss24png'
+        if year == '2025':
+            bg = foss
         template = 'template'
         download_file_name = 'FELPcertificate.pdf'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
