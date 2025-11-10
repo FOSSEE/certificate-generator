@@ -40,7 +40,7 @@ CertificateUser, ScilabHackathon, CPPSupport, RAppre, SciPyAll, SupportAll, \
 ComplexFluids, SynfigHackathon, Mapathon, EsimMarathon, EsimMarathon2022, \
 Intern2021, Fellow2021, MixedSignal, PythonHackathon, OpenSourceWorkshop, \
 Mapathon2023, AllIndiaAnimation, OpenfoamHackathon, Arduino, Vit, Nfdp, Ffdp, \
-Gisfellow, Animate, ArduinoWorkshop, Iot, Scsh
+Gisfellow, Animate, ArduinoWorkshop, Iot, Scsh, Hackathon2025
 
 
 import csv
@@ -445,6 +445,42 @@ def verification(serial, _type):
                                           ('Event', event),
                                           ('Performance', '{0}'.format(ctype)),
                                           ('Duration', 'April 15 to October 15, 2024')])
+                elif purpose == 'MP5':
+                    user = Mapathon2023.objects.filter(email=certificate.email, purpose='MP5')
+                    user = user[0]
+                    if user.ctype == 'C':
+                        ctype = 'Champion'
+                    if user.ctype == 'W':
+                        ctype = 'Winner'
+                    if user.ctype == 'P':
+                        ctype = 'Praticipant'
+                    if user.ctype == 'M':
+                        ctype = 'Mentor'
+                    event = 'IIT Bombay FOSSEE-AII Geospatial Mapathon 2025'
+                    detail = OrderedDict([('Name', name),
+                                          ('Mapathon id', user.team.title()),
+                                          ('Institute', user.institute),
+                                          ('Event', event),
+                                          ('Performance/Role', '{0}'.format(ctype)),
+                                          ('Duration', 'March 15 to July 20, 2025')])
+                elif purpose == 'HK5':
+                    user = Hackathon2025.objects.filter(email=certificate.email, purpose='HK5')
+                    user = user[0]
+                    if user.ctype == 'C':
+                        ctype = 'Champion'
+                    if user.ctype == 'W':
+                        ctype = 'Winner'
+                    if user.ctype == 'P':
+                        ctype = 'Praticipant'
+                    if user.ctype == 'M':
+                        ctype = 'Mentor'
+                    event = 'National Medical GIS Hackathon 2025 (Edition 01: One Health)'
+                    detail = OrderedDict([('Name', name),
+                                          ('Hackathon id', user.team.title()),
+                                          ('Institute', user.institute),
+                                          ('Event', event),
+                                          ('Performance/Role', '{0}'.format(ctype)),
+                                          ('Duration', 'February 15 to July 20, 2025')])
                 elif purpose == 'All India 2D Animation Hackathon 2023':
                     user = AllIndiaAnimation.objects.filter(email=certificate.email, purpose='AIA')
                     user = user[0]
@@ -1299,6 +1335,10 @@ def _get_detail(serial_no):
         purpose = 'IIT Bombay Mapathon 2023'
     elif serial_no[0:3] == 'MP4':
         purpose = 'MP4'
+    elif serial_no[0:3] == 'MP5':
+        purpose = 'MP5'
+    elif serial_no[0:3] == 'HK5':
+        purpose = 'HK5'
     elif serial_no[0:3] == 'AIA':
         purpose = 'All India 2D Animation Hackathon 2023'
     elif serial_no[0:3] == 'ADC':
@@ -8677,6 +8717,9 @@ def mapathon2023_certificate_download(request, year='2023'):
     if year == '2024':
         purpose = 'MP4'
         template = 'mapathon2024_certificate_download.html'
+    elif year == '2025':
+        purpose = 'MP5'
+        template = 'mapathon2025_certificate_download.html'
     else:
         purpose = 'MP3'
         template = 'mapathon2023_certificate_download.html'
@@ -8692,6 +8735,7 @@ def mapathon2023_certificate_download(request, year='2023'):
         team = user.team
         ctype = user.ctype
         purpose = user.purpose
+        institute = user.institute
         syear = year[2:]
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
@@ -8704,7 +8748,7 @@ def mapathon2023_certificate_download(request, year='2023'):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_mapathon2023_certificate(certificate_path, details,
-                    qrcode, _type, team, ctype, file_name, year)
+                    qrcode, _type, team, ctype, file_name, year, institute)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -8722,7 +8766,7 @@ def mapathon2023_certificate_download(request, year='2023'):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_mapathon2023_certificate(certificate_path, details,
-                    qrcode, _type, team, ctype, file_name, year)
+                    qrcode, _type, team, ctype, file_name, year, institute)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1,
@@ -8739,7 +8783,7 @@ def mapathon2023_certificate_download(request, year='2023'):
 
 
 def create_mapathon2023_certificate(certificate_path, details, qrcode, _type,
-                                     team, ctype, file_name, year):
+                                     team, ctype, file_name, year, institute):
     error = False
     err = None
     template = None
@@ -8764,12 +8808,22 @@ def create_mapathon2023_certificate(certificate_path, details, qrcode, _type,
             elif ctype == 'P':
                 template = 'template_p4'
             download_file_name = 'MP4{0}certificate.pdf'.format(ctype)
+        if year == '2025':
+            if ctype == 'C':
+                template = 'template_c5'
+            elif ctype == 'W':
+                template = 'template_w5'
+            elif ctype == 'P':
+                template = 'template_p5'
+            elif ctype == 'M':
+                template = 'template_m5'
+            download_file_name = 'MP4{0}certificate.pdf'.format(ctype)
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
         team = team.replace('_', ' ').title()
         content_tex = content.safe_substitute(name=details['name'].title(),
-                serial_key=details['serial_key'], qr_code=qrcode, team=team)
+                serial_key=details['serial_key'], qr_code=qrcode, team=team, institute=institute)
         create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
@@ -10442,3 +10496,118 @@ def create_intern25_certificate(certificate_path, details, qrcode,
         print(e)
     return [None, error]
 
+def hackathon2025_certificate_download(request, year='2025'):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/hackathon25/'.format(cur_path)
+    if year == '2027':
+        purpose = 'HK7'
+        template = 'hackathon2027_certificate_download.html'
+    elif year == '2026':
+        purpose = 'HK6'
+        template = 'hackathon2026_certificate_download.html'
+    else:
+        purpose = 'HK5'
+        template = 'hackathon2025_certificate_download.html'
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = Hackathon2025.objects.filter(email=email, purpose=purpose)
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response(template, context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name
+        team = user.team
+        ctype = user.ctype
+        purpose = user.purpose
+        institute = user.institute
+        syear = year[2:]
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, syear, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_hackathon2025_certificate(certificate_path, details,
+                    qrcode, _type, team, ctype, file_name, year, institute)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_hackathon2025_certificate(certificate_path, details,
+                    qrcode, _type, team, ctype, file_name, year, institute)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response(template, context, ci)
+    context['message'] = ''
+    return render_to_response(template, context, ci)
+
+
+def create_hackathon2025_certificate(certificate_path, details, qrcode, _type,
+                                     team, ctype, file_name, year, institute):
+    error = False
+    err = None
+    template = None
+    try:
+        if year == '2025':
+            if ctype == 'C':
+                template = 'template_c5'
+            elif ctype == 'W':
+                template = 'template_w5'
+            elif ctype == 'P':
+                template = 'template_p5'
+            elif ctype == 'M':
+                template = 'template_m5'
+            download_file_name = 'HK5{0}certificate.pdf'.format(ctype)
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        team = team.replace('_', ' ').title()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+                serial_key=details['serial_key'], qr_code=qrcode, team=team, institute=institute)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
+        print(e)
+        error = True
+    return [None, error]
