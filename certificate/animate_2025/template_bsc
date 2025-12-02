@@ -1,0 +1,77 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    }
+
+\urlstyle{same}
+
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.2cm,bmargin=.2cm,
+  lmargin=2cm, rmargin=2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+\TileWallPaper{28cm}{21.5cm}{bg.png}
+ 
+\scalebox{1}{
+ \begin{tabular}{c c } 
+\vspace{1cm}
+     \hspace{20cm} & {}\\
+    \small{} & \small{\begin{pspicture}(6.0cm,2.0cm) \psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}\end{pspicture}}\\ 
+    \small{} & \large{\color{black}\texttt{$serial_key}}\\ \\
+  \end{tabular}
+
+}
+
+\scalebox{3.55}{
+\begin{minipage}{.26\textwidth}
+\begin{center}
+\vspace{0.25cm}
+\tiny{\textcolor{black}{This is to certify that}}\\
+\vspace{0.1cm}
+    \scriptsize{{\textcolor{purple}{~{$name }}~}}\\
+\vspace{0.1cm}
+    \tiny{\textcolor{black}{ has been adjudged as the \textcolor{purple}{$position} in ANIMATE 2025 under $category.\\ 
+    \vspace{0.05cm}
+    \vspace{0.05cm}
+    ANIMATE 2025 is an initiative of the
+FOSSEE (Free/Libre and Open Source Software for Education) Project, IIT Bombay,
+in association with the Spoken Tutorial Project, Whistling Woods International, and Srishti
+Manipal Institute, MAHE. \\ANIMATE 2025 was held from June 2025 to August 2025.}}\\
+\vspace{0.1cm}
+    \tiny{\textcolor{black}{The animation is available at \url{https://animate2025.fossee.in/results}}.}\\
+\vspace{0.155cm}
+\end{center}
+\end{minipage}
+}
+
+\end{document}

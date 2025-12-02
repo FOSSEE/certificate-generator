@@ -778,6 +778,16 @@ def verification(serial, _type):
                                           ('Details', details),
                                           ('Duration', 'March 2024 to June 2024'),
                                          ])
+                elif purpose == 'Animate 2025':
+                    users = Animate.objects.filter(email=certificate.email, year=2025)
+                    user = users[0]
+                    detail = OrderedDict([
+                                          ('Name', name),
+                                          ('Animation category', user.theme),
+                                          ('Event', purpose),
+                                          ('Details', user.position),
+                                          ('Duration', 'June 2025 to August 2025'),
+                                         ])
                 elif purpose == 'Faculty Development Program':
                     users = Ffdp.objects.filter(email=certificate.email)
                     user = users[0]
@@ -1357,6 +1367,8 @@ def _get_detail(serial_no):
         purpose = 'GIS'
     elif serial_no[0:3] == 'ANI':
         purpose = 'Animate 2024'
+    elif serial_no[0:3] == 'AN5':
+        purpose = 'Animate 2025'
     elif serial_no[0:3] == 'IOT':
         purpose = 'IOT'
     elif serial_no[0:3] == 'INS':
@@ -10609,5 +10621,108 @@ def create_hackathon2025_certificate(certificate_path, details, qrcode, _type,
             error = True
     except Exception, e:
         print(e)
+        error = True
+    return [None, error]
+
+
+def animate_2025_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/animate_2025/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = Animate.objects.filter(email=email, purpose='AN5', year='2025')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('animate_2025_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name
+        ctype = user.ctype
+        position = user.position
+        purpose = user.purpose
+        title = user.title
+        theme = user.theme
+        year = '25'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_animate_2025_certificate(certificate_path, details,
+                    qrcode, _type, ctype, title, theme, position, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_animate_2025_certificate(certificate_path, details,
+                    qrcode, _type, ctype, title, theme, position, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('animate_2025_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('animate_2025_certificate_download.html', context, ci)
+
+
+def create_animate_2025_certificate(certificate_path, details, qrcode, _type,
+                                    ctype, title, theme, position, file_name):
+    error = False
+    err = None
+    try:
+        download_file_name = 'ANI2025certificate.pdf'
+        if ctype == 'BA':
+            template = 'template_bsc'
+        else:
+            template = 'template'
+        template_file = open('{0}{1}'.format(certificate_path, template), 'r')
+        content = Template(template_file.read())
+        template_file.close()
+        content_tex = content.safe_substitute(name=details['name'].title(),
+            serial_key=details['serial_key'], qr_code=qrcode,
+            title=title, position=position, category=theme)
+        create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
+        create_tex.write(content_tex)
+        create_tex.close()
+        return_value, err = _make_certificate_certificate(certificate_path,
+                _type, file_name)
+        if return_value == 0:
+            pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; \
+                    filename=%s' % (download_file_name)
+            response.write(pdf.read())
+            _clean_certificate_certificate(certificate_path, file_name)
+            return [response, False]
+        else:
+            error = True
+    except Exception, e:
         error = True
     return [None, error]
