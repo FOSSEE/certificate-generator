@@ -1,0 +1,82 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+
+\definecolor{mycolor}{RGB}{161, 112, 46}
+\definecolor{mycolor2}{RGB}{13, 59, 102}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=1.8cm,bmargin=.2cm,
+  lmargin=2cm, rmargin=2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+\vspace{2.9cm}
+\TileWallPaper{28cm}{21.5cm}{bg.png}
+
+
+\scalebox{3.3}{
+\begin{minipage}{.285\textwidth}
+    \vspace{1.5cm}
+	\begin{center}
+
+
+ \tiny{\textcolor{mycolor2}{
+ This is to certify that,\\
+\vspace{0.1cm}
+\emph{\textbf{\textcolor{mycolor}{\textit{$name}}}}\\
+\vspace{0.1cm}
+from \emph{\textbf{\textcolor{mycolor}{\textit{$institute}}}}\\
+\vspace{0.1cm}
+participated in the\\
+\textbf{\textcolor{mycolor}{Online Industry Readiness Workshop on CFD}}\\
+\vspace{0.1cm}
+during 11 to 14 Nov 2025\\
+\vspace{0.1cm}
+\vspace{0.1cm}
+\vspace{0.1cm}
+This training was organised by the FOSSEE (Free/Libre and Open Source Software for Education) Project, IIT Bombay.
+The project is funded by the MoE, Government of India.
+\vspace{0.45cm}
+ }}
+
+
+    \end{center}
+    
+\end{minipage}
+}
+
+\scalebox{0.8}{
+ \begin{tabular}{c c c c c} 
+     \hspace{0.3cm} &\tiny{\begin{pspicture}(4.0cm,1.5cm) \psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}\end{pspicture}}\\
+    \small{} & \large{\color{black}\texttt{$serial_key}}\\ \\
+     \hspace{0.3cm}
+  \end{tabular}
+
+}
+
+\end{document}
