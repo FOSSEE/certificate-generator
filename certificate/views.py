@@ -810,11 +810,18 @@ def verification(serial, _type):
                 elif purpose == 'VIT Faculty Appreciation':
                     users = Vit.objects.filter(email=certificate.email)
                     user = users[0]
+                    year = user.year
+                    if year == '2025':
+                        foss = user.foss
+                        dates = user.dates
+                    else:
+                        foss = 'Domain support and guidance in the creation of spoken tutorials on NS-3.'
+                        dates = 'From July 2023 to March 2024'
                     detail = OrderedDict([
                                           ('Name', name),
                                           ('Event', purpose),
-                                          ('Details', 'Domain support and guidance in the creation of spoken tutorials on NS-3.'),
-                                          ('Days', 'From July 2023 to March 2024'),
+                                          ('Details', foss),
+                                          ('Days', dates),
                                          ])
                 elif purpose == 'eSim Faculty Meet':
                     faculty = Esim_faculty.objects.get(email=certificate.email)
@@ -9315,7 +9322,13 @@ def vit_certificate_download(request):
         _type = 'P'
         name = user.name
         purpose = user.purpose
-        year = '24'
+        cyear = user.year
+        foss = user.foss
+        dates = user.dates
+        if cyear == '2025':
+            year = '25'
+        else:
+            year = '24'
         id =  int(user.id)
         hexa = hex(id).replace('0x','').zfill(6).upper()
         serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
@@ -9327,7 +9340,7 @@ def vit_certificate_download(request):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_vit_certificate(certificate_path, details,
-                    qrcode, _type, file_name)
+                    qrcode, _type, file_name, cyear, foss, dates)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -9345,7 +9358,7 @@ def vit_certificate_download(request):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_vit_certificate(certificate_path, details,
-                    qrcode, _type, file_name)
+                    qrcode, _type, file_name, cyear, foss, dates)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1,
@@ -9361,17 +9374,22 @@ def vit_certificate_download(request):
     return render_to_response('vit_certificate_download.html', context, ci)
 
 
-def create_vit_certificate(certificate_path, details, qrcode, _type, file_name):
+def create_vit_certificate(certificate_path, details, qrcode, _type, file_name,
+                           year, foss, dates):
     error = False
     err = None
     try:
-        download_file_name = 'VIT2024certificate.pdf'
-        template = 'template'
+        if year == '2025':
+            download_file_name = 'VIT2025certificate.pdf'
+            template = 'template_g'
+        else:
+            download_file_name = 'VIT2024certificate.pdf'
+            template = 'template'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
         content_tex = content.safe_substitute(name=details['name'].title(),
-            serial_key=details['serial_key'], qr_code=qrcode)
+            serial_key=details['serial_key'], qr_code=qrcode, foss=foss, dates=dates)
         create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()

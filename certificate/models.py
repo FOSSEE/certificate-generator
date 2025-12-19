@@ -713,6 +713,9 @@ class Vit(models.Model):
     name = models.CharField(max_length=150)
     email = models.CharField(max_length=150)
     purpose = models.CharField(max_length=10, default='VIT')
+    foss = models.CharField(max_length=500, null=True, default=None)
+    dates = models.CharField(max_length=200, null=True, default=None)
+    year = models.CharField(max_length=10, default='2024')
 
 
 class Nfdp(models.Model):
