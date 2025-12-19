@@ -32,7 +32,7 @@
 %% md5sum asd_cert.tex | cut -d " " -f 1
 %% \END
 
-\TileWallPaper{28cm}{21.5cm}{bg.png}
+\TileWallPaper{27.9cm}{21.5cm}{bg2.png}
 \scalebox{3.45}{
 \begin{minipage}{.26\textwidth}
 \begin{center}
@@ -41,9 +41,9 @@
 
 \tiny{\textcolor{black}{The FOSSEE Project at IIT Bombay appreciates the outstanding contribution of }}\\
 \vspace{0.1cm}
-\tiny{{\textcolor{black}{~{Mr./Ms. \underline{\hspace{1.2cm}\textbf{$name }\hspace{1.2cm}}}~}}}\\
+\tiny{{\textcolor{black}{~{\underline{\hspace{1.2cm}\textbf{$name }\hspace{1.2cm}}}~}}}\\
 
-    \tiny{\textcolor{black}{  \\\vspace{0.01cm} for providing domain support and guidance in the creation of spoken tutorials on  \textbf{$foss}.\\ \vspace{0.1cm} Your thoughtful workflow marks the first contribution as domain experts\\\vspace{0.01cm} in the creation of Spoken Tutorials from VIT Chennai to the FOSSEE Project.}}\\
+    \tiny{\textcolor{black}{  \\\vspace{0.01cm} for providing domain support and guidance in the creation of spoken tutorials on  \textbf{$foss}.\\ \vspace{0.1cm} We sincerely appreciate your valuable contribution as a domain expert\\\vspace{0.01cm}  from VIT Chennai in the development of this Spoken Tutorial series.}}\\
 \vspace{0.1cm}
     \tiny{\textcolor{black}{You have been instrumental in guiding the FOSSEE Summer fellows \\from $dates.}}\\
 \vspace{0.135cm}
