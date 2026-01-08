@@ -1,0 +1,67 @@
+%% Certificate template
+\documentclass[landscape, a4paper]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+\usepackage{hyperref}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.2cm,bmargin=.2cm,
+  lmargin=.5cm, rmargin=2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{0.5pt}
+\columnwidth=0.1\textwidth
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+\TileWallPaper{29.5cm}{21cm}{bg.pdf}
+ 
+\scalebox{1}{
+ \begin{tabular}{c c } 
+\vspace{0.7cm}
+     \hspace{21.5cm} & {}\\
+    \small{} & \small{\begin{pspicture}(6.0cm,2.0cm) \psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}\end{pspicture}}\\ 
+    \small{} & \hspace{0.3cm}\large{\color{black}\texttt{$serial_key}}\\ \\
+  \end{tabular}
+
+}
+
+\scalebox{3.4}{
+\begin{minipage}{.29\textwidth}
+    \begin{center}
+    \vspace{0.1cm} 
+\tiny{\textcolor{black}{\textit{This is to certify that}}}\\
+\vspace{0.011cm}
+    \tiny{{\textcolor{blue}{~{\textit{\textbf{$name}}}}~}}
+\vspace{0.011cm}
+    \\
+        \tiny{\textcolor{black}{\textit{from \textcolor{blue}{\textbf{$college}},\\ \vspace{0.011cm}  has submitted the circuit:}}} \\ \vspace{0.011cm}
+    \tiny{\textcolor{blue}{{\textit{\textbf{$circuit}}}}}\\
+\vspace{0.011cm}
+        \tiny{\textit{in the eSim Marathon - Circuit Design and Simulation with IHP SG13G2. \\ \vspace{0.011cm} He/She has performed a \textbf{Good} work.}} \\
+\vspace{0.038cm}
+    \tiny{\textcolor{black}{\textit{The Marathon was conducted from September to October 2025. \\ \vspace{0.011cm} This was an initiative of the FOSSEE \\ \vspace{0.011cm} (Free/Libre and Open Source Software in Education) Project, IIT Bombay\\ \vspace{0.011cm} in association with High Performance Microelectronics (IHP).}}}\\
+\vspace{0.155cm}
+    \end{center}
+\end{minipage}
+}
+
+\end{document}

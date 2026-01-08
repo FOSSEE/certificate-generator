@@ -411,6 +411,27 @@ def verification(serial, _type):
                                           ('Ciruit', user.circuit),
                                           ('Performance', '{0}'.format(ctype)),
                                           ('Duration', 'For 3 weeks in the month of February-March 2022')])
+                elif purpose == 'eSim Marathon 2025':
+                    user = EsimMarathon2022.objects.filter(
+                            email=certificate.email, purpose='EM5')
+                    user = user[0]
+                    if user.ctype == 'O':
+                        ctype = 'Outstanding'
+                    if user.ctype == 'V':
+                        ctype = 'Very Good'
+                    if user.ctype == 'G':
+                        ctype = 'Good'
+                    if user.ctype == 'E':
+                        ctype = 'Excellent'
+                    if user.ctype == 'M':
+                        ctype = 'Mentoring'
+                    event = 'eSim Marathon Ciruit Design and Simulation with IHP SG13G2'
+                    detail = OrderedDict([('Name', name),
+                                          ('College', user.college),
+                                          ('Event', event),
+                                          ('Ciruit', user.circuit),
+                                          ('Performance', '{0}'.format(ctype)),
+                                          ('Duration', 'From September-October 2025')])
                 elif purpose == 'IIT Bombay Mapathon 2023':
                     user = Mapathon2023.objects.filter(email=certificate.email, purpose='MP3')
                     user = user[0]
@@ -1352,6 +1373,8 @@ def _get_detail(serial_no):
         purpose = 'eSim Marathon 2021'
     elif serial_no[0:3] == 'EM2':
         purpose = 'eSim Marathon 2022'
+    elif serial_no[0:3] == 'EM5':
+        purpose = 'eSim Marathon 2025'
     elif serial_no[0:3] == 'MSM':
         purpose = 'Mixed Signal Marathon 2022'
     elif serial_no[0:3] == 'OSW':
@@ -7657,6 +7680,73 @@ def esim_marathon_2022_certificate_download(request):
     context['message'] = ''
     return render_to_response('esim_marathon_2022_certificate_download.html', context, ci)
 
+
+def esim_marathon_2025_certificate_download(request):
+    context= {}
+    err = ""
+    ci = RequestContext(request)
+    cur_path = os.path.dirname(os.path.realpath(__file__))
+    certificate_path = '{0}/esim25/'.format(cur_path)
+    if request.method == 'POST':
+        email = request.POST.get('email').strip()
+        user = EsimMarathon2022.objects.filter(email=email, purpose='EM5')
+        if not user:
+            context["notregistered"] = 1
+            return render_to_response('esim_marathon_2025_certificate_download.html',
+                                       context, context_instance=ci)
+        user = user[0]
+        _type = 'P'
+        name = user.name
+        circuit = user.circuit
+        circuit = circuit.replace('&', 'and')
+        college = user.college
+        college = college.replace('&', 'and')
+        ctype = user.ctype
+        purpose = user.purpose
+        year = '25'
+        id =  int(user.id)
+        hexa = hex(id).replace('0x','').zfill(6).upper()
+        serial_no = '{0}{1}{2}{3}'.format(purpose, year, hexa, _type)
+        serial_key = (hashlib.sha1(serial_no)).hexdigest()
+        file_name = '{0}{1}'.format(email,id)
+        file_name = file_name.replace('.', '')
+        try:
+            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+            details = {'name': name, 'serial_key': old_user.short_key}
+            certificate = create_esim_marathon_certificate(certificate_path, details,
+                    qrcode, _type, circuit, ctype, college, file_name)
+            if not certificate[1]:
+                old_user.counter = old_user.counter + 1
+                old_user.save()
+                return certificate[0]
+        except Certificate.DoesNotExist:
+            uniqueness = False
+            num = 5
+            while not uniqueness:
+                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                if not present:
+                    short_key = serial_key[0:num]
+                    uniqueness = True
+                else:
+                    num += 1
+            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+            details = {'name': name,  'serial_key': short_key}
+            certificate = create_esim_marathon_certificate(certificate_path, details,
+                    qrcode, _type, circuit, ctype, college, file_name)
+            if not certificate[1]:
+                    certi_obj = Certificate(name=name, email=email,
+                            serial_no=serial_no, counter=1,
+                            serial_key=serial_key, short_key=short_key)
+                    certi_obj.save()
+                    return certificate[0]
+        if certificate[1]:
+            _clean_certificate_certificate(certificate_path, file_name)
+            context['error'] = True
+            context['err'] = certificate[0]
+            return render_to_response('esim_marathon_2025_certificate_download.html', context, ci)
+    context['message'] = ''
+    return render_to_response('esim_marathon_2025_certificate_download.html', context, ci)
 
 def create_esim_marathon_certificate(certificate_path, details, qrcode, _type,
                                      circuit, ctype, college, file_name):
