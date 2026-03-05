@@ -1,0 +1,71 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\definecolor{mycolor}{RGB}{169, 169, 169}
+
+\usepackage{ulem}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage{calligra}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%% package to execute bash commands
+%% \usepackage{bashful}
+\usepackage[colorlinks=True, linkcolor=blue, urlcolor=blue, citecolor=green]{hyperref}
+\hypersetup{linkcolor=blue, urlcolor=blue, citecolor=green}
+
+%\usepackage[scaled]{helvet} % Load Helvetica font
+%\renewcommand{\rmdefault}{phv} % Set sans-serif font to Helvetica
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+\usepackage{graphicx}
+\graphicspath{{./}}
+\geometry{tmargin=.1cm,bmargin=.1cm,
+  lmargin=1.8cm, rmargin=2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+\TileWallPaper{28cm}{21.5cm}{$bg}
+
+
+\scalebox{3}{
+\hspace{1.9cm}\begin{minipage}[t]{.23\textwidth}
+\vspace{2cm}
+\tiny{\textcolor{black}{This is to certify that}}\\
+\vspace{0.06cm}
+\large{{\calligra{{\textbf{$name}}}}}\\
+\tiny{\textcolor{black}{from \textbf{$institute} }}\\
+\tiny{\textcolor{black}{has successfully completed the}}
+\tiny{\textcolor{black}{\textbf{FOSSEE Semester Long Winter Internship 2025}}}
+\tiny{\textcolor{black}{in $mode mode ($mode_def).}}\\
+\tiny{\textcolor{black}{The internship was from  \textbf{October 2025 till February 2026}.}}\\ 
+\tiny{\textcolor{black}{During this tenure, he/she has worked on}}\\
+\tiny{\textcolor{black}{\textbf{"$title"}.}}\\
+\vspace{0.75cm}
+\tiny{\textcolor{black}{This work is available at} \href{https://fossee.in/winter-internship/2025}{https://fossee.in/winter-internship/2025}}\\
+\end{minipage}
+}
+
+{\color{black!40!black}
+\scalebox{0.8}{
+ \begin{tabular}{c c c c c} 
+ \hspace{1cm} &\small{\begin{pspicture}(6.0cm,2.0cm) \psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}\end{pspicture}}  & & \hspace{18cm}  \includegraphics[width=2.5cm]{$logo} \\
+    \small{} & \large{\color{black}\texttt{$serial_key}}
+  \end{tabular}
+
+}}
+
+\end{document}

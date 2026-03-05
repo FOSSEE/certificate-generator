@@ -719,7 +719,8 @@ def verification(serial, _type):
                                           ('Date', date),
                                           ])
                 elif purpose == "FOSSEE SUMMER INTERNSHIP 2021":
-                    internship_detail = Intern2021.objects.get(email=certificate.email)
+                    internships = Intern2021.objects.filter(email=certificate.email)
+                    internship_detail = internships[0]
                     user_project_title = internship_detail.title
                     institute = internship_detail.institute
                     mode = internship_detail.mode
@@ -729,7 +730,12 @@ def verification(serial, _type):
                         project = "Spoken Tutorial"
                     else:
                         project = "FOSSEE"
-                    event = "{0} Internship {1}".format(project, internship_detail.year)
+                    if 'sliwin' in internship_detail.foss:
+                        event = "{0} Winter Internship {1}".format(project, internship_detail.year)
+                    elif 'sliaut' in internship_detail.foss:
+                        event = "{0} Autumn Internship {1}".format(project, internship_detail.year)
+                    else:
+                        event = "{0} Internship {1}".format(project, internship_detail.year)
                     detail = OrderedDict([('Name', name), ('From', institute),
                                           ('Event', event),
                                           ('Internship Completed', 'Yes'),
@@ -10587,6 +10593,7 @@ def create_intern25_certificate(certificate_path, details, qrcode,
         student_institute_detail, topic, mode, mode_def, foss, ar, position,
         file_name):
     error = False
+    logo = None
     try:
         bg = 'bg{}.png'.format(foss.strip())
         template = 'template'
@@ -10596,6 +10603,14 @@ def create_intern25_certificate(certificate_path, details, qrcode,
             template = 'templateSti'
         if foss.strip() == 'icfoss':
             template = 'templateic'
+        if 'sliaut' in foss.strip():
+            template = 'templatesliaut'
+            bg = 'bgsliaut.png'
+            logo =  '{}.png'.format(foss.strip().replace('sliaut', ''))
+        if 'sliwin' in foss.strip():
+            template = 'templatesliwin'
+            bg = 'bgsliwin.png'
+            logo =  '{}.png'.format(foss.strip().replace('sliwin', ''))
         download_file_name = 'INT2025Pcertificate.pdf'
         template_file = open('{0}{1}'.format\
                 (certificate_path, template), 'r')
@@ -10604,7 +10619,7 @@ def create_intern25_certificate(certificate_path, details, qrcode,
         content_tex = content.safe_substitute(name=details['name'].title(),
                 serial_key=details['serial_key'], qr_code=qrcode,
                 institute=student_institute_detail, title=topic, ar=ar,
-                position=position, bg=bg, mode_def=mode_def, mode=mode)
+                position=position, bg=bg, mode_def=mode_def, mode=mode, logo=logo)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
