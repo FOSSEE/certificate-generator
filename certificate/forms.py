@@ -1,5 +1,5 @@
 from django import forms
-from certificate.models import FeedBack
+from certificate.models import FeedBack, Intern2021
 import datetime
 
 class FeedBackForm(forms.Form):
@@ -38,3 +38,8 @@ class ContactForm(forms.Form):
     subject = forms.CharField(widget=forms.Select(choices=email_subject_choice))
     message = forms.CharField(label='Message',widget=forms.Textarea)
     
+class InternForm(forms.ModelForm):
+    class Meta:
+        model = Intern2021
+        fields = ['name', 'institute', 'email', 'title', 'mode', 'mode_def',
+                  'start_date','end_date']

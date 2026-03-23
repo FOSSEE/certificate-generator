@@ -3,17 +3,18 @@ import subprocess
 import os
 from string import Template
 import hashlib
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from certificate.forms import FeedBackForm, ContactForm
+from certificate.forms import FeedBackForm, ContactForm, InternForm
 from collections import OrderedDict
 from django.core.mail import EmailMultiAlternatives
 from django.views.decorators.csrf import csrf_exempt
 import calendar
 from datetime import datetime
 from django.http import HttpResponseRedirect
+from django.contrib import messages
 import json
 import urllib
 import urllib2
@@ -41,6 +42,7 @@ ComplexFluids, SynfigHackathon, Mapathon, EsimMarathon, EsimMarathon2022, \
 Intern2021, Fellow2021, MixedSignal, PythonHackathon, OpenSourceWorkshop, \
 Mapathon2023, AllIndiaAnimation, OpenfoamHackathon, Arduino, Vit, Nfdp, Ffdp, \
 Gisfellow, Animate, ArduinoWorkshop, Iot, Scsh, Hackathon2025
+from django.core.urlresolvers import reverse  # Django 1.8
 
 
 import csv
@@ -10969,3 +10971,22 @@ def create_cfd_workshop_certificate(certificate_path, details,
         error = True
         print(e)
     return [None, error]
+
+
+def intern_list(request):
+    interns = Intern2021.objects.filter(id__gt=1523)
+    return render(request, 'list_interns.html', {'interns': interns})
+
+
+def edit_intern(request, pk):
+    student = get_object_or_404(Intern2021, pk=pk)
+    if request.method == "POST":
+        form = InternForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Details updated successfully")
+            redirect(reverse('certificate:intern_list'))
+    else:
+        form = InternForm(instance=student)
+    return render(request, 'edit_intern.html' , {'form': form})
+

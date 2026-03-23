@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block header%}
+<h1> Internship Certificates</h1>
+{% endblock %}
+{% block content %}
+<h2>Interns List</h2>
+
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Institute</th>
+        <th>Email</th>
+        <th>Title</th>
+        <th>Mode</th>
+        <th>Mode Def</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+    </tr>
+    {% for intern in interns %}
+    <tr>
+        <td>{{ intern.name }}</td>
+        <td>{{ intern.institute }}</td>
+        <td>{{ intern.email }}</td>
+        <td>{{ intern.mode }}</td>
+        <td>{{ intern.mode_def }}</td>
+        <td>{{ intern.start_date }}</td>
+        <td>{{ intern.end_date }}</td>
+        <td>
+            <a href="{% url 'certificate:edit_intern' intern.pk %}">Edit</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">No Data Available.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+

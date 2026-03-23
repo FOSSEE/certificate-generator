@@ -3,10 +3,16 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
+from . import views
+
+
+
 urlpatterns = patterns('certificate.views',
     # Examples:
     # url(r'^$', 'fossee_project.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
+    url(r'^interns/$', views.intern_list, name='intern_list'),
+    url(r'^interns/(?P<pk>\d+)/edit/$', views.edit_intern, name='edit_intern'),
 
     url(r'^$', 'index', name='index'),
     url(r'^download/$', 'download', name='download'),
