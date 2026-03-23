@@ -608,7 +608,10 @@ class Intern2021(models.Model):
     foss = models.CharField(max_length=20)
     purpose = models.CharField(max_length=5, default='IT2')
     year = models.CharField(max_length=6, default=2021)
-
+    start_date = models.CharField(max_length=50, null=True, blank=True,
+                                  default=None)
+    end_date = models.CharField(max_length=50, null=True, blank=True,
+                                default=None)
 
 class Gisfellow(models.Model):
     email = models.EmailField()

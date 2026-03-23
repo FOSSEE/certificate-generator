@@ -732,7 +732,11 @@ def verification(serial, _type):
                         project = "FOSSEE"
                     if 'sliwin' in internship_detail.foss:
                         event = "{0} Winter Internship {1}".format(project, internship_detail.year)
+                        start_date =internship_detail.start_date
+                        end_date = internship_detail.end_date
                     elif 'sliaut' in internship_detail.foss:
+                        start_date =internship_detail.start_date
+                        end_date = internship_detail.end_date
                         event = "{0} Autumn Internship {1}".format(project, internship_detail.year)
                     else:
                         event = "{0} Internship {1}".format(project, internship_detail.year)
@@ -741,6 +745,9 @@ def verification(serial, _type):
                                           ('Internship Completed', 'Yes'),
                                           ('Project', user_project_title), 
                                           ('Mode', '{0}: {1}'.format(mode, mode_def))])
+                    if 'sliwin' in internship_detail.foss or 'sliaut' in internship_detail.foss:
+                        detail['Start Date'] = start_date
+                        detail['End Date'] = end_date
                 elif purpose == "FOSSEE INTERNSHIP 2020":
                     internship_detail = Fellow2020.objects.get(email=certificate.email, _type='intern')
                     user_project_title = internship_detail.title
@@ -10532,6 +10539,8 @@ def intern25_certificate_download(request):
         student_institute_detail = student_institute_detail.replace('&', 'and')
         mode = user.mode
         mode_def = user.mode_def
+        start_date = user.start_date
+        end_date = user.end_date
         topic = (user.title).replace('&', 'and')
         if foss == 'esim':
             if mode == 'I':
@@ -10554,7 +10563,7 @@ def intern25_certificate_download(request):
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_intern25_certificate(certificate_path,
                     details, qrcode, student_institute_detail, topic,
-                    mode, mode_def, foss, ar, position, file_name)
+                    mode, mode_def, foss, ar, position, file_name, start_date, end_date)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -10573,7 +10582,7 @@ def intern25_certificate_download(request):
             details = {'name': name,  'serial_key': short_key}
             certificate = create_intern25_certificate(certificate_path,
                     details, qrcode, student_institute_detail, topic,
-                    mode, mode_def, foss, ar, position, file_name)
+                    mode, mode_def, foss, ar, position, file_name, start_date, end_date)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, serial_key=serial_key,
@@ -10591,7 +10600,7 @@ def intern25_certificate_download(request):
 
 def create_intern25_certificate(certificate_path, details, qrcode,
         student_institute_detail, topic, mode, mode_def, foss, ar, position,
-        file_name):
+        file_name, start_date, end_date):
     error = False
     logo = None
     try:
@@ -10619,7 +10628,8 @@ def create_intern25_certificate(certificate_path, details, qrcode,
         content_tex = content.safe_substitute(name=details['name'].title(),
                 serial_key=details['serial_key'], qr_code=qrcode,
                 institute=student_institute_detail, title=topic, ar=ar,
-                position=position, bg=bg, mode_def=mode_def, mode=mode, logo=logo)
+                position=position, bg=bg, mode_def=mode_def, mode=mode, logo=logo,
+                start_date=start_date, end_date=end_date)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)

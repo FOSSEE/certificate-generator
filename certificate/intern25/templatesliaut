@@ -41,24 +41,33 @@
 \TileWallPaper{28cm}{21.5cm}{$bg}
 
 
-\scalebox{3}{
-\hspace{1.9cm}\begin{minipage}[t]{.23\textwidth}
+\scalebox{2.9}{
+\hspace{1.85cm}\begin{minipage}[t]{.27\textwidth}
+
+\raggedright
 \vspace{2cm}
 \tiny{\textcolor{black}{This is to certify that}}\\
-\vspace{0.06cm}
+\vspace{0.04cm}
 \large{{\calligra{{\textbf{$name}}}}}\\
-\tiny{\textcolor{black}{from \textbf{$institute} }}\\
-\tiny{\textcolor{black}{has successfully completed the}}
-\tiny{\textcolor{black}{\textbf{FOSSEE Semester Long Autumn Internship 2025}}}
+\vspace{0.04cm}
+\tiny{\textcolor{black}{from \textbf{$institute} }}
+\tiny{\textcolor{black}{has successfully completed the}}\\
+\vspace{0.04cm}
+\tiny{\textcolor{black}{\textbf{FOSSEE Semester Long Autumn Internship 2025}}}\\
+\vspace{0.04cm}
 \tiny{\textcolor{black}{in $mode mode ($mode_def).}}\\
-\tiny{\textcolor{black}{The internship was from  \textbf{October 2025 till February 2026}.}}\\ 
+\vspace{0.05cm}
+\tiny{\textcolor{black}{The internship was from  \textbf{$start_date to $end_date}.}}\\ 
+\vspace{0.05cm}
 \tiny{\textcolor{black}{During this tenure, he/she has worked on}}\\
+\vspace{0.04cm}
 \tiny{\textcolor{black}{\textbf{"$title"}.}}\\
-\vspace{0.7cm}
+\vspace{0.04cm}
 \tiny{\textcolor{black}{This work is available at} \href{https://fossee.in/semester-internship/autumn/2025}{https://fossee.in/semester-internship/autumn/2025}}\\
 \end{minipage}
 }
 
+\vfill
 {\color{black!40!black}
 \scalebox{0.8}{
  \begin{tabular}{c c c c c} 
@@ -67,5 +76,5 @@
   \end{tabular}
 
 }}
-
+\vspace{2.5cm}
 \end{document}
