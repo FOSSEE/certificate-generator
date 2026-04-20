@@ -9313,13 +9313,7 @@ def arduino_day_certificate_download(request, year='2025'):
     certificate_path = '{0}/arduino/'.format(cur_path)
     if request.method == 'POST':
         email = request.POST.get('email').strip()
-        print(year)
-        print(str(year))
-        print(type(int(year)))
-        print(type(year))
-        user = Arduino.objects.filter(email=email, purpose='ADC', year=int(year))
-        print('******************************')
-        print(user)
+        user = Arduino.objects.filter(email=email, year=int(year))
         if not user:
             context["notregistered"] = 1
             return render_to_response('arduino_day_certificate_download.html',
@@ -9328,6 +9322,10 @@ def arduino_day_certificate_download(request, year='2025'):
         _type = 'P'
         name = user.name
         purpose = user.purpose
+        if purpose == 'ADS':
+            sctype = "Schools"
+        else:
+            sctype = "College"
         institute = user.institute
         date = user.date
         y = year[2:]
@@ -9342,7 +9340,7 @@ def arduino_day_certificate_download(request, year='2025'):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_arduino_day_workshop_certificate(certificate_path, details,
-                    qrcode, _type, institute, file_name, year, date)
+                    qrcode, _type, institute, file_name, year, date, sctype)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -9360,7 +9358,7 @@ def arduino_day_certificate_download(request, year='2025'):
             qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
             details = {'name': name,  'serial_key': short_key}
             certificate = create_arduino_day_workshop_certificate(certificate_path, details,
-                    qrcode, _type, institute, file_name, year, date)
+                    qrcode, _type, institute, file_name, year, date, sctype)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1,
@@ -9377,18 +9375,21 @@ def arduino_day_certificate_download(request, year='2025'):
 
 
 def create_arduino_day_workshop_certificate(certificate_path, details, qrcode, _type,
-                               institute, file_name, year, date):
+                               institute, file_name, year, date, sctype):
     error = False
     err = None
     try:
-        download_file_name = 'ADC20WScertificate.pdf'
-        template = 'templatev'
+        download_file_name = 'ADC30WScertificate.pdf'
+        if year == '2026':
+            template = 'template26'
+        else:
+            template = 'templatev'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
         content = Template(template_file.read())
         template_file.close()
         content_tex = content.safe_substitute(name=details['name'].title(),
             serial_key=details['serial_key'], qr_code=qrcode, date=date,
-            institute=institute, year=year)
+            institute=institute, year=year, sctype=sctype)
         create_tex = open('{0}{1}.tex'.format(certificate_path, file_name), 'w')
         create_tex.write(content_tex)
         create_tex.close()
