@@ -43,7 +43,9 @@ Intern2021, Fellow2021, MixedSignal, PythonHackathon, OpenSourceWorkshop, \
 Mapathon2023, AllIndiaAnimation, OpenfoamHackathon, Arduino, Vit, Nfdp, Ffdp, \
 Gisfellow, Animate, ArduinoWorkshop, Iot, Scsh, Hackathon2025
 from django.core.urlresolvers import reverse  # Django 1.8
-
+import io
+import zipfile
+from django.http import HttpResponse
 
 import csv
 
@@ -156,7 +158,7 @@ def verification(serial, _type):
     if _type == 'key':
         try:
             certificate = Certificate.objects.get(short_key=serial)
-            name = certificate.name.title()
+            name = certificate.name
             paper = certificate.paper
             workshop = certificate.workshop
             serial_no = certificate.serial_no
@@ -774,18 +776,41 @@ def verification(serial, _type):
                                           ('Days', '3 - 4 July'),
                                           ('Year', year)
                                          ])
-                elif purpose == 'FOSSEE Arduino Day Celebrations':
-                    arduino_users = Arduino.objects.filter(email=certificate.email)
+                elif purpose in ['ACC', 'ASS', 'ACN', 'ADC']:
+                    arduino_users = Arduino.objects.filter(email=certificate.email, name=name, purpose=purpose)
                     years = ''
                     for arduino_user in arduino_users:
                         years = '{0} {1}, '.format(years, arduino_user.year)
+                    if purpose == 'ACN':
+                        text = 'Notable Contribution'
+                    else:
+                        text =''
                     detail = OrderedDict([
-                                      ('Name', name),
+                                      ('Name', name.title()),
                                       ('Institute', arduino_user.institute),
-                                      ('Participant', 'Yes'),
-                                      ('Event', purpose),
+                                      ('Participant', 'Yes. ' + text),
+                                      ('Event', 'FOSSEE Arduino Day Celebrations'),
                                       ('Year(s)', years),
                                      ])
+                elif purpose in ['AHW', 'AHP', 'AHC', 'AHN']:
+                    arduino_users = Arduino.objects.filter(email=certificate.email, name=name, purpose=purpose)
+                    if arduino_users:
+                        arduino_user = arduino_users[0]
+                        if purpose == 'AHW':
+                            role = 'Winner'
+                        if purpose == 'AHP':
+                            role = 'Participant'
+                        if purpose == 'AHC':
+                            role = 'Champion'
+                        if purpose == 'AHN':
+                            role = 'Notable Contribution'
+                        detail = OrderedDict([
+                                          ('Name', name.title()),
+                                          ('Institute', arduino_user.institute),
+                                          ('Role', role),
+                                          ('Event', 'Open Source Hardware Hackathon'),
+                                          ('Year(s)', arduino_user.year),
+                                         ])
                 elif purpose == 'ADW' or purpose == 'ADS':
                     arduino_users = ArduinoWorkshop.objects.filter(email=certificate.email, purpose=purpose)
                     arduino_user = arduino_users[0]
@@ -1213,7 +1238,7 @@ def verification(serial, _type):
     if _type == 'number':
         try:
             certificate = Certificate.objects.get(serial_no=serial)
-            name = certificate.name.title()
+            name = certificate.name
             paper = certificate.paper
             workshop = certificate.workshop
             certificate.verified += 1
@@ -1405,11 +1430,25 @@ def _get_detail(serial_no):
     elif serial_no[0:3] == 'AIA':
         purpose = 'All India 2D Animation Hackathon 2023'
     elif serial_no[0:3] == 'ADC':
-        purpose = 'FOSSEE Arduino Day Celebrations'
+        purpose = 'ADC'
     elif serial_no[0:3] == 'ADW':
         purpose = 'ADW'
     elif serial_no[0:3] == 'ADS':
         purpose = 'ADS'
+    elif serial_no[0:3] == 'ASS':
+        purpose = 'ASS'
+    elif serial_no[0:3] == 'ACC':
+        purpose = 'ACC'
+    elif serial_no[0:3] == 'ACN':
+        purpose = 'ACN'
+    elif serial_no[0:3] == 'AHP':
+        purpose = 'AHP'
+    elif serial_no[0:3] == 'AHW':
+        purpose = 'AHW'
+    elif serial_no[0:3] == 'AHC':
+        purpose = 'AHC'
+    elif serial_no[0:3] == 'AHN':
+        purpose = 'AHN'
     elif serial_no[0:3] == 'VIT':
         purpose = 'VIT Faculty Appreciation'
     elif serial_no[0:3] == 'NFP':
@@ -9304,6 +9343,7 @@ def create_arduino_workshop_certificate(certificate_path, details, qrcode, _type
         print(e)
     return [None, error]
 
+
 def arduino_day_certificate_download(request, year='2025'):
     context= {}
     err = ""
@@ -9313,75 +9353,100 @@ def arduino_day_certificate_download(request, year='2025'):
     certificate_path = '{0}/arduino/'.format(cur_path)
     if request.method == 'POST':
         email = request.POST.get('email').strip()
-        user = Arduino.objects.filter(email=email, year=int(year))
-        if not user:
+        users = Arduino.objects.filter(email=email, year=int(year))
+        if not users:
             context["notregistered"] = 1
             return render_to_response('arduino_day_certificate_download.html',
                                        context, context_instance=ci)
-        user = user[0]
-        _type = 'P'
-        name = user.name
-        purpose = user.purpose
-        if purpose == 'ADS':
-            sctype = "Schools"
-        else:
-            sctype = "College"
-        institute = user.institute
-        date = user.date
-        y = year[2:]
-        id =  int(user.id)
-        hexa = hex(id).replace('0x','').zfill(6).upper()
-        serial_no = '{0}{1}{2}{3}'.format(purpose, y, hexa, _type)
-        serial_key = (hashlib.sha1(serial_no)).hexdigest()
-        file_name = '{0}{1}'.format(email,id)
-        file_name = file_name.replace('.', '')
-        try:
-            old_user = Certificate.objects.get(email=email, serial_no=serial_no)
-            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
-            details = {'name': name, 'serial_key': old_user.short_key}
-            certificate = create_arduino_day_workshop_certificate(certificate_path, details,
-                    qrcode, _type, institute, file_name, year, date, sctype)
-            if not certificate[1]:
-                old_user.counter = old_user.counter + 1
-                old_user.save()
-                return certificate[0]
-        except Certificate.DoesNotExist:
-            uniqueness = False
-            num = 5
-            while not uniqueness:
-                present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
-                if not present:
-                    short_key = serial_key[0:num]
-                    uniqueness = True
-                else:
-                    num += 1
-            qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
-            details = {'name': name,  'serial_key': short_key}
-            certificate = create_arduino_day_workshop_certificate(certificate_path, details,
-                    qrcode, _type, institute, file_name, year, date, sctype)
-            if not certificate[1]:
-                    certi_obj = Certificate(name=name, email=email,
-                            serial_no=serial_no, counter=1,
-                            serial_key=serial_key, short_key=short_key)
-                    certi_obj.save()
-                    return certificate[0]
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as zip_file:
+            for user in users:
+                _type = 'P'
+                name = user.name
+                purpose = user.purpose
+                if purpose == 'ASS':
+                    sctype = "School"
+                elif purpose == 'ACC':
+                    sctype = "College"
+                elif purpose == 'ACN':
+                    sctype = "College"
+                elif purpose == 'AHP':
+                    sctype = 'for participating in'
+                elif purpose == 'AHN':
+                    sctype = 'in recognition of their Notable Contribution to'
+                elif purpose == 'AHC':
+                    sctype = 'for being the Champion of'
+                elif purpose == 'AHW':
+                    sctype = 'for being a Winner of '
+                institute = user.institute
+                date = user.date
+                y = year[2:]
+                id =  int(user.id)
+                hexa = hex(id).replace('0x','').zfill(6).upper()
+                serial_no = '{0}{1}{2}{3}'.format(purpose, y, hexa, _type)
+                serial_key = (hashlib.sha1(serial_no)).hexdigest()
+                file_name = '{0}{1}'.format(user.name,id)
+                file_name = file_name.replace('.', '')
+                file_name = file_name.replace(' ', '')
+
+                try:
+                    old_user = Certificate.objects.get(email=email, serial_no=serial_no)
+                    qrcode = 'http://fossee.in/certificates/verify/{0} '.format(old_user.short_key)
+                    details = {'name': name, 'serial_key': old_user.short_key}
+                    certificate = create_arduino_day_workshop_certificate(certificate_path, details,
+                            qrcode, _type, institute, file_name, year, date, sctype, zip_file, purpose)
+                    if not certificate[1]:
+                        old_user.counter = old_user.counter + 1
+                        old_user.save()
+                        #return certificate[0]
+                except Certificate.DoesNotExist:
+                    uniqueness = False
+                    num = 5
+                    while not uniqueness:
+                        present = Certificate.objects.filter(short_key__startswith=serial_key[0:num])
+                        if not present:
+                            short_key = serial_key[0:num]
+                            uniqueness = True
+                        else:
+                            num += 1
+                    qrcode = 'http://fossee.in/certificates/verify/{0} '.format(short_key)
+                    details = {'name': name,  'serial_key': short_key}
+                    certificate = create_arduino_day_workshop_certificate(certificate_path, details,
+                            qrcode, _type, institute, file_name, year, date, sctype, zip_file, purpose)
+                    if not certificate[1]:
+                            certi_obj = Certificate(name=name, email=email,
+                                    serial_no=serial_no, counter=1,
+                                    serial_key=serial_key, short_key=short_key)
+                            certi_obj.save()
+                            #return certificate[0]
         if certificate[1]:
             _clean_certificate_certificate(certificate_path, file_name)
             context['error'] = True
             context['err'] = certificate[0]
             return render_to_response('arduino_day_certificate_download.html', context, ci)
+        else:
+            buffer.seek(0)
+            response = HttpResponse(buffer.getvalue(), content_type="application/zip")
+            response['Content-Disposition'] = 'attachment; filename="certificates.zip"'
+            return response
+
     context['message'] = ''
     return render_to_response('arduino_day_certificate_download.html', context, ci)
 
 
 def create_arduino_day_workshop_certificate(certificate_path, details, qrcode, _type,
-                               institute, file_name, year, date, sctype):
+                               institute, file_name, year, date, sctype, zip_file, purpose):
     error = False
     err = None
     try:
         download_file_name = 'ADC30WScertificate.pdf'
         if year == '2026':
-            template = 'template26'
+            if purpose == 'ACC' or purpose == 'ASS':
+                template = 'template26'
+            elif purpose =='ACN':
+                template = 'template26N'
+            elif purpose in ['AHP', 'AHN', 'AHC', 'AHW']:
+                template = 'templateH'
         else:
             template = 'templatev'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
@@ -9397,12 +9462,15 @@ def create_arduino_day_workshop_certificate(certificate_path, details, qrcode, _
                 _type, file_name)
         if return_value == 0:
             pdf = open('{0}{1}.pdf'.format(certificate_path, file_name) , 'r')
-            response = HttpResponse(content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; \
-                    filename=%s' % (download_file_name)
-            response.write(pdf.read())
+            filename = os.path.basename(pdf.name)
+            zip_file.writestr(filename, pdf.read())
+            #response = HttpResponse(content_type='application/pdf')
+            #response['Content-Disposition'] = 'attachment; \
+            #        filename=%s' % (download_file_name)
+            #response.write(pdf.read())
             _clean_certificate_certificate(certificate_path, file_name)
-            return [response, False]
+            #return [response, False]
+            return [None, False]
         else:
             error = True
     except Exception, e:
