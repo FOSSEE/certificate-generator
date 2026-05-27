@@ -1,0 +1,69 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage{bookmark}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%% package to execute bash commands
+%% \usepackage{bashful}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.2cm,bmargin=.2cm,
+  lmargin=2cm, rmargin=2cm}
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+\begin{document}
+
+%% create MD5 hash of tex file and insert it in PDF
+%% \bash
+%% md5sum asd_cert.tex | cut -d " " -f 1
+%% \END
+
+\TileWallPaper{28cm}{21.5cm}{bg.jpg}
+ 
+
+\scalebox{3.15}{
+\begin{minipage}{.299\textwidth}
+\begin{center}
+\vspace{1.9cm}
+\tiny{\textcolor{black}{This is to certify that}}\\
+\vspace{0.2cm}
+\tiny{{\textcolor{black}{~{ \underline{\hspace{1.2cm}\textbf{$name }\hspace{1.2cm}}}~}}}\\
+\vspace{0.2cm}
+    \tiny{\textcolor{black}{ participated in the \\
+\vspace{0.05cm}
+\textbf{One Day Online Hands-on Workshop on Koha Library Automation Software,} \\
+\vspace{0.05cm} organised in collaboration with the\\
+\vspace{0.05cm}
+Department of Library and Information Science, Pondicherry University\\
+\vspace{0.05cm}
+held on 23 March 2026.
+}}\\
+\vspace{1.25cm}
+\end{center}
+\end{minipage}
+}
+
+\scalebox{0.7}{
+ \begin{tabular}{c c } 
+    \hspace{2cm} & {}\\
+    \small{} & \small{\begin{pspicture}(6.0cm,2.0cm) \psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}\end{pspicture}}\\ 
+    \small{} & \large{\color{black}\texttt{$serial_key}}\\ \\
+  \end{tabular}
+
+}
+\end{document}
