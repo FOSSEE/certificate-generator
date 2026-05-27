@@ -724,7 +724,7 @@ def verification(serial, _type):
                                           ])
                 elif purpose == "KOH":
                     participant = CertificateUser.objects.get(email=certificate.email, purpose="KOH")
-                    event = "One Day Online Hands-on Workshop on Koha Library Automation Software"
+                    event = "One Day Online Hands-on Workshop on Koha"
                     date = "23 March 2026"
                     co_hosted = "Department of Library and Information Science, Pondicherry University"
                     detail = OrderedDict([('Name', name),
