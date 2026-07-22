@@ -1,0 +1,73 @@
+%% Certificate template - CFD Light Background
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage{bookmark}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.2cm, bmargin=.2cm, lmargin=2cm, rmargin=2cm}
+
+\begin{document}
+
+\TileWallPaper{28cm}{21.5cm}{bg_cfd.png}
+\vspace*{0.6cm}
+
+\scalebox{0.7}{
+
+ \begin{tabular}{p{30cm} c} 
+
+    & \small{%
+        \begin{pspicture}(2.0cm,2.0cm)
+          \psframe*[linecolor=white](0,0)(6.0cm,6.0cm)
+          \rput(1.0cm,1.0cm){\psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}}
+        \end{pspicture}%
+      }\\
+      
+         & \large{\color{black}\texttt{$serial_key}}\\ \\   
+  \end{tabular}
+}
+\scalebox{2.9}{
+\begin{minipage}{.34\textwidth}
+
+\begin{center}
+\vspace{1.6cm}
+
+\tiny{\textcolor{black}{This is to certify that,}}\\[0.1cm]
+
+\small{\textcolor{black}{\textbf{\ $name }}}\\[-0.2cm]
+{\color{black}\rule{0.8\textwidth}{0.1pt}}\\[0.1cm]
+
+\tiny{\textcolor{black}{from \textbf{ $institute }}}\\[-0.1cm]
+{\color{black}\rule{0.7\textwidth}{0.1pt}}\\[0.1cm]
+
+\tiny{\textcolor{black}{participated in the online}}\\[0.05cm]
+
+\tiny{\textcolor{black}{\textbf{Faculty Development Program on OpenFOAM for CFD}}}\\[0.05cm]
+
+\tiny{\textcolor{black}{under the Student Category, from 2 to 5 June 2026.}}\\[0.15cm]
+
+\tiny{\textcolor{black}{This training was organised by the FOSSEE (Free and Open Source Software for Education) Project, IIT Bombay.}}\\[0.03cm]
+
+\tiny{\textcolor{black}{The project is funded under NMEICT, by the Ministry of Education, Government of India.}}\\
+
+\vspace{0.8cm}
+\end{center}
+\end{minipage}
+}
+
+
+\end{document}

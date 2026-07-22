@@ -1,0 +1,70 @@
+%% Certificate template
+\documentclass[landscape]{article}
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage{bookmark}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+%% generate QR code
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+
+\geometry{tmargin=.2cm, bmargin=.2cm, lmargin=2cm, rmargin=2cm}
+
+\begin{document}
+
+\TileWallPaper{28cm}{21.5cm}{bg_esim.png}
+
+\scalebox{2.9}{
+\begin{minipage}{.34\textwidth}
+\begin{center}
+\vspace{1.8cm}
+
+\tiny{\textcolor{white}{This is to certify that}}\\[0.15cm]
+
+\small{\textcolor{white}{\textbf{$name}}}\\[-0.25cm]
+{\color{white}\rule{0.8\textwidth}{0.1pt}}\\[0.1cm]
+
+\tiny{\textcolor{white}{from \textbf{$institute}}}\\[-0.1cm]
+{\color{white}\rule{0.7\textwidth}{0.1pt}}\\[0.1cm]
+
+\tiny{\textcolor{white}{participated in the online}}\\[0.07cm]
+
+\tiny{\textcolor{white}{\textbf{Faculty Development Program} on \textbf{VLSI Design using eSim \& Open PDKs}}}\\[0.07cm]
+
+\tiny{\textcolor{white}{under the Student Category, from 26 to 29 June 2026.}}\\[0.15cm]
+
+\tiny{\textcolor{white}{This training was organised by the FOSSEE (Free and Open Source Software for Education) Project, IIT Bombay.}}\\[0.03cm]
+
+\tiny{\textcolor{white}{The project is funded under NMEICT, by the Ministry of Education, Government of India.}}\\
+
+\vspace{0.8cm}
+\end{center}
+\end{minipage}
+}
+
+\vspace{1.15cm}
+\scalebox{0.7}{
+  \begin{tabular}{p{27cm} c}
+    & \small{%
+        \begin{pspicture}(2.0cm,2.0cm)
+          \psframe*[linecolor=white](0,0)(6.0cm,6.0cm)
+          \rput(1.0cm,1.0cm){\psbarcode{$qr_code}{eclevel=L width=1.0 height=1.0}{qrcode}}
+        \end{pspicture}%
+      }\\ 
+         & \large{\color{white}\texttt{$serial_key}}\\ \\  
+ 
+  \end{tabular}
+} 
+ 
+\end{document}

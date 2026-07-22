@@ -572,6 +572,7 @@ class FDP(models.Model):
     email = models.EmailField()
     institute = models.CharField(max_length=2000, null=True, blank=True)
     purpose = models.CharField(max_length=10, default='FD0')
+    category = models.CharField(max_length=10, default='F')
 
 class Fellow2021(models.Model):
     name = models.CharField(max_length=80)
