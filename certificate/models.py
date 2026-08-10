@@ -31,6 +31,11 @@ roles = (
             ('Student', 'Student'),
             ('Contributor', 'Contributor'),
         )
+seasons = (
+            ('Spring', 'spring'),
+            ('Autumn', 'autumn'),
+        )
+
 internship_type = (
             ('remote', 'Remote Internship'),
         )
@@ -586,6 +591,8 @@ class Fellow2021(models.Model):
     year = models.CharField(max_length=6, default='2021')
     how = models.CharField(max_length=25, default='online')
     mode = models.CharField(max_length=25, default='part time')
+    exellence = models.BooleanField(default=False)
+    weeks = models.IntegerField(default=8)
 
 class Fellow2020(models.Model):
     name = models.CharField(max_length=80)
@@ -613,6 +620,10 @@ class Intern2021(models.Model):
                                   default=None)
     end_date = models.CharField(max_length=50, null=True, blank=True,
                                 default=None)
+    weeks = models.IntegerField(default=8)
+    exellence = models.BooleanField(default=False)
+    season = models.CharField(max_length=25, choices=seasons,
+                              default='spring')
 
 class Gisfellow(models.Model):
     email = models.EmailField()

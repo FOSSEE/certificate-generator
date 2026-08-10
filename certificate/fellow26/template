@@ -1,0 +1,106 @@
+%% Certificate template
+\documentclass[landscape]{article}
+
+\usepackage{wallpaper}
+\usepackage{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{chancery}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{times}
+
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+%% generate QR code
+\usepackage{qrcode}
+
+\geometry{
+  tmargin=.2cm,
+  bmargin=.2cm,
+  lmargin=2cm,
+  rmargin=2cm
+}
+
+\usepackage{multicol}
+\setlength{\columnseprule}{1pt}
+\columnwidth=0.6\textwidth
+
+%% Fixed-size logo box
+%% All logos will be placed inside the same 3.5cm x 2.5cm box
+%% and centered vertically/horizontally.
+\newcommand{\LogoBox}[1]{%
+  \begin{minipage}[c][2.5cm][c]{3.5cm}
+    \centering
+    \includegraphics[width=3.5cm,height=2.5cm,keepaspectratio]{#1}
+  \end{minipage}%
+}
+
+\begin{document}
+
+\TileWallPaper{27.85cm}{21.6cm}{$bg}
+
+\scalebox{2.5}{
+\begin{minipage}{.46\textwidth}
+\begin{center}
+\vspace{1.7cm}
+
+\scriptsize{\textcolor{black}{\textit{This is to certify that}}}\\
+
+\vspace{0.1cm}
+
+\normalsize{{\textcolor{black}{~{\textit{$name }}}~}}\\
+
+\vspace{0.1cm}
+
+\scriptsize{\textcolor{black}{\textit{from $institute }}}\\
+
+\vspace{0.1cm}
+
+\scriptsize{\textcolor{black}{\textit{has successfully completed the}}}\\
+\scriptsize{\textcolor{black}{\textit{FOSSEE Summer Fellowship $year from May-July.}}}\\
+\scriptsize{\textcolor{black}{\textit{During this period, the fellow has completed $weeks weeks of fellowship in}}}\\
+\scriptsize{\textcolor{black}{\textit{$how mode, working on a $mode *basis.}}}\\
+
+\vspace{0.16cm}
+
+\scriptsize{\textcolor{black}{\textit{During this tenure, he/she has worked on}}}\\
+\scriptsize{\textcolor{black}{\textit{\textbf{"$topic"}}}}\\
+
+\vspace{0.1cm}
+
+\scriptsize{
+  \textcolor{black}{\textit{This work is available at}}
+  \textcolor{cyan}{\textit{https://fossee.in/fellowship/2026}}
+}\\
+
+\end{center}
+\end{minipage}
+}
+
+\vfill
+
+{\color{black!40!black}
+\scalebox{0.9}{
+\begin{tabular}{c c c c c}
+  \hspace{0.2cm}
+  &
+  {\colorbox{white}{\qrcode[height=2cm]{$qr_code}}}
+  &
+  &
+  \hspace{11.7cm}
+  \LogoBox{../logos/$logo}
+  \\
+  \\
+  \small{}
+  &
+  \large{\color{black}\texttt{$serial_key}}
+\end{tabular}
+}
+}
+
+\vspace{1.9cm}
+
+\end{document}

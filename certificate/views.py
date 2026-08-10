@@ -656,6 +656,22 @@ def verification(serial, _type):
                                           ('Event', event),
                                           ('Internship Completed', 'Yes'),
                                           ('Project', user_project_title), ('Internship Duration',duration)])
+                elif purpose == "FOSSEE FELLOWSHIP":
+                    internship_detail = Fellow2021.objects.filter(email=certificate.email, purpose='F26')
+                    internship_detail = internship_detail[0]
+                    user_project_title = internship_detail.title
+                    year = internship_detail.year
+                    institute = internship_detail.institute
+                    if internship_detail.exellence:
+                        badge = 'Yes'
+                    else:
+                        badge = 'No'
+                    context['intern_ship'] = True
+                    detail = OrderedDict([('Name', name), ('From', institute),
+                                          ('Event', 'purpose'),
+                                          ('Completed', 'Yes'),
+                                          ('Excellence Badge', badge),
+                                          ('Project', user_project_title), ('Year',year)])
                 elif purpose == "FOSSEE FELLOWSHIP 2022":
                     internship_detail = Fellow2021.objects.get(email=certificate.email)
                     user_project_title = internship_detail.title
@@ -1383,6 +1399,8 @@ def _get_detail(serial_no):
         purpose = "FOSSEE SUMMER FELLOWSHIP 2020"
     elif serial_no[0:3] == 'F21':
         purpose = "FOSSEE SUMMER FELLOWSHIP 2021"
+    elif serial_no[0:3] == 'F26':
+        purpose = "FOSSEE FELLOWSHIP"
     elif serial_no[0:3] == 'IT2':
         purpose = "FOSSEE SUMMER INTERNSHIP 2021"
     elif serial_no[0:3] == 'IN2':
@@ -8462,6 +8480,9 @@ def create_fellow21_certificate(certificate_path, details, qrcode,
         error = True
     return [None, error]
 
+def fellow26_certificate_download(request, year='2026'):
+    return fellow22_certificate_download(request, '2026')
+
 def fellow25_certificate_download(request, year='2025'):
     return fellow22_certificate_download(request, '2025')
 
@@ -8485,6 +8506,9 @@ def fellow22_certificate_download(request, year='2022'):
     elif year == '2025':
         certificate_path = '{0}/fellow25/'.format(cur_path)
         template = 'fellow25_certificate_download.html'
+    elif year == '2026':
+        certificate_path = '{0}/fellow26/'.format(cur_path)
+        template = 'fellow26_certificate_download.html'
     else:
         certificate_path = '{0}/fellow22/'.format(cur_path)
         template = 'fellow22_certificate_download.html'
@@ -8507,6 +8531,8 @@ def fellow22_certificate_download(request, year='2022'):
         foss = user.foss
         how = user.how
         mode = user.mode
+        weeks = user.weeks
+        exellence = user.exellence
 
         syear = year[2:4]
         _type = 'P'
@@ -8521,7 +8547,8 @@ def fellow22_certificate_download(request, year='2022'):
             details = {'name': name, 'serial_key': old_user.short_key}
             certificate = create_fellow22_certificate(certificate_path,
                     details, qrcode, student_institute_detail, topic,
-                    start_date, end_date, file_name, foss, year, how, mode)
+                    start_date, end_date, file_name, foss, year, how, mode, weeks,
+                    exellence)
             if not certificate[1]:
                 old_user.counter = old_user.counter + 1
                 old_user.save()
@@ -8540,7 +8567,8 @@ def fellow22_certificate_download(request, year='2022'):
             details = {'name': name,  'serial_key': short_key}
             certificate = create_fellow22_certificate(certificate_path,
                     details, qrcode, student_institute_detail, topic,
-                    start_date, end_date, file_name, foss, year, how, mode)
+                    start_date, end_date, file_name, foss, year, how, mode,
+                    weeks, exellence)
             if not certificate[1]:
                     certi_obj = Certificate(name=name, email=email,
                             serial_no=serial_no, counter=1, serial_key=serial_key,
@@ -8558,7 +8586,7 @@ def fellow22_certificate_download(request, year='2022'):
 
 def create_fellow22_certificate(certificate_path, details, qrcode,
         student_institute_detail, topic, start_date, end_date, file_name, foss,
-        year, how, mode):
+        year, how, mode, weeks=8, exellence=False):
     error = False
     try:
         if foss.strip() == 'Osdag':
@@ -8573,12 +8601,19 @@ def create_fellow22_certificate(certificate_path, details, qrcode,
             bg = 'focal.png'
         elif foss.strip() == 'Python':
             bg = 'python.png'
-	elif foss.strip() == 'foss':
-	    bg = 'foss.png'
+        elif foss.strip() == 'foss':
+            bg = 'foss.png'
         if year == '2024':
             bg = 'foss24png'
         if year == '2025':
             bg = foss
+        if year == '2026':
+            logo =  '../logos/{}.png'.format(foss.strip().lower())
+            print(exellence)
+            if exellence:
+                bg = 'bge.png'
+            else:
+                bg = 'bg.png'
         template = 'template'
         download_file_name = 'FELPcertificate.pdf'
         template_file = open('{0}{1}'.format(certificate_path, template), 'r')
@@ -8588,7 +8623,7 @@ def create_fellow22_certificate(certificate_path, details, qrcode,
                 serial_key=details['serial_key'], qr_code=qrcode,
                 institute=student_institute_detail, topic=topic,
                 start_date=start_date, end_date=end_date, bg=bg, how=how,
-                mode=mode)
+                mode=mode, weeks=weeks, logo=logo, year=year)
         create_tex = open('{0}{1}.tex'.format\
                 (certificate_path, file_name), 'w')
         create_tex.write(content_tex)
